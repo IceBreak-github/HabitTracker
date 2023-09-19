@@ -250,7 +250,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
           bool interval = true;
           bool week = false;
           bool month = false;
-          String groupValue = "Every Day";
+          String groupValue = recurrenceSet;
 
           return StatefulBuilder(
             builder: (BuildContext context, setModalState){
