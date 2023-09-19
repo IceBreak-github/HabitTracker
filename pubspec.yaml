@@ -30,8 +30,6 @@ environment:
 dependencies:
   flutter_switch: ^0.3.2
   flutter_shakemywidget: ^1.0.5+1
-  numberpicker: ^2.1.2
-  flutter_sliding_up_panel: ^2.1.1
   flutter:
     sdk: flutter
 
