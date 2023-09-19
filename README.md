@@ -1,16 +1,19 @@
-# habit_tracker
+# Habit Tracker
 
-A new Flutter project.
+Mobile app for creating new ToDo's and Habits.
 
-## Getting Started
+## Info
 
-This project is a starting point for a Flutter application.
+This app is currenly a work in progress. 
 
-A few resources to get you started if this is your first Flutter project:
+## Design Preview
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+![alt text](https://i.ibb.co/R9WyXhm/i-Phone-8-284.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![alt text](https://i.ibb.co/nmnLNdH/i-Phone-8-145.png)
+
+![alt text](https://i.ibb.co/fqfLsHR/i-Phone-8-195.png)
+
+![alt text](https://i.ibb.co/0scjJT4/i-Phone-8-178.png)
+
+
