@@ -443,12 +443,36 @@ class _NewHabitPageState extends State<NewHabitPage> {
       );
     }
 
-    var recurrenceSelect = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        
-      ),
-    );
+    recurrenceSelect() { 
+      String recurrenceTextFull;
+      int counter = 9;
+
+      if(recurrenceSet.length <= counter){
+        recurrenceTextFull = recurrenceSet.substring(0,recurrenceSet.length);
+      }
+      else{
+        recurrenceTextFull = "${recurrenceSet.substring(0,counter)}...";
+      }
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: <Widget> [
+            SizedBox(
+              width: 90,
+              child: Text(recurrenceTextFull, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))),
+            Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: Icon(
+                Icons.expand_more_rounded,
+                color: Constants().lightGrey,
+                size: 32
+              ),
+            ),
+          ]
+        ),
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -508,7 +532,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                             });
                           }),
                           widget.recurrent ? 
-                          inputWidget(text: "Recurrence:", icon: Icons.change_circle, width: 310, child: Text(recurrenceSet), onTap: (){
+                          inputWidget(text: "Recurrence:", icon: Icons.change_circle, width: 310, child: recurrenceSelect(), onTap: (){
                             recurrencePanel();
                           }) : Container()
                         ],     
