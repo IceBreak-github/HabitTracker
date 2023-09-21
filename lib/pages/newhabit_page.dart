@@ -26,6 +26,16 @@ class _NewHabitPageState extends State<NewHabitPage> {
 
   List<bool> isSelected = [true, false, false];
   String recurrenceSet = 'Every Day';
+  	
+  Map<String, bool?> weekDays = {
+    'Monday': true,
+    'Tuesday': true,
+    'Wednesday': true,
+    'Thursday': true,
+    'Friday': true,
+    'Saturday': true,
+    'Sunday': true,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +261,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
           bool week = false;
           bool month = false;
           String groupValue = recurrenceSet;
+          Map<String, bool?> _weekDays = weekDays;
+
+          double? height = 420;
 
           return StatefulBuilder(
             builder: (BuildContext context, setModalState){
@@ -282,6 +295,41 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 );
               }
 
+              buildWeekList(String day) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: SizedBox(
+                    width: 150,
+                    child: Row(
+                      children: <Widget> [
+                        Text(day, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14)),
+                        const Spacer(),
+                        SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: Checkbox(
+                            value: _weekDays[day],
+                            activeColor: Constants().primaryColor,
+                            checkColor: Constants().backgroundColor,
+                            /*
+                            fillColor: MaterialStateProperty.resolveWith((states){return Constants().backgroundColor;}),
+                            checkColor: Constants().primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(2)),
+                            */
+                            onChanged: (newBool){
+                              setModalState((){
+                                _weekDays[day] = newBool;
+                              });
+                            }
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
               var intervalPage = Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 54),
                 child: Row(
@@ -296,14 +344,25 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 ),
               );
               
-              var weekPage = Container(
-                child: const Text('Week Page')
+              var weekPage = Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 54),
+                child: Row(
+                  children: [
+                    Column(
+                      children: [
+                          const SizedBox(height: 4),
+                          for(String day in _weekDays.keys)
+                          buildWeekList(day)
+                      ],
+                    ),
+                  ],
+                ),
               );
               var monthPage = Container(
                 child: const Text('Month Page')
               );
               var recurrencePanel = SizedBox(
-                height: 420,
+                height: height,
                 child: Column(
                   children: <Widget> [
                     Row(
@@ -330,7 +389,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: [                                                                           //TODO: make tha buttons take space from the sides so the navigation is as big as tha divider below
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           child: SizedBox(
@@ -348,6 +407,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     interval = true;
                                     week = false;
                                     month = false;
+                                    height = 420;
                                   });
                                 },
                                 child: Text('Interval', style: TextStyle(color: interval ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -371,6 +431,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     interval = false;
                                     week = true;
                                     month = false;
+                                    height = 500;
                                   });
                                 },
                                 child: Text('Week', style: TextStyle(color: week ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -425,6 +486,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                 print(groupValue);
                                 setState((){
                                   recurrenceSet = groupValue;
+                                });
+                              }
+                              if(week){
+                                setState((){
+                                  recurrenceSet = 'Custom';
                                 });
                               }
                               Navigator.pop(context);
