@@ -36,6 +36,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
     'Saturday': true,
     'Sunday': true,
   };
+  
+  Map<int, bool> monthDays = {1:true};
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +135,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 print('Notify = ${notify}');
                 if(recurrenceSet == 'Custom W'){
                   print(weekDays);
+                }
+                if(recurrenceSet == 'Custom M'){
+                  print(monthDays);
                 }
                 else {
                   print(recurrenceSet);
@@ -279,6 +284,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
           String groupValue = recurrenceSet;
           Map<String, bool?> _weekDays = weekDays;
 
+          Map<int, bool> _monthDays = monthDays;
+
           double? height = 420;
 
           return StatefulBuilder(
@@ -381,20 +388,51 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     child: GridView.count(
                       crossAxisCount: 6,
                       children: List.generate(32, growable: false,(index) {
+                        bool safe;
+                        if(monthDays.containsKey(index+1)){
+                          safe = true;
+                        }
+                        else {
+                          safe = false;
+                        }
                         return Container(
                           margin: const EdgeInsets.all(5),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Constants().backgroundColor,
+                              backgroundColor: safe ? Constants().primaryColor : Constants().backgroundColor,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)
                               ),
                             ),
-                            onPressed: (){}, 
+                            onPressed: (){
+                              bool hasOtherKeys = false;
+                              if(safe){
+                                  for (var key in monthDays.keys) {
+                                    if (key != index+1) {
+                                      hasOtherKeys = true;
+                                      break; // No need to continue checking if we already found one.
+                                    }
+                                  }
+                                  if(hasOtherKeys){
+                                    setModalState((){
+                                      _monthDays.remove(index + 1);
+                                    });   
+                                  }      
+                                  else{
+                                    print('no keys');
+                                  }                    
+                              }
+                              else {
+                                setModalState((){
+                                  _monthDays.addEntries([MapEntry(index + 1, true)]);
+                                });   
+                              }
+                              print(monthDays);
+                            }, 
                             child: FittedBox(
                               fit: BoxFit.none,
-                              child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: Color.fromRGBO(183,183,183,1)))
+                              child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: safe ?Colors.black : Color.fromRGBO(183,183,183,1)))
                             )
                           ),
                         );
@@ -536,6 +574,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                               if(week){
                                 setState((){
                                   recurrenceSet = 'Custom W';
+                                });
+                              }
+                              if(month){
+                                setState((){
+                                  recurrenceSet = 'Custom M';
                                 });
                               }
                               Navigator.pop(context);
