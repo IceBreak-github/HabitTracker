@@ -19,12 +19,12 @@ class NewHabitPage extends StatefulWidget {
 
 class _NewHabitPageState extends State<NewHabitPage> {
   final formKey = GlobalKey<FormState>();
+  String? habitName;
   TimeOfDay? time;
   bool timeSet = false;
   bool notify = false;
   final shakeTimeKey = GlobalKey<ShakeWidgetState>();
 
-  List<bool> isSelected = [true, false, false];
   String recurrenceSet = 'Every Day';
   	
   Map<String, bool?> weekDays = {
@@ -124,16 +124,27 @@ class _NewHabitPageState extends State<NewHabitPage> {
               ),
             ),
             onPressed: () {
-                print(widget.habitType);
-                print(widget.trackable);
-                print(widget.recurrent);
+                print('HabitType: ${widget.habitType}');
+                print('Trackable: ${widget.trackable}');
+                print('Recurrent: ${widget.recurrent}');
+
+                print('Habitname = ${habitName}');
+                print('Time = ${time}');
+                print('Notify = ${notify}');
+                if(recurrenceSet == 'Custom W'){
+                  print(weekDays);
+                }
+                else {
+                  print(recurrenceSet);
+                }
+                
             },
             child: const Text("Save Habit", style: TextStyle(color: Colors.black, fontSize: 17, fontWeight: FontWeight.bold)),
         ),
       ),
     );
 
-    textInput({required String placeholder}){
+    textInput({required String placeholder, required String name}){
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -147,7 +158,12 @@ class _NewHabitPageState extends State<NewHabitPage> {
               hintStyle: TextStyle(color: Constants().placeHolderColor, fontWeight: FontWeight.w500, fontSize: 14),
             ),
             onChanged: (val) {
-              print(val);
+              if(name == 'Name'){
+                setState(() {
+                  habitName = val;
+                });
+              }
+              print(habitName);
             },
           ),
         ),
@@ -299,7 +315,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: SizedBox(
-                    width: 150,
+                    width: 160,
                     child: Row(
                       children: <Widget> [
                         Text(day, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14)),
@@ -312,7 +328,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                             activeColor: Constants().primaryColor,
                             checkColor: Constants().backgroundColor,
                             /*
-                            fillColor: MaterialStateProperty.resolveWith((states){return Constants().backgroundColor;}),
+                            fillColor: MaterialStateProperty.resolveWith((states){return Constants().backgroundColor;}),                  //TODO: Style tha checkbox
                             checkColor: Constants().primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(2)),
@@ -358,8 +374,33 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   ],
                 ),
               );
-              var monthPage = Container(
-                child: const Text('Month Page')
+              var monthPage = Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36),
+                  child: SizedBox(
+                    height: 290,
+                    child: GridView.count(
+                      crossAxisCount: 6,
+                      children: List.generate(32, growable: false,(index) {
+                        return Container(
+                          margin: const EdgeInsets.all(5),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Constants().backgroundColor,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                            ),
+                            onPressed: (){}, 
+                            child: FittedBox(
+                              fit: BoxFit.none,
+                              child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: Color.fromRGBO(183,183,183,1)))
+                            )
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
               );
               var recurrencePanel = SizedBox(
                 height: height,
@@ -388,12 +429,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       child: Text('Set Recurrence', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white))
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [                                                                           //TODO: make tha buttons take space from the sides so the navigation is as big as tha divider below
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20),
                           child: SizedBox(
                             height: 31,
+                            width: 83,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: interval ? Constants().secondaryColor : Constants().backgroundColor,
@@ -415,9 +457,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.only(top: 12, bottom: 12),
                           child: SizedBox(
                             height: 31,
+                            width: 83,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: week ? Constants().secondaryColor : Constants().backgroundColor,
@@ -439,9 +482,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.only(top: 12, bottom: 12, right: 20),
                           child: SizedBox(
                             height: 31,
+                            width: 83,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: month ? Constants().secondaryColor : Constants().backgroundColor,
@@ -455,6 +499,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     interval = false;
                                     week = false;
                                     month = true;
+                                    height = 500;
                                   });
                                 },
                                 child: Text('Month', style: TextStyle(color: month ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -490,7 +535,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                               }
                               if(week){
                                 setState((){
-                                  recurrenceSet = 'Custom';
+                                  recurrenceSet = 'Custom W';
                                 });
                               }
                               Navigator.pop(context);
@@ -561,7 +606,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget> [
-                          inputWidget(text: "Name:", icon: Icons.drive_file_rename_outline_rounded, width: width, child: textInput(placeholder: "e.g. Meditation"), onTap: (){}),
+                          inputWidget(text: "Name:", icon: Icons.drive_file_rename_outline_rounded, width: width, child: textInput(placeholder: "e.g. Meditation", name: 'Name'), onTap: (){}),
                           Row(
                             children: [
                               ShakeMe(
