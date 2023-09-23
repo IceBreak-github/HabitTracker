@@ -387,12 +387,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     children: [
                       const SizedBox(height: 7),
                       SizedBox(
-                      height: 305,
-                      child: GridView.count(
+                        height: null,
+                        child: GridView.count(
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisCount: 6,
+                        shrinkWrap: true, 
                         children: 
-                        List.generate(32, growable: false,(index) {
+                        List.generate(32,(index) {
                           bool safe;
                           if(monthDays.containsKey(index+1)){
                             safe = true;
@@ -442,159 +443,157 @@ class _NewHabitPageState extends State<NewHabitPage> {
                             ),
                           );
                         }),
-                      ),
-                    ),]
+                          ),
+                      ),]
                   ),
               );
-              var recurrencePanel = SizedBox(
-                height: height,
-                child: Column(
-                  children: <Widget> [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(13),   
-                          child: Container(
-                            height: 5,
-                            width: 85,
-                            decoration: const ShapeDecoration(
-                              color: Color.fromRGBO(55,55,82,1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              var recurrencePanel = Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget> [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(13),   
+                        child: Container(
+                          height: 5,
+                          width: 85,
+                          decoration: const ShapeDecoration(
+                            color: Color.fromRGBO(55,55,82,1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('Set Recurrence', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white))
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [                                                                           
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20),
+                        child: SizedBox(
+                          height: 31,
+                          width: 83,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: interval ? Constants().secondaryColor : Constants().backgroundColor,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)
+                                ),
                               ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Text('Set Recurrence', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white))
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [                                                                           
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20),
-                          child: SizedBox(
-                            height: 31,
-                            width: 83,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: interval ? Constants().secondaryColor : Constants().backgroundColor,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)
-                                  ),
-                                ),
-                                onPressed: (){
-                                  setModalState((){
-                                    interval = true;
-                                    week = false;
-                                    month = false;
-                                    height = 420;
-                                  });
-                                },
-                                child: Text('Interval', style: TextStyle(color: interval ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                            ),
+                              onPressed: (){
+                                setModalState((){
+                                  interval = true;
+                                  week = false;
+                                  month = false;
+                                  height = 420;
+                                });
+                              },
+                              child: Text('Interval', style: TextStyle(color: interval ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12, bottom: 12),
-                          child: SizedBox(
-                            height: 31,
-                            width: 83,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: week ? Constants().secondaryColor : Constants().backgroundColor,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)
-                                  ),
-                                ),
-                                onPressed: (){
-                                  setModalState((){
-                                    interval = false;
-                                    week = true;
-                                    month = false;
-                                    height = 500;
-                                  });
-                                },
-                                child: Text('Week', style: TextStyle(color: week ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12, bottom: 12, right: 20),
-                          child: SizedBox(
-                            height: 31,
-                            width: 83,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: month ? Constants().secondaryColor : Constants().backgroundColor,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)
-                                  ),
-                                ),
-                                onPressed: (){
-                                  setModalState((){
-                                    interval = false;
-                                    week = false;
-                                    month = true;
-                                    height = 540;
-                                  });
-                                },
-                                child: Text('Month', style: TextStyle(color: month ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                      child: Divider(
-                        height: 1,
-                        color: Color.fromRGBO(82,82,82,1)
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 12),
+                        child: SizedBox(
+                          height: 31,
+                          width: 83,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: week ? Constants().secondaryColor : Constants().backgroundColor,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)
+                                ),
+                              ),
+                              onPressed: (){
+                                setModalState((){
+                                  interval = false;
+                                  week = true;
+                                  month = false;
+                                  height = 500;
+                                });
+                              },
+                              child: Text('Week', style: TextStyle(color: week ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 12, right: 20),
+                        child: SizedBox(
+                          height: 31,
+                          width: 83,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: month ? Constants().secondaryColor : Constants().backgroundColor,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)
+                                ),
+                              ),
+                              onPressed: (){
+                                setModalState((){
+                                  interval = false;
+                                  week = false;
+                                  month = true;
+                                  height = 500;
+                                });
+                              },
+                              child: Text('Month', style: TextStyle(color: month ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    child: Divider(
+                      height: 1,
+                      color: Color.fromRGBO(82,82,82,1)
                     ),
-                    interval ? intervalPage : Container(),
-                    week ? weekPage : Container(),
-                    month ? monthPage : Container(),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 30, bottom: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            child: Text('SAVE', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Constants().primaryColor)),
-                            onTap: (){
-                              if(interval){
-                                print(groupValue);
-                                setState((){
-                                  recurrenceSet = groupValue;
-                                });
-                              }
-                              if(week){
-                                setState((){
-                                  recurrenceSet = 'Custom W.';
-                                });
-                              }
-                              if(month){
-                                setState((){
-                                  recurrenceSet = 'Custom M.';
-                                });
-                              }
-                              Navigator.pop(context);
+                  ),
+                  interval ? intervalPage : Container(),
+                  week ? weekPage : Container(),
+                  month ? monthPage : Container(),
+                  
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30, bottom: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          child: Text('SAVE', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Constants().primaryColor)),
+                          onTap: (){
+                            if(interval){
+                              print(groupValue);
+                              setState((){
+                                recurrenceSet = groupValue;
+                              });
                             }
-                          ),
-                        ]
-                      ),
+                            if(week){
+                              setState((){
+                                recurrenceSet = 'Custom W.';
+                              });
+                            }
+                            if(month){
+                              setState((){
+                                recurrenceSet = 'Custom M.';
+                              });
+                            }
+                            Navigator.pop(context);
+                          }
+                        ),
+                      ]
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
               return recurrencePanel;
             }
