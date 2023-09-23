@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/pages/today_page.dart';
+import 'package:intl/intl.dart';
 
 import '../shared/constants.dart';
 import '../widgets/checkbox_widgets.dart';
@@ -43,6 +44,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
   Map<int, bool> monthDays = {1:true};
   double? goal;
   String? unit;
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +234,25 @@ class _NewHabitPageState extends State<NewHabitPage> {
           SizedBox(
             width: 36,
             child: Text(timeSet ? "${time!.hour.toString()}:${time!.minute.toString()}" : "time", style: TextStyle(color: timeSet ?Colors.white : Constants().placeHolderColor, fontSize: 14, fontWeight: FontWeight.w500))),
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Icon(
+              Icons.expand_more_rounded,
+              color: Constants().lightGrey,
+              size: 32
+            ),
+          ),
+        ]
+      ),
+    );
+    
+    var dateSelect = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: <Widget> [
+          SizedBox(
+            width: 78,
+            child: Text("${DateFormat('yyyy/MM/dd').format(selectedDate)}", style: const TextStyle(color: Colors.white , fontSize: 14, fontWeight: FontWeight.w500))),
           Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Icon(
@@ -745,7 +767,43 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           widget.recurrent ? 
                           inputWidget(text: "Recurrence:", icon: Icons.change_circle, width: 310, child: recurrenceSelect(), onTap: (){
                             recurrencePanel();
-                          }) : Container(),                //TODO what if not recurrent
+                          }) : inputWidget(text: 'Date: ', icon: Icons.calendar_month, width: 275, child: dateSelect, onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2018),
+                                lastDate: DateTime(2050),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: ThemeData.dark().copyWith(
+                                      colorScheme: ColorScheme.dark(
+                                        onPrimary: Colors.black, // selected text color
+                                        onSurface: Colors.white,
+                                        primary: Constants().primaryColor,
+                                        surface: Constants().backgroundColor,
+                                      ),
+                                      dialogBackgroundColor: Constants().widgetColor,
+                                      textButtonTheme: TextButtonThemeData(
+                                        style: TextButton.styleFrom(
+                                          textStyle: TextStyle(
+                                            color: Constants().primaryColor,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                          foregroundColor: Constants().primaryColor, // color of button's letters
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!
+                                  );
+                                },
+                              ); 
+                              if(pickedDate != null){
+                                setState(() {
+                                  selectedDate = pickedDate;
+                                });
+                              }
+                          }),                
                           widget.habitType == "Measurement" ? ShakeMe(
                             key: shakeGoalKey,
                             shakeCount: 3,
