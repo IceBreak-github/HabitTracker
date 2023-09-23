@@ -24,6 +24,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
   bool timeSet = false;
   bool notify = false;
   final shakeTimeKey = GlobalKey<ShakeWidgetState>();
+  final shakeNameKey = GlobalKey<ShakeWidgetState>();
+  final shakeGoalKey = GlobalKey<ShakeWidgetState>();
+  final shakeUnitKey = GlobalKey<ShakeWidgetState>();
 
   String recurrenceSet = 'Every Day';
   	
@@ -38,6 +41,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
   };
   
   Map<int, bool> monthDays = {1:true};
+  double? goal;
+  String? unit;
 
   @override
   Widget build(BuildContext context) {
@@ -126,21 +131,45 @@ class _NewHabitPageState extends State<NewHabitPage> {
               ),
             ),
             onPressed: () {
-                print('HabitType: ${widget.habitType}');
-                print('Trackable: ${widget.trackable}');
-                print('Recurrent: ${widget.recurrent}');
+                //print('HabitType: ${widget.habitType}');
+                //print('Trackable: ${widget.trackable}');
+                //print('Recurrent: ${widget.recurrent}');
 
-                print('Habitname = ${habitName}');
-                print('Time = ${time}');
-                print('Notify = ${notify}');
+                //print('Habitname = ${habitName}');
+                //print('Time = ${time}');
+                //print('Notify = ${notify}');
+                /*
                 if(recurrenceSet == 'Custom W.'){
-                  print(weekDays);
+                  //print(weekDays);
                 }
                 if(recurrenceSet == 'Custom M.'){
-                  print(monthDays);
+                  //print(monthDays);
                 }
                 else {
-                  print(recurrenceSet);
+                  //print(recurrenceSet);
+                }
+                */
+                print(goal);
+                if(widget.habitType == 'Measurement'){
+                  if(habitName == null || habitName == ''){
+                    shakeNameKey.currentState?.shake();
+                  }
+                  if(goal == null || goal == 0){
+                    shakeGoalKey.currentState?.shake();
+                    print('test');
+                  }
+                  if(unit == null || unit == ''){
+                    shakeUnitKey.currentState?.shake();
+                  }
+                  else{
+                    print(goal);
+                  }
+
+                }
+                if(widget.habitType == 'Yes or No'){
+                  if(habitName == null){
+                    shakeNameKey.currentState?.shake();
+                  }                  
                 }
                 
             },
@@ -154,6 +183,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: TextFormField(
+            keyboardType: name=='Goal' ? TextInputType.number : TextInputType.text,
             cursorColor: Constants().secondaryColor,
             style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
@@ -168,7 +198,26 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   habitName = val;
                 });
               }
-              print(habitName);
+              if(name == 'Goal'){
+                if(val == ''){
+                  setState(() {
+                    goal = null;
+                  });
+                }
+                else {
+                  setState(() {
+                    goal = double.parse(val);
+                  });  
+                }
+              }
+              if(name == 'Unit'){
+                setState(() {
+                  unit = val;
+                });
+              }
+              //print(habitName);
+              //print(goal);
+              //print(unit);
             },
           ),
         ),
@@ -286,7 +335,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
 
           Map<int, bool> _monthDays = monthDays;
 
-          double? height = 420;
 
           return StatefulBuilder(
             builder: (BuildContext context, setModalState){
@@ -335,7 +383,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                             activeColor: Constants().primaryColor,
                             checkColor: Constants().backgroundColor,
                             /*
-                            fillColor: MaterialStateProperty.resolveWith((states){return Constants().backgroundColor;}),                  //TODO: Style tha checkbox
+                            fillColor: MaterialStateProperty.resolveWith((states){return Constants().backgroundColor;}),               
                             checkColor: Constants().primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(2)),
@@ -426,7 +474,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       });   
                                     }      
                                     else{
-                                      print('no keys');
+                                      //print('no keys');
                                     }                    
                                 }
                                 else {
@@ -434,11 +482,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     _monthDays.addEntries([MapEntry(index + 1, true)]);
                                   });   
                                 }
-                                print(monthDays);
+                                //print(monthDays);
                               }, 
                               child: FittedBox(
                                 fit: BoxFit.none,
-                                child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: safe ?Colors.black : Color.fromRGBO(183,183,183,1)))
+                                child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: safe ?Colors.black : const Color.fromRGBO(183,183,183,1)))
                               )
                             ),
                           );
@@ -493,7 +541,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                   interval = true;
                                   week = false;
                                   month = false;
-                                  height = 420;
                                 });
                               },
                               child: Text('Interval', style: TextStyle(color: interval ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -518,7 +565,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                   interval = false;
                                   week = true;
                                   month = false;
-                                  height = 500;
                                 });
                               },
                               child: Text('Week', style: TextStyle(color: week ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -543,7 +589,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                   interval = false;
                                   week = false;
                                   month = true;
-                                  height = 500;
                                 });
                               },
                               child: Text('Month', style: TextStyle(color: month ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -572,7 +617,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           child: Text('SAVE', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Constants().primaryColor)),
                           onTap: (){
                             if(interval){
-                              print(groupValue);
+                              //print(groupValue);
                               setState((){
                                 recurrenceSet = groupValue;
                               });
@@ -634,12 +679,12 @@ class _NewHabitPageState extends State<NewHabitPage> {
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: appBar,
+      bottomNavigationBar: submitButton,
       body: Stack(
         children: <Widget> [
           Column(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Expanded(
                 child: GestureDetector(
@@ -654,7 +699,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget> [
-                          inputWidget(text: "Name:", icon: Icons.drive_file_rename_outline_rounded, width: width, child: textInput(placeholder: "e.g. Meditation", name: 'Name'), onTap: (){}),
+                          ShakeMe(
+                            key: shakeNameKey,
+                            shakeCount: 3,
+                            shakeOffset: 8,
+                            shakeDuration: const Duration(milliseconds: 500),
+                            child: inputWidget(text: "Name:", icon: Icons.drive_file_rename_outline_rounded, width: width, child: textInput(placeholder: "e.g. Meditation", name: 'Name'), onTap: (){})
+                          ),
                           Row(
                             children: [
                               ShakeMe(
@@ -677,7 +728,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       timeSet = true;
                                       notify = true;
                                     });
-                                    print(time);
+                                    //print(time);
                                   }
                                 }),
                               ),
@@ -694,7 +745,23 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           widget.recurrent ? 
                           inputWidget(text: "Recurrence:", icon: Icons.change_circle, width: 310, child: recurrenceSelect(), onTap: (){
                             recurrencePanel();
-                          }) : Container()
+                          }) : Container(),                //TODO what if not recurrent
+                          widget.habitType == "Measurement" ? ShakeMe(
+                            key: shakeGoalKey,
+                            shakeCount: 3,
+                            shakeOffset: 8,
+                            shakeDuration: const Duration(milliseconds: 500),
+                            child: inputWidget(text: 'Goal:', icon: Icons.stars, width: 190, child: textInput(placeholder: "e.g. 10", name: 'Goal'), onTap: (){
+                            }),
+                          ) : Container(), 
+                          widget.habitType == "Measurement" ? ShakeMe(
+                            key: shakeUnitKey,
+                            shakeCount: 3,
+                            shakeOffset: 8,
+                            shakeDuration: const Duration(milliseconds: 500),
+                            child: inputWidget(text: 'Unit:', icon: Icons.scale_rounded, width: 240, child: textInput(placeholder: "e.g. minutes", name: 'Unit'), onTap: (){
+                            }),
+                          ) : Container(), 
                         ],     
                       ), 
                     ),
@@ -702,7 +769,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 ),
               ),
             ),
-            submitButton
+            
           ]
           ),
         ],
