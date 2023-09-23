@@ -25,7 +25,7 @@ class TodayPage extends StatelessWidget {
               icon: const Icon(Icons.search_rounded), 
             ),
             Padding(
-              padding: EdgeInsets.only(right: 9),
+              padding: const EdgeInsets.only(right: 9),
                   child: IconButton(onPressed: () {
                 //TODO: Implement filter 
                 },
@@ -81,13 +81,13 @@ class TodayPage extends StatelessWidget {
 
     return Scaffold(
       appBar: appBar,
-      body: Stack(
+      body: const Stack(
         children: <Widget> [
 
         ],
       ),
       floatingActionButton: Padding(
-        padding: EdgeInsets.all(9),
+        padding: const EdgeInsets.all(9),
         child: SizedBox(
           height: 60,   //50
           width: 60,      //50
@@ -105,7 +105,7 @@ class TodayPage extends StatelessWidget {
             ),
           )),
       ),
-      drawer: Drawer(),
+      drawer: const Drawer(),
     );
   }
 }

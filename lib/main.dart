@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           states.contains(MaterialState.selected) ? Constants().backgroundColor : Constants().backgroundColor),
       hourMinuteTextColor: MaterialStateColor.resolveWith(
           (states) => states.contains(MaterialState.selected) ? Constants().primaryColor : Colors.white),
-      dialHandColor: Color.fromRGBO(39,39,51,1),
+      dialHandColor: const Color.fromRGBO(39,39,51,1),
       dialBackgroundColor: Constants().backgroundColor,
       hourMinuteTextStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       dayPeriodTextStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
     ),
       ),
       debugShowCheckedModeBanner: false,
-      home: TodayPage(),
+      home: const TodayPage(),
     );
   }
 }

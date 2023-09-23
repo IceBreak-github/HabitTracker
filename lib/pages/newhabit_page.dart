@@ -133,10 +133,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 print('Habitname = ${habitName}');
                 print('Time = ${time}');
                 print('Notify = ${notify}');
-                if(recurrenceSet == 'Custom W'){
+                if(recurrenceSet == 'Custom W.'){
                   print(weekDays);
                 }
-                if(recurrenceSet == 'Custom M'){
+                if(recurrenceSet == 'Custom M.'){
                   print(monthDays);
                 }
                 else {
@@ -382,62 +382,68 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 ),
               );
               var monthPage = Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36),
-                  child: SizedBox(
-                    height: 290,
-                    child: GridView.count(
-                      crossAxisCount: 6,
-                      children: List.generate(32, growable: false,(index) {
-                        bool safe;
-                        if(monthDays.containsKey(index+1)){
-                          safe = true;
-                        }
-                        else {
-                          safe = false;
-                        }
-                        return Container(
-                          margin: const EdgeInsets.all(5),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: safe ? Constants().primaryColor : Constants().backgroundColor,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
+                  padding: const EdgeInsets.symmetric(horizontal: 53),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 7),
+                      SizedBox(
+                      height: 305,
+                      child: GridView.count(
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 6,
+                        children: 
+                        List.generate(32, growable: false,(index) {
+                          bool safe;
+                          if(monthDays.containsKey(index+1)){
+                            safe = true;
+                          }
+                          else {
+                            safe = false;
+                          }
+                          return Container(
+                            margin: const EdgeInsets.all(5),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: safe ? Constants().primaryColor : Constants().backgroundColor,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)
+                                ),
                               ),
-                            ),
-                            onPressed: (){
-                              bool hasOtherKeys = false;
-                              if(safe){
-                                  for (var key in monthDays.keys) {
-                                    if (key != index+1) {
-                                      hasOtherKeys = true;
-                                      break; // No need to continue checking if we already found one.
+                              onPressed: (){
+                                bool hasOtherKeys = false;
+                                if(safe){
+                                    for (var key in monthDays.keys) {
+                                      if (key != index+1) {
+                                        hasOtherKeys = true;
+                                        break; // No need to continue checking if we already found one.
+                                      }
                                     }
-                                  }
-                                  if(hasOtherKeys){
-                                    setModalState((){
-                                      _monthDays.remove(index + 1);
-                                    });   
-                                  }      
-                                  else{
-                                    print('no keys');
-                                  }                    
-                              }
-                              else {
-                                setModalState((){
-                                  _monthDays.addEntries([MapEntry(index + 1, true)]);
-                                });   
-                              }
-                              print(monthDays);
-                            }, 
-                            child: FittedBox(
-                              fit: BoxFit.none,
-                              child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: safe ?Colors.black : Color.fromRGBO(183,183,183,1)))
-                            )
-                          ),
-                        );
-                      }),
-                    ),
+                                    if(hasOtherKeys){
+                                      setModalState((){
+                                        _monthDays.remove(index + 1);
+                                      });   
+                                    }      
+                                    else{
+                                      print('no keys');
+                                    }                    
+                                }
+                                else {
+                                  setModalState((){
+                                    _monthDays.addEntries([MapEntry(index + 1, true)]);
+                                  });   
+                                }
+                                print(monthDays);
+                              }, 
+                              child: FittedBox(
+                                fit: BoxFit.none,
+                                child: Text('${index + 1}', maxLines: 1,style: TextStyle(fontSize: 11, color: safe ?Colors.black : Color.fromRGBO(183,183,183,1)))
+                              )
+                            ),
+                          );
+                        }),
+                      ),
+                    ),]
                   ),
               );
               var recurrencePanel = SizedBox(
@@ -468,7 +474,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [                                                                           //TODO: make tha buttons take space from the sides so the navigation is as big as tha divider below
+                      children: [                                                                           
                         Padding(
                           padding: const EdgeInsets.only(top: 12, bottom: 12, left: 20),
                           child: SizedBox(
@@ -537,7 +543,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     interval = false;
                                     week = false;
                                     month = true;
-                                    height = 500;
+                                    height = 540;
                                   });
                                 },
                                 child: Text('Month', style: TextStyle(color: month ? Colors.black : Constants().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
@@ -573,12 +579,12 @@ class _NewHabitPageState extends State<NewHabitPage> {
                               }
                               if(week){
                                 setState((){
-                                  recurrenceSet = 'Custom W';
+                                  recurrenceSet = 'Custom W.';
                                 });
                               }
                               if(month){
                                 setState((){
-                                  recurrenceSet = 'Custom M';
+                                  recurrenceSet = 'Custom M.';
                                 });
                               }
                               Navigator.pop(context);
@@ -662,6 +668,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                 // Add the child widget that will be animated
                                 child: inputWidget(text: "Time:", icon: Icons.watch_later, width: 230, child: timeSelect, onTap: () async {
                                   TimeOfDay? newTime = await showTimePicker(
+                                    initialEntryMode: TimePickerEntryMode.dialOnly,
                                     context: context,
                                     initialTime: const TimeOfDay(hour: 12, minute: 12),
                                   );
