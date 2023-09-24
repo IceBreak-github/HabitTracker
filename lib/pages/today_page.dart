@@ -63,7 +63,7 @@ class TodayPage extends StatelessWidget {
                 builder: (context) {                           
                   var width = MediaQuery.of(context).size.width;
                   return SizedBox(
-                    height: 400,
+                    height: 355,
                     width: width - 50,
                     child: const Padding(
                       padding: EdgeInsets.all(15),

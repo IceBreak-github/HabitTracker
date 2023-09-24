@@ -92,7 +92,6 @@ class _CheckBoxState extends State<HabitSettings> {
       children: <Widget>[
         habitType('Measurement', Icons.scale_rounded),
         habitType('Yes or No', Icons.flaky_rounded),
-        habitType('Question', Icons.help_rounded),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: Divider(

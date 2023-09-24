@@ -152,20 +152,18 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   //print(recurrenceSet);
                 }
                 */
-                print(goal);
+                
                 if(widget.habitType == 'Measurement'){
                   if(habitName == null || habitName == ''){
                     shakeNameKey.currentState?.shake();
                   }
                   if(goal == null || goal == 0){
                     shakeGoalKey.currentState?.shake();
-                    print('test');
                   }
                   if(unit == null || unit == ''){
                     shakeUnitKey.currentState?.shake();
                   }
                   else{
-                    print(goal);
                   }
 
                 }
@@ -252,7 +250,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
         children: <Widget> [
           SizedBox(
             width: 78,
-            child: Text("${DateFormat('yyyy/MM/dd').format(selectedDate)}", style: const TextStyle(color: Colors.white , fontSize: 14, fontWeight: FontWeight.w500))),
+            child: Text(DateFormat('yyyy/MM/dd').format(selectedDate), style: const TextStyle(color: Colors.white , fontSize: 14, fontWeight: FontWeight.w500))),
           Padding(
             padding: const EdgeInsets.only(left: 20),
             child: Icon(
