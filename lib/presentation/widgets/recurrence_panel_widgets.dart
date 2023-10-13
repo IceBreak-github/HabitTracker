@@ -237,12 +237,20 @@ class RecurrenceSelect extends StatelessWidget {
   Widget build(BuildContext context) {
   return BlocBuilder<HabitFormCubit, HabitFormState>(
       builder: (context, state) {
+        String recurrenceTextFull;
+        int counter = 9;
+        if(state.recurrenceSet.length <= counter){
+          recurrenceTextFull = state.recurrenceSet.substring(0,state.recurrenceSet.length);
+        }
+        else{
+          recurrenceTextFull = "${state.recurrenceSet.substring(0,counter)}...";
+        }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(children: <Widget>[
             SizedBox(
                 width: 90,
-                child: Text(state.recurrenceSet,
+                child: Text(recurrenceTextFull,
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,

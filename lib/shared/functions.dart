@@ -72,7 +72,6 @@ recurrencePanel(BuildContext context) {
             ),
           ),
           builder: (BuildContext innercontext) {
-            
             var recurrencePanel = Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
