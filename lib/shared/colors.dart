@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Constants {
+class MyColors {
   final backgroundColor = const Color.fromRGBO(18,18,25,1);          //default was 23,23,30
   final primaryColor = const Color.fromRGBO(0,255,193,1);
   final secondaryColor = const Color.fromRGBO(144, 255, 228, 1);
