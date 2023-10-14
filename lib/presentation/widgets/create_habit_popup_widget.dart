@@ -9,6 +9,49 @@ import '../../logic/cubits/habit_recurrence_cubit.dart';
 import '../../logic/cubits/habit_setting_cubit.dart';
 import '../pages/newhabit_page.dart';
 
+createHabitPopUp(BuildContext context) {
+  showDialog(
+      barrierDismissible: true,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "Create a Habit",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 17, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0))),
+          backgroundColor: MyColors().widgetColor,
+          titlePadding: const EdgeInsets.only(top: 40),
+          insetPadding: EdgeInsets.zero,
+          contentPadding: const EdgeInsets.only(top: 15),
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          content: Builder(
+            builder: (context) {
+              var width = MediaQuery.of(context).size.width;
+              return SizedBox(
+                height: 355,
+                width: width - 50,
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider<HabitSettingCubit>(
+                        create: (context) => HabitSettingCubit(),
+                      ),
+                    ],
+                    child: const HabitSettingsWindow(),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      });
+}
+
 class HabitSetting extends StatelessWidget {
   // sets the habit to recurrent and trackable
   final bool value;
