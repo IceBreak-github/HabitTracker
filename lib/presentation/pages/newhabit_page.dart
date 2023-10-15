@@ -45,6 +45,15 @@ class _NewHabitPageState extends State<NewHabitPage> {
           onPressed: () {
             final habitFormState = context.read<HabitFormCubit>().state;
             final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
+            String? time;
+            if(habitFormState.time == null){
+              time = null;
+              print('IT IS NULL');
+            }
+            else{
+              time = "${habitFormState.time!.hour}:${habitFormState.time!.minute}";
+            }
+
             if (widget.habitType == 'Measurement') {
               if (habitFormState.habitName == null ||
                   habitFormState.habitName!.trim().isEmpty) {
@@ -59,9 +68,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 if (!widget.recurrent) {
                   boxHabits.add(
                     Habit(
-                      habitType: 'Yes or No', 
+                      habitType: 'Measurement', 
                       name: habitFormState.habitName!, 
-                      time: "${habitFormState.time}", 
+                      time: time, 
                       notify: habitFormState.notify, 
                       date: "${habitFormState.selectedDate}",
                       goal: habitFormState.goal,
@@ -79,9 +88,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   boxHabits.add(
                     Habit(
-                      habitType: 'Yes or No', 
+                      habitType: 'Measurement', 
                       name: habitFormState.habitName!, 
-                      time: "${habitFormState.time}", 
+                      time: time, 
                       notify: habitFormState.notify, 
                       recurrence: recurrence,
                       goal: habitFormState.goal,
@@ -98,7 +107,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: "${habitFormState.time}", notify: habitFormState.notify, date: "${habitFormState.selectedDate}"));
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, date: "${habitFormState.selectedDate}"));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
@@ -108,7 +117,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   if(habitFormState.recurrenceSet == 'Custom M.'){
                     recurrence = habitRecurrenceState.monthDays;
                   }
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: "${habitFormState.time}", notify: habitFormState.notify, recurrence: recurrence));
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: recurrence));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
