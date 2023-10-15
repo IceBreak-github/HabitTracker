@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:habit_tracker/shared/themes.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+Future<void> main() async{
+  await Hive.initFlutter();
+  Hive.registerAdapter(HabitAdapter());
+  boxHabits = await Hive.openBox<Habit>('habitBox');
   runApp(const MyApp());
 }
 

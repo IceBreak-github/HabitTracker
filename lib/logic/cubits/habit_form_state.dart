@@ -36,7 +36,7 @@ class HabitFormState extends Equatable {
   HabitFormState copyWith({
     String? habitName,
     bool? notify,
-    String? recurrenceSet = 'Every Day',
+    String? recurrenceSet,
     double? goal,
     String? unit,
     DateTime? selectedDate,

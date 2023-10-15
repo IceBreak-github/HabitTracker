@@ -193,7 +193,7 @@ recurrencePanel(BuildContext context) {
                   },
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 30, bottom: 30),
+                  padding: const EdgeInsets.only(right: 30, bottom: 20),
                   child:
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                       SaveRecurrenceButton(onTap: (){
@@ -462,8 +462,8 @@ class SaveRecurrenceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+    return TextButton(
+      onPressed: onTap,
       child: Text('SAVE',
           style: TextStyle(
               fontSize: 14,

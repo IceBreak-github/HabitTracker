@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
+import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
+import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
+import 'package:habit_tracker/presentation/pages/home_page.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 //import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
 //import 'package:habit_tracker/presentation/widgets/button_widgets.dart';
 
@@ -39,25 +43,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
           text: 'Save Habit',
           width: MediaQuery.of(context).size.width,
           onPressed: () {
-            //print('HabitType: ${widget.habitType}');
-            //print('Trackable: ${widget.trackable}');
-            //print('Recurrent: ${widget.recurrent}');
-
-            //print('Habitname = ${habitName}');
-            //print('Time = ${time}');
-            //print('Notify = ${notify}');
-            /*
-                if(recurrenceSet == 'Custom W.'){
-                  //print(weekDays);
-                }
-                if(recurrenceSet == 'Custom M.'){
-                  //print(monthDays);
-                }
-                else {
-                  //print(recurrenceSet);
-                }
-                */
             final habitFormState = context.read<HabitFormCubit>().state;
+            final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
             if (widget.habitType == 'Measurement') {
               if (habitFormState.habitName == null ||
                   habitFormState.habitName!.trim().isEmpty) {
@@ -70,20 +57,38 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeUnitKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  //print(habitFormState.habitName);
-                  //print(habitFormState.time);
-                  //print(habitFormState.notify);
-                  //print(habitFormState.selectedDate);
-                  //print(habitFormState.goal);
-                  //print(habitFormState.unit);
+                  boxHabits.add(
+                    Habit(
+                      habitType: 'Yes or No', 
+                      name: habitFormState.habitName!, 
+                      time: "${habitFormState.time}", 
+                      notify: habitFormState.notify, 
+                      date: "${habitFormState.selectedDate}",
+                      goal: habitFormState.goal,
+                      unit: habitFormState.unit,
+                      )
+                    );
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
-                  //print(habitFormState.habitName);
-                  //print(habitFormState.time);
-                  //print(habitFormState.notify);
-
-                  //print(habitFormState.goal);
-                  //print(habitFormState.unit);
-                  //print(habitFormState.recurrenceSet);
+                  dynamic recurrence = habitFormState.recurrenceSet;
+                  if(habitFormState.recurrenceSet == 'Custom W.'){
+                    recurrence = habitRecurrenceState.weekDays;
+                  }
+                  if(habitFormState.recurrenceSet == 'Custom M.'){
+                    recurrence = habitRecurrenceState.monthDays;
+                  }
+                  boxHabits.add(
+                    Habit(
+                      habitType: 'Yes or No', 
+                      name: habitFormState.habitName!, 
+                      time: "${habitFormState.time}", 
+                      notify: habitFormState.notify, 
+                      recurrence: recurrence,
+                      goal: habitFormState.goal,
+                      unit: habitFormState.unit,
+                    )
+                  );
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
             }
@@ -93,15 +98,18 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  //print(habitFormState.habitName);
-                  //print(habitFormState.time);
-                  //print(habitFormState.notify);
-                  //print(habitFormState.selectedDate);
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: "${habitFormState.time}", notify: habitFormState.notify, date: "${habitFormState.selectedDate}"));
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
-                  //print(habitFormState.habitName);
-                  //print(habitFormState.time);
-                  //print(habitFormState.notify);
-                  //print(habitFormState.recurrenceSet);
+                  dynamic recurrence = habitFormState.recurrenceSet;
+                  if(habitFormState.recurrenceSet == 'Custom W.'){
+                    recurrence = habitRecurrenceState.weekDays;
+                  }
+                  if(habitFormState.recurrenceSet == 'Custom M.'){
+                    recurrence = habitRecurrenceState.monthDays;
+                  }
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: "${habitFormState.time}", notify: habitFormState.notify, recurrence: recurrence));
+                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
             }
