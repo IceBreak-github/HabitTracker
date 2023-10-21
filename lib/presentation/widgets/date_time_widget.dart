@@ -78,7 +78,9 @@ class _DateTimeLineState extends State<DateTimeLine> {
           width: 47,
           decoration: BoxDecoration(
               color: MyColors().widgetColor,
-              borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(10),
+              border: (!isSelected && DateFormat('EEEE, d MMM, yyyy').format(DateTime.now()) == DateFormat('EEEE, d MMM, yyyy').format(dateTime)) ? Border.all(color: MyColors().secondaryColor, width: 1) : null
+              ),
           child: Column(
             children: [
               Padding(

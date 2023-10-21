@@ -8,6 +8,8 @@ import 'package:habit_tracker/shared/themes.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'logic/cubits/date_select_cubit_cubit.dart';
+
 Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(HabitAdapter());
@@ -20,22 +22,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Habit Tracker",
-      theme: ThemeData(
-        fontFamily: 'Montserrat',
-        scaffoldBackgroundColor: MyColors().backgroundColor,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        timePickerTheme: MyThemes().timePickerTheme,
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: MyColors().primaryColor,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DateSelectCubit>(
+          create: (context) => DateSelectCubit(),
+        ),
+      ],
+      child: MaterialApp(
+        title: "Habit Tracker",
+        theme: ThemeData(
+          fontFamily: 'Montserrat',
+          scaffoldBackgroundColor: MyColors().backgroundColor,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          timePickerTheme: MyThemes().timePickerTheme,
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: MyColors().primaryColor,
+            ),
           ),
         ),
+        debugShowCheckedModeBanner: false,
+        home: const HomePage(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: const HomePage(),
     );
   }
 }
