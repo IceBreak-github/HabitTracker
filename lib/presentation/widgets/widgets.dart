@@ -185,7 +185,7 @@ class TextInput extends StatelessWidget {
               isDense: true,
               border: InputBorder.none,
               hintText: placeholder,
-              hintStyle: TextStyle(
+              hintStyle: TextStyle( 
                   color: MyColors().placeHolderColor,
                   fontWeight: FontWeight.w500,
                   fontSize: 14),
@@ -277,7 +277,7 @@ class DateSelect extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(children: <Widget>[
             SizedBox(
-                width: 78,
+                width: 76,
                 child: Text(
                     DateFormat('yyyy/MM/dd').format(state.selectedDate!),
                     style: const TextStyle(

@@ -17,6 +17,7 @@ class HabitRecurrenceCubit extends Cubit<HabitRecurrenceState> {
       },
     monthDays: {1: true},
     pages: {'interval': true, 'week': false, 'month' : false},
+    //intervalValues: {'Days': '3', 'Weeks' : '2', 'Months' : '1'},
   ));
   
   void setWeekDayValue(String day, bool value){
@@ -63,5 +64,13 @@ void setPages(Map<String, bool> savedState) {
 void setRecurrenceValue(String value){
   emit(state.copyWith(recurrenceValue: value));
 }
+
+/*
+void changeIntervalValue(String key, String value){
+    final Map<String, String> updatedIntervalValues = Map.from(state.intervalValues);
+    updatedIntervalValues[key] = value;
+    emit(state.copyWith(intervalValues: updatedIntervalValues));
+}
+*/
   
 }

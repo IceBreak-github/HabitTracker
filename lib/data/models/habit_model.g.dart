@@ -22,7 +22,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
       time: fields[2] as String?,
       notify: fields[3] as bool?,
       recurrence: fields[4] as dynamic,
-      date: fields[5] as String?,
+      date: fields[5] as dynamic,
       goal: fields[6] as double?,
       unit: fields[7] as String?,
     );

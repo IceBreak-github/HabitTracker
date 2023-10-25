@@ -31,7 +31,7 @@ class Habit extends HiveObject{
   late dynamic recurrence;
 
   @HiveField(5)
-  late String? date;
+  late dynamic date;
 
   @HiveField(6)
   late double? goal;

@@ -6,6 +6,7 @@ import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
+import 'package:intl/intl.dart';
 //import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
 //import 'package:habit_tracker/presentation/widgets/button_widgets.dart';
 
@@ -48,7 +49,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
             String? time;
             if(habitFormState.time == null){
               time = null;
-              print('IT IS NULL');
             }
             else{
               time = "${habitFormState.time!.hour}:${habitFormState.time!.minute}";
@@ -72,9 +72,14 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       name: habitFormState.habitName!, 
                       time: time, 
                       notify: habitFormState.notify, 
-                      date: "${habitFormState.selectedDate}",
+                      date: {
+                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
+                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
+                      },
                       goal: habitFormState.goal,
                       unit: habitFormState.unit,
+                      recurrence: null,
                       )
                     );
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
@@ -86,6 +91,14 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   if(habitFormState.recurrenceSet == 'Custom M.'){
                     recurrence = habitRecurrenceState.monthDays;
                   }
+                  if(habitFormState.recurrenceSet.contains('Days')) {
+                    recurrence = {
+                      "interval" : int.parse(habitFormState.recurrenceSet.substring(6,7)),
+                      "year" :    int.parse(DateFormat('yyyy').format(DateTime.now())), 
+                      "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
+                      "day" :     int.parse(DateFormat('d').format(DateTime.now())),
+                    };
+                  }
                   boxHabits.add(
                     Habit(
                       habitType: 'Measurement', 
@@ -95,6 +108,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       recurrence: recurrence,
                       goal: habitFormState.goal,
                       unit: habitFormState.unit,
+                       date: {
+                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
+                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
+                      }
                     )
                   );
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
@@ -107,7 +125,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, date: "${habitFormState.selectedDate}"));
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: null ,date: {
+                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
+                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
+                      },));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
@@ -117,7 +139,21 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   if(habitFormState.recurrenceSet == 'Custom M.'){
                     recurrence = habitRecurrenceState.monthDays;
                   }
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: recurrence));
+                  if(habitFormState.recurrenceSet.contains('Days')) {
+                    recurrence = {
+                      "interval" : int.parse(habitFormState.recurrenceSet.substring(6,7)),
+                      "year" :    int.parse(DateFormat('yyyy').format(DateTime.now())), 
+                      "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
+                      "day" :     int.parse(DateFormat('d').format(DateTime.now())),
+                    };
+                    //recurrence = [interval, starting year, starting month, starting day]
+                  }
+                  // TODO: Add start date
+                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: recurrence,  date: {
+                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
+                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
+                      }));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
@@ -227,7 +263,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                   width: 310,
                                   child: const RecurrenceSelect(),
                                   onTap: () {
-                                    recurrencePanel(context);
+                                    recurrencePanel(context); 
                                   })
                               : InputWidget(
                                   text: 'Date: ',
@@ -328,6 +364,60 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       onTap: () {}),
                                 )
                               : Container(),
+
+                          !widget.recurrent ? Container() : 
+                            InputWidget(
+                              text: 'Start:',                     //TODO Add text "Start Today"
+                              icon: Icons.flag_circle,          //TODO Choose some apropriate icons
+                              width: 275,
+                                  child: const DateSelect(),
+                                  onTap: () async {
+                                    DateTime? pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: context
+                                          .read<HabitFormCubit>()
+                                          .state
+                                          .selectedDate!,
+                                      firstDate: DateTime(2018),
+                                      lastDate: DateTime(2050),
+                                      builder: (context, child) {
+                                        return Theme(
+                                            data: ThemeData.dark().copyWith(
+                                              colorScheme: ColorScheme.dark(
+                                                onPrimary: Colors
+                                                    .black, // selected text color
+                                                onSurface: Colors.white,
+                                                primary:
+                                                    MyColors().primaryColor,
+                                                surface:
+                                                    MyColors().backgroundColor,
+                                              ),
+                                              dialogBackgroundColor:
+                                                  MyColors().widgetColor,
+                                              textButtonTheme:
+                                                  TextButtonThemeData(
+                                                style: TextButton.styleFrom(
+                                                  textStyle: TextStyle(
+                                                    color:
+                                                        MyColors().primaryColor,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                  ),
+                                                  foregroundColor: MyColors()
+                                                      .primaryColor, // color of button's letters
+                                                ),
+                                              ),
+                                            ),
+                                            child: child!);
+                                      },
+                                    );
+                                    if (pickedDate != null) {
+                                      context
+                                          .read<HabitFormCubit>()
+                                          .setHabitDate(pickedDate);
+                                    }
+                                  }
+                            ),
                         ],
                       ),
                     ),

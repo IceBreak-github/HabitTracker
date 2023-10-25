@@ -19,7 +19,6 @@ class HomePage extends StatelessWidget {
       appBar: const HomeAppBar(),
       body: Stack(
         children: <Widget>[
-          //TODO: This is where the individuals habits will be shown
           //TODO: add progress bar
           Padding(
             padding: const EdgeInsets.only(left: 23, right: 23),
@@ -60,24 +59,45 @@ class HomePage extends StatelessWidget {
                         final dateSelectedState =
                             context.read<DateSelectCubit>().state;
                         DateTime? currentDate = dateSelectedState.selectedDate;
-                        print(habit.recurrence);
-                        
-                        if (habit.recurrence is String && habit.recurrence == 'Every Day') {
-                          show = true;
+                        if (habit.recurrence == null){
+                          if("${habit.date['year']}.${habit.date['month']}.${habit.date['day']}" == DateFormat('yyyy.MM.d').format(currentDate!)){
+                            show = true;
+                          }
                         }
-                        if (habit.recurrence is Map &&
-                            habit.recurrence.containsKey(
-                                int.parse(DateFormat('d').format(currentDate!)))) {
-                          show = true;
-                          print('yes');
-                        }
-                        if (habit.recurrence is Map && habit.recurrence.containsKey(DateFormat('EEEE').format(currentDate!)) && habit.recurrence[DateFormat('EEEE').format(currentDate)]){
-                          show = true;
-                          print('yes2');
-                        }
-                        print(show);
+                        else {
+                          if(DateTime(habit.date['year'], habit.date['month'], habit.date['day']).isBefore(currentDate!)){
+                              if (habit.recurrence is String && habit.recurrence == 'Every Day') {
+                                show = true;
+                              }
+                              if (habit.recurrence is Map &&
+                                  habit.recurrence.containsKey(
+                                      int.parse(DateFormat('d').format(currentDate)))) {
+                                show = true;
+                              }
+                              if (habit.recurrence is Map && habit.recurrence.containsKey(DateFormat('EEEE').format(currentDate)) && habit.recurrence[DateFormat('EEEE').format(currentDate)]){
+                                show = true;
+                              }
+                              if (habit.recurrence is Map && habit.recurrence.containsKey("interval")) {
+                                  DateTime startDate = DateTime(habit.recurrence["year"], habit.recurrence['month'], habit.recurrence['day']); // Replace with your starting date
+                                  Duration interval = Duration(days: habit.recurrence["interval"]);
+                                  // Calculate the difference in days between the current date and the starting date
+                                  int daysDifference = currentDate.difference(startDate).inDays;
 
-                        //TODO: Add conditions for every X days
+                                  // Check if the current date is every third day from the starting date
+                                  bool isEveryXDay = daysDifference % interval.inDays == 0;
+
+                                  if (isEveryXDay) {
+                                    show = true;
+                                  } else {
+                                    show = false;
+                                  }
+                              }
+                          }
+                          else {
+                            show = false;
+                          }
+                        
+                        }
 
                         return show ? Padding(
                           padding: const EdgeInsets.only(bottom: 30),
@@ -145,7 +165,7 @@ class HomePage extends StatelessWidget {
                                                 height: 26,
                                                 child: ElevatedButton(
                                                   onPressed:
-                                                      () {}, //TODO: create habit completion
+                                                      () {}, 
                                                   style:
                                                       ElevatedButton.styleFrom(
                                                     minimumSize: Size.zero,
@@ -264,7 +284,6 @@ class HomePage extends StatelessWidget {
             width: 60, //50
             child: FloatingActionButton(
               onPressed: () {
-                //TODO: Implement add habit
                 createHabitPopUp(context);
               },
               //elevation: 0,
