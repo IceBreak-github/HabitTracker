@@ -28,7 +28,7 @@ class HomePage extends StatelessWidget {
               child: ShaderMask(
                 shaderCallback: (Rect rect) {
                   return LinearGradient(
-                    begin: const Alignment(0.0, 0.53),
+                    begin: const Alignment(0.0, 0.59),
                     end: const Alignment(0.0, 1.0),
                     colors: [
                       Colors.transparent,
@@ -36,7 +36,7 @@ class HomePage extends StatelessWidget {
                       MyColors().backgroundColor
                     ],
                     //set stops as par your requirement
-                    stops: const [0.0, 0.5, 0.9], // 50% transparent, 50% white
+                    stops: const [0.0, 0.4, 0.95], // 50% transparent, 50% white
                   ).createShader(rect);
                 },
                 blendMode: BlendMode.dstOut,
