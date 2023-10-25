@@ -41,6 +41,7 @@ class HomePage extends StatelessWidget {
                 },
                 blendMode: BlendMode.dstOut,
                 child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 160),
                   itemCount: boxHabits.length,
                   itemBuilder: (context, index) {
                     Habit habit = boxHabits.getAt(index);
@@ -82,10 +83,10 @@ class HomePage extends StatelessWidget {
                                   Duration interval = Duration(days: habit.recurrence["interval"]);
                                   // Calculate the difference in days between the current date and the starting date
                                   int daysDifference = currentDate.difference(startDate).inDays;
-
+                
                                   // Check if the current date is every third day from the starting date
                                   bool isEveryXDay = daysDifference % interval.inDays == 0;
-
+                
                                   if (isEveryXDay) {
                                     show = true;
                                   } else {
@@ -98,7 +99,7 @@ class HomePage extends StatelessWidget {
                           }
                         
                         }
-
+                
                         return show ? Padding(
                           padding: const EdgeInsets.only(bottom: 30),
                           child: Container(
@@ -265,6 +266,7 @@ class HomePage extends StatelessWidget {
               },
             ),
           ),
+          /*
           Positioned(
               bottom: 110,
               left: 20,
@@ -274,7 +276,7 @@ class HomePage extends StatelessWidget {
                   label: const Text('Delete all'),
                   onPressed: () {
                     boxHabits.clear();
-                  })),
+                  })), */
         ],
       ),
       floatingActionButton: Padding(
