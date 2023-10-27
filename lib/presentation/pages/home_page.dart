@@ -6,15 +6,20 @@ import 'package:habit_tracker/shared/boxes.dart';
 import 'package:intl/intl.dart';
 
 import '../../logic/cubits/date_select_cubit_cubit.dart';
+import '../../logic/cubits/habit_check_cubit.dart';
 import '../../shared/colors.dart';
+import '../widgets/button_widgets.dart';
 import '../widgets/date_time_widget.dart';
 import '../widgets/widgets.dart';
+
+//TODO: when the user goes back to the home page the DateTime widget gets messed up
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    print(context.read<HabitCheckCubit>().state.isChecked);
     return Scaffold(
       appBar: const HomeAppBar(),
       body: Stack(
@@ -57,16 +62,17 @@ class HomePage extends StatelessWidget {
                     return BlocBuilder<DateSelectCubit, DateSelectState>(
                       builder: (context, state) {
                         bool show = false;
-                        final dateSelectedState =
-                            context.read<DateSelectCubit>().state;
-                        DateTime? currentDate = dateSelectedState.selectedDate;
+                        DateTime? currentDate = context.read<DateSelectCubit>().state.selectedDate;
+                        String formatedCurrentDate = DateFormat('yyyy.MM.d').format(currentDate!);
+
+                        //Logic to determine wether to show the habit of not, based on recurrence
                         if (habit.recurrence == null){
-                          if("${habit.date['year']}.${habit.date['month']}.${habit.date['day']}" == DateFormat('yyyy.MM.d').format(currentDate!)){
+                          if("${habit.date['year']}.${habit.date['month']}.${habit.date['day']}" == DateFormat('yyyy.MM.d').format(currentDate)){
                             show = true;
                           }
                         }
                         else {
-                          if(DateTime(habit.date['year'], habit.date['month'], habit.date['day']).isBefore(currentDate!)){
+                          if(DateTime(habit.date['year'], habit.date['month'], habit.date['day']).isBefore(currentDate)){
                               if (habit.recurrence is String && habit.recurrence == 'Every Day') {
                                 show = true;
                               }
@@ -84,22 +90,23 @@ class HomePage extends StatelessWidget {
                                   // Calculate the difference in days between the current date and the starting date
                                   int daysDifference = currentDate.difference(startDate).inDays;
                 
-                                  // Check if the current date is every third day from the starting date
+                                  // Check if the current date is every X day from the starting date
                                   bool isEveryXDay = daysDifference % interval.inDays == 0;
                 
                                   if (isEveryXDay) {
                                     show = true;
-                                  } else {
-                                    show = false;
-                                  }
+                                  } 
                               }
                           }
-                          else {
-                            show = false;
-                          }
-                        
                         }
-                
+                        // Logic to determine if the habit has been checked off
+                        if (habit.completionDates.containsKey(formatedCurrentDate)) {
+                          context.read<HabitCheckCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", habit.completionDates[formatedCurrentDate]!);    // updates UI
+                        }
+                        else {
+                          context.read<HabitCheckCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", false);            //TODO: if two habits have the same name, bad stuff will happen
+                        } 
+               
                         return show ? Padding(
                           padding: const EdgeInsets.only(bottom: 30),
                           child: Container(
@@ -148,25 +155,23 @@ class HomePage extends StatelessWidget {
                                             ? SizedBox(
                                                 width: 21,
                                                 height: 21,
-                                                child: ElevatedButton(
-                                                  onPressed:
-                                                      () {}, //TODO: create habit completion
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    minimumSize: Size.zero,
-                                                    backgroundColor: MyColors()
-                                                        .backgroundColor,
-                                                    elevation: 0,
-                                                    shape: const CircleBorder(),
-                                                  ),
-                                                  child: null,
-                                                ))
+                                                child: CustomCheckbox(
+                                                  name: habit.name,
+                                                  date: DateFormat('yyyy.MM.d').format(currentDate),
+                                                  onChanged: () {
+                                                    habit.completionDates[formatedCurrentDate] = !context.read<HabitCheckCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!;
+                                                    boxHabits.putAt(index, habit);
+                                                    context.read<HabitCheckCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", !context.read<HabitCheckCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!);
+                                                  },
+
+                                                ),
+                                              )
                                             : SizedBox(
                                                 width: 40,
                                                 height: 26,
                                                 child: ElevatedButton(
                                                   onPressed:
-                                                      () {}, 
+                                                      () {}, //TODO: Add the same for Measurement Habits
                                                   style:
                                                       ElevatedButton.styleFrom(
                                                     minimumSize: Size.zero,
@@ -266,7 +271,7 @@ class HomePage extends StatelessWidget {
               },
             ),
           ),
-          /*
+          
           Positioned(
               bottom: 110,
               left: 20,
@@ -276,7 +281,7 @@ class HomePage extends StatelessWidget {
                   label: const Text('Delete all'),
                   onPressed: () {
                     boxHabits.clear();
-                  })), */
+                  })), 
         ],
       ),
       floatingActionButton: Padding(

@@ -39,4 +39,6 @@ class Habit extends HiveObject{
   @HiveField(7)
   late String? unit;
 
+  @HiveField(8)
+  Map<String, bool> completionDates = {};
 }

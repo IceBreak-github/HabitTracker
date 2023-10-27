@@ -25,13 +25,13 @@ class HabitAdapter extends TypeAdapter<Habit> {
       date: fields[5] as dynamic,
       goal: fields[6] as double?,
       unit: fields[7] as String?,
-    );
+    )..completionDates = (fields[8] as Map).cast<String, bool>();
   }
 
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.habitType)
       ..writeByte(1)
@@ -47,7 +47,9 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(6)
       ..write(obj.goal)
       ..writeByte(7)
-      ..write(obj.unit);
+      ..write(obj.unit)
+      ..writeByte(8)
+      ..write(obj.completionDates);
   }
 
   @override

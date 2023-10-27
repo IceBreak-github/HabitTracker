@@ -148,7 +148,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     };
                     //recurrence = [interval, starting year, starting month, starting day]
                   }
-                  // TODO: Add start date
                   boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: recurrence,  date: {
                           "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
                           "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
