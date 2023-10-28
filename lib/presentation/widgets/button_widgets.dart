@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/shared/colors.dart';
-
-import '../../logic/cubits/habit_check_cubit.dart';
 
 class FilledRadioButton<T> extends StatelessWidget {
   final T value;
@@ -59,7 +58,7 @@ class CustomCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HabitCheckCubit, HabitCheckState>(
+    return BlocBuilder<HabitHomeCubit, HabitHomeState>(
       builder: (context, habitCheckState) {
         bool checked = habitCheckState.isChecked["${date}_$name"] ?? false;
         return InkWell(

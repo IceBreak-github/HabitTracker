@@ -3,10 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
+import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
-
-import '../../logic/cubits/date_select_cubit_cubit.dart';
 import '../pages/home_page.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -16,16 +15,16 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: 70,
-      title: BlocBuilder<DateSelectCubit, DateSelectState>(
+      title: BlocBuilder<HabitHomeCubit, HabitHomeState>(
         builder: (context, state) {
           return Text(
               DateFormat("dd.MM.yyyy").format(context
-                          .read<DateSelectCubit>()
+                          .read<HabitHomeCubit>()
                           .state
                           .selectedDate!) ==
                       DateFormat("dd.MM.yyyy").format(DateTime.now())
                   ? "Today"
-                  : DateFormat("dd.MM.yyyy").format(context.read<DateSelectCubit>().state.selectedDate!),
+                  : DateFormat("dd.MM.yyyy").format(context.read<HabitHomeCubit>().state.selectedDate!),
               style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
