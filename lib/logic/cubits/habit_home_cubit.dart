@@ -9,6 +9,8 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
     isChecked: const {}, 
     ratio: 0, 
     hasAnyHabits: true,
+    allHabits: 0,
+    countTrueValues: 0,
   ));
 
   void selectDate(DateTime date) {

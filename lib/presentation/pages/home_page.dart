@@ -18,8 +18,17 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String textValue = '0';
+    final controller = TextEditingController();
+    controller.text = textValue;
+controller.selection = TextSelection(
+    baseOffset: 0,
+    extentOffset: textValue.length,
+);
+
     return Scaffold(
       appBar: const HomeAppBar(),
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Padding(
@@ -179,7 +188,7 @@ class HomePage extends StatelessWidget {
                               "${formatedCurrentDate}_${habit.name}",
                               false); //TODO: if two habits have the same name, bad stuff will happen
                         }
-                        if(context.read<HabitHomeCubit>().state.isChecked.isEmpty){                              //This is how I am dealing with the flickering now, maybe change later
+                        if(context.read<HabitHomeCubit>().state.isChecked.isEmpty){                              //This is how I am dealing with the flickering now, maybe change
                             context.read<HabitHomeCubit>().setHasAnyHabits(false);
                         }
 
@@ -270,7 +279,88 @@ class HomePage extends StatelessWidget {
                                                           height: 26,
                                                           child: ElevatedButton(
                                                             onPressed:
-                                                                () {}, //TODO: Add the same for Measurement Habits
+                                                                () {
+                                                                  showDialog(    //TODO:  make it work, style it better, make the intial text selected when open
+                                                                      barrierDismissible: true,
+                                                                      context: context,
+                                                                      builder: (context) {
+                                                                      return AlertDialog(
+                                                                          title: const Text(
+                                                                            "Note",
+                                                                            textAlign: TextAlign.center,
+                                                                            style: TextStyle(
+                                                                                fontSize: 17, color: Colors.white, fontWeight: FontWeight.w500),
+                                                                          ),
+                                                                          shape: const RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                                                                          backgroundColor: MyColors().widgetColor,
+                                                                          titlePadding: const EdgeInsets.only(top: 27),
+                                                                          insetPadding: EdgeInsets.zero,
+                                                                          contentPadding: const EdgeInsets.only(top: 10),
+                                                                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                                                                          content: SizedBox(
+                                                                            height: 90,
+                                                                            width: 110,
+                                                                            child: Builder(
+                                                                              builder: (context) {
+                                                                                return Padding(
+                                                                                  padding: const EdgeInsets.only(bottom: 15.0),
+                                                                                  child: Row(
+                                                                                    mainAxisAlignment: MainAxisAlignment.center, 
+                                                                                    children: [
+                                                                                      Container(
+                                                                                        height: 36,
+                                                                                        width: 85,
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: MyColors().backgroundColor,
+                                                                                          borderRadius: BorderRadius.circular(5)
+                                                                                        ),
+                                                                                        child: Padding(
+                                                                                          padding: const EdgeInsets.all(9.0),
+                                                                                          child: TextFormField(
+                                                                                            controller: controller,
+                                                                                            autofocus: true,
+                                                                                            textAlign: TextAlign.center,
+                                                                                            keyboardType: TextInputType.number,
+                                                                                            cursorColor: MyColors().secondaryColor,
+                                                                                            style: const TextStyle(
+                                                                                              fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500),
+                                                                                            decoration: const InputDecoration(
+                                                                                                contentPadding: EdgeInsets.zero,
+                                                                                                isDense: true,
+                                                                                                border: InputBorder.none,
+                                                                                            ),
+                                                                                            onChanged: (value) {
+                                                                                              //TODO set logic
+                                                                                              print(value);
+                                                                                            },
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      const SizedBox(width: 35),
+                                                                                      SizedBox(
+                                                                                        height: 36,
+                                                                                        width: 75,
+                                                                                        child: ElevatedButton(
+                                                                                          style: ElevatedButton.styleFrom(
+                                                                                            backgroundColor: MyColors().primaryColor.withOpacity(0.1),
+                                                                                            elevation: 0.0,
+                                                                                            shadowColor: Colors.transparent,
+                                                                                          ),
+                                                                                          onPressed: () {},
+                                                                                          child: Text('Save', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.w500))
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                );
+                                                                              },
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      }
+                                                                  );
+                                                                }, //TODO: Add the same for Measurement Habits
                                                             style:
                                                                 ElevatedButton
                                                                     .styleFrom(
