@@ -34,11 +34,14 @@ class Habit extends HiveObject{
   late dynamic date;
 
   @HiveField(6)
-  late double? goal;
+  late int? goal;
 
   @HiveField(7)
   late String? unit;
 
   @HiveField(8)
   Map<String, bool> completionDates = {};
+
+  @HiveField(9)
+  Map<String, int> measurementValues = {};
 }

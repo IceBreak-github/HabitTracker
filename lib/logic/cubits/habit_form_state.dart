@@ -5,7 +5,7 @@ class HabitFormState extends Equatable {
   final TimeOfDay? time;
   final bool notify;
   final String recurrenceSet;
-  final double? goal;
+  final int? goal;
   final String? unit;
   final DateTime? selectedDate;
 
@@ -37,7 +37,7 @@ class HabitFormState extends Equatable {
     String? habitName,
     bool? notify,
     String? recurrenceSet,
-    double? goal,
+    int? goal,
     String? unit,
     DateTime? selectedDate,
   }){

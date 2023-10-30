@@ -27,7 +27,7 @@ class HabitFormCubit extends Cubit<HabitFormState> {
     emit(state.copyWith(notify: value));
   }
 
-  void setHabitGoal(double value) {
+  void setHabitGoal(int value) {
     emit(state.copyWith(goal: value));
   }
 

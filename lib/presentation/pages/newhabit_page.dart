@@ -335,7 +335,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                               context
                                                   .read<HabitFormCubit>()
                                                   .setHabitGoal(
-                                                      double.parse(val));
+                                                      int.parse(val));
                                             }
                                           }),
                                       onTap: () {}),

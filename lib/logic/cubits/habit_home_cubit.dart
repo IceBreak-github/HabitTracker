@@ -7,10 +7,10 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
   HabitHomeCubit() : super(HabitHomeState(
     selectedDate: DateTime.now(),
     isChecked: const {}, 
-    ratio: 0, 
+    progressBar: const {'allHabits' : 0, 'countTrueValues': 0, 'ratio': 0.0},
     hasAnyHabits: true,
-    allHabits: 0,
-    countTrueValues: 0,
+    measurementValue: 0,
+    measurementValues: const {},
   ));
 
   void selectDate(DateTime date) {
@@ -30,11 +30,31 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
   }
 
   void updateValues(int allHabits, int countTrueValues, double ratio) {
-    emit(state.copyWith(allHabits: allHabits, countTrueValues: countTrueValues, ratio: ratio));
+    final Map<String, dynamic> updatedProgressBar = Map.from(state.progressBar);
+    updatedProgressBar['allHabits'] = allHabits;
+    updatedProgressBar['countTrueValues'] = countTrueValues;
+    updatedProgressBar['ratio'] = ratio;
+    emit(state.copyWith(progressBar: updatedProgressBar));
   }
 
   void setHasAnyHabits(bool value){
     emit(state.copyWith(hasAnyHabits: value));
+  }
+
+  void changeMeasurementValue(int value){
+    emit(state.copyWith(measurementValue: value));
+  }
+
+  void setMeasurementValues(String day, int value){
+    final Map<String, int> updatedMeasurementValues = Map.from(state.measurementValues);
+    updatedMeasurementValues[day] = value;
+    emit(state.copyWith(measurementValues: updatedMeasurementValues));
+  }
+
+  void removeMeasurementValues(String keyValue) {
+    final Map<String, int> updatedMeasurementValues= Map.from(state.measurementValues);
+    updatedMeasurementValues.removeWhere((key, value) => key.startsWith(keyValue));
+    emit(state.copyWith(measurementValues: updatedMeasurementValues));
   }
 
 }
