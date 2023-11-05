@@ -367,7 +367,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                           !widget.recurrent ? Container() : 
                             InputWidget(
                               text: 'Start:',                     //TODO Add text "Start Today"
-                              icon: Icons.flag_circle,          //TODO Choose some apropriate icons
+                              icon: Icons.flag_circle,          
                               width: 275,
                                   child: const DateSelect(),
                                   onTap: () async {

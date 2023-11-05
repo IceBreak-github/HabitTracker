@@ -5,6 +5,8 @@
 library date_time_line;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:intl/intl.dart';
 
 import '../../shared/colors.dart';
@@ -32,7 +34,6 @@ class _DateTimeLineState extends State<DateTimeLine> {
   String hintText = '';
   List dates = [];
   List monthYear = [];
-  DateTime selectedDate = DateTime.now();
   Color color = const Color.fromARGB(255, 135, 194, 99);
   late ScrollController scrollController;
 
@@ -49,6 +50,7 @@ class _DateTimeLineState extends State<DateTimeLine> {
   }
 
   scrollPicker(DateTime dateTime) {
+    DateTime selectedDate = context.read<HabitHomeCubit>().state.selectedDate!;
     late bool isSelected;
 
     dateTime == selectedDate ? isSelected = true : isSelected = false;
@@ -118,6 +120,7 @@ class _DateTimeLineState extends State<DateTimeLine> {
 
   @override
   void initState() {
+    DateTime selectedDate = context.read<HabitHomeCubit>().state.selectedDate!;
     scrollController = ScrollController(
       initialScrollOffset: 845 - (widget.width - 213) * 0.49,
       keepScrollOffset: true,
