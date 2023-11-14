@@ -18,11 +18,14 @@ class NewHabitPage extends StatefulWidget {
   final String? habitType;
   final bool trackable;
   final bool recurrent;
+  final Habit? habit;
   const NewHabitPage(
       {super.key,
       required this.habitType,
       required this.trackable,
-      required this.recurrent});
+      required this.recurrent,
+      this.habit,
+      });
 
   @override
   State<NewHabitPage> createState() => _NewHabitPageState();
@@ -35,11 +38,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
   final shakeNameKey = GlobalKey<ShakeWidgetState>();
   final shakeGoalKey = GlobalKey<ShakeWidgetState>();
   final shakeUnitKey = GlobalKey<ShakeWidgetState>();
+
   @override
   Widget build(BuildContext context) {
+    bool isEditing = widget.habit != null ? true : false;
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: const NewHabitAppBar(),
+      appBar: NewHabitAppBar(habit: widget.habit),
       bottomNavigationBar: SubmitButton(
           text: 'Save Habit',
           width: MediaQuery.of(context).size.width,
@@ -47,12 +52,34 @@ class _NewHabitPageState extends State<NewHabitPage> {
             final habitFormState = context.read<HabitFormCubit>().state;
             final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
             String? time;
+            Map<String, bool> completionDates = isEditing ? widget.habit!.completionDates : {};
+            Map<String, int> measurementValues = isEditing ? widget.habit!.measurementValues : {};
+
+            Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit}) {
+              return Habit(
+                habitType: habitType, 
+                name: habitFormState.habitName!, 
+                time: time, 
+                notify: habitFormState.notify, 
+                date: {
+                    "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
+                    "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                    "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
+                },
+                goal: goal,
+                unit: unit,
+                recurrence: recurrence,
+                completionDates: completionDates,
+                measurementValues: measurementValues,
+              );
+            }
             if(habitFormState.time == null){
               time = null;
             }
             else{
               time = "${habitFormState.time!.hour}:${habitFormState.time!.minute}";
             }
+
 
             if (widget.habitType == 'Measurement') {
               if (habitFormState.habitName == null ||
@@ -66,22 +93,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeUnitKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  boxHabits.add(
-                    Habit(
-                      habitType: 'Measurement', 
-                      name: habitFormState.habitName!, 
-                      time: time, 
-                      notify: habitFormState.notify, 
-                      date: {
-                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
-                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
-                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
-                      },
-                      goal: habitFormState.goal,
-                      unit: habitFormState.unit,
-                      recurrence: null,
-                      )
-                    );
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement',recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit)) :
+                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
@@ -99,22 +112,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       "day" :     int.parse(DateFormat('d').format(DateTime.now())),
                     };
                   }
-                  boxHabits.add(
-                    Habit(
-                      habitType: 'Measurement', 
-                      name: habitFormState.habitName!, 
-                      time: time, 
-                      notify: habitFormState.notify, 
-                      recurrence: recurrence,
-                      goal: habitFormState.goal,
-                      unit: habitFormState.unit,
-                       date: {
-                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
-                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
-                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
-                      }
-                    )
-                  );
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit)) :
+                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
@@ -125,11 +124,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: null ,date: {
-                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
-                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
-                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
-                      },));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
@@ -148,11 +144,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     };
                     //recurrence = [interval, starting year, starting month, starting day]
                   }
-                  boxHabits.add(Habit(habitType: 'Yes or No', name: habitFormState.habitName!, time: time, notify: habitFormState.notify, recurrence: recurrence,  date: {
-                          "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
-                          "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
-                          "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
-                      }));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence));
                   Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
                 }
               }
@@ -184,6 +177,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                   icon: Icons.drive_file_rename_outline_rounded,
                                   width: MediaQuery.of(context).size.width,
                                   child: TextInput(
+                                      initialValue: isEditing ? widget.habit!.name : null,
                                       placeholder: "e.g. Meditation",
                                       name: 'Name',
                                       onChanged: (val) {
@@ -209,12 +203,12 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                     width: 230,
                                     child: const TimeSelect(),
                                     onTap: () async {
+                                      List<String>? timeParts = isEditing ? widget.habit!.time != null ? widget.habit!.time!.split(':') : null : null;
                                       TimeOfDay? newTime = await showTimePicker(
                                         initialEntryMode:
                                             TimePickerEntryMode.dialOnly,
                                         context: context,
-                                        initialTime: const TimeOfDay(
-                                            hour: 12, minute: 12),
+                                        initialTime: isEditing ? widget.habit!.time != null ? TimeOfDay(hour: int.parse(timeParts![0]), minute: int.parse(timeParts[1])) : const TimeOfDay(hour: 12, minute: 12) : const TimeOfDay(hour: 12, minute: 12),
                                       );
                                       if (newTime != null) {
                                         context
@@ -327,6 +321,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       icon: Icons.stars,
                                       width: 190,
                                       child: TextInput(
+                                          initialValue: isEditing ? '${widget.habit!.goal}' : null,
                                           placeholder: "e.g. 10",
                                           name: 'Goal',
                                           onChanged: (val) {
@@ -353,6 +348,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       icon: Icons.scale_rounded,
                                       width: 240,
                                       child: TextInput(
+                                          initialValue: isEditing ? widget.habit!.unit : null,
                                           placeholder: "e.g. minutes",
                                           name: 'Unit',
                                           onChanged: (val) {

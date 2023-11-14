@@ -13,7 +13,10 @@ class Habit extends HiveObject{
     this.date,
     this.goal,
     this.unit,
-  });
+    this.completionDates = const {},
+    this.measurementValues = const {},
+  }); 
+  
 
   @HiveField(0)
   late String habitType;
@@ -40,8 +43,8 @@ class Habit extends HiveObject{
   late String? unit;
 
   @HiveField(8)
-  Map<String, bool> completionDates = {};
+  Map<String, bool> completionDates;
 
   @HiveField(9)
-  Map<String, int> measurementValues = {};
+  Map<String, int> measurementValues;
 }

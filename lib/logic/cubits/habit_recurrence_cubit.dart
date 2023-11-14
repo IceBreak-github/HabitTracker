@@ -4,9 +4,13 @@ import 'package:equatable/equatable.dart';
 part 'habit_recurrence_state.dart';
 
 class HabitRecurrenceCubit extends Cubit<HabitRecurrenceState> {
-  HabitRecurrenceCubit() : super(const HabitRecurrenceState(
-    recurrenceValue: 'Every Day',
-    weekDays: {
+  final String? recurrenceValue;
+  final Map<String, bool>? weekDays;
+  final Map<int, bool>? monthDays;
+  final Map<String, bool>? pages;
+  HabitRecurrenceCubit({this.recurrenceValue, this.weekDays, this.monthDays, this.pages}) : super(HabitRecurrenceState(
+    recurrenceValue: recurrenceValue ?? 'Every Day',
+    weekDays: weekDays ?? {
         'Monday': true,
         'Tuesday': true,
         'Wednesday': true,
@@ -15,8 +19,8 @@ class HabitRecurrenceCubit extends Cubit<HabitRecurrenceState> {
         'Saturday': true,
         'Sunday': true,
       },
-    monthDays: {1: true},
-    pages: {'interval': true, 'week': false, 'month' : false},
+    monthDays: monthDays ?? {1: true},
+    pages: pages ?? {'interval': true, 'week': false, 'month' : false},
     //intervalValues: {'Days': '3', 'Weeks' : '2', 'Months' : '1'},
   ));
   

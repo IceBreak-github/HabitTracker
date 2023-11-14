@@ -5,14 +5,22 @@ import 'package:flutter/material.dart';
 part 'habit_form_state.dart';
 
 class HabitFormCubit extends Cubit<HabitFormState> {
-  HabitFormCubit() : super(HabitFormState(
-    habitName: null,
-    time: null,
-    notify: false,
-    recurrenceSet: 'Every Day',
-    goal: null,
-    unit: null,
-    selectedDate: DateTime.now(),
+  final String? habitName;
+  final TimeOfDay? time;
+  final bool? notify;
+  final String? recurrenceSet;
+  final int? goal;
+  final String? unit;
+  final DateTime? selectedDate;
+  HabitFormCubit({this.habitName, this.time, this.notify, this.recurrenceSet, this.goal, this.unit, this.selectedDate}) 
+  : super(HabitFormState(
+    habitName: habitName,
+    time: time,
+    notify: notify ?? false,
+    recurrenceSet: recurrenceSet ?? 'Every Day',
+    goal: goal,
+    unit: unit,
+    selectedDate: selectedDate ?? DateTime.now(),
   ));
 
   void setHabitName(String value) {

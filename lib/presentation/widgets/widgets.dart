@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
 import '../pages/home_page.dart';
@@ -46,13 +48,60 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 9),
-            child: IconButton(
-              onPressed: () {
-                //TODO: Implement filter
-              },
-              icon: const Icon(Icons.filter_list_rounded),
+            child: PopupMenuButton<String>(
+                color:const Color.fromRGBO(20, 20, 20, 1), 
+                icon: const Icon(Icons.filter_list_rounded, color: Colors.white),                //TODO implement ordering
+                itemBuilder: (BuildContext context) {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      enabled: false, 
+                      value: 'Order by',
+                      child: Row(
+                        children: [
+                          Text('Order Habits:', style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          /*
+                          Icon(
+                            Icons.low_priority,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          */
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'Manually',
+                      child: Row(
+                        children: [
+                          Text('Manually', style: TextStyle(color: Colors.white,  fontSize: 14)),
+                          Spacer(),
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Colors.white,
+                            size: 13,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'Alphabetically',
+                      child: Text('Alphabetically', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'By Time',
+                      child: Text('By Time', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'By Completion',
+                      child: Text('By Completion', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    ),
+
+                  ];
+                }
             ),
           ),
+          
         ]),
       ],
     );
@@ -63,14 +112,18 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const NewHabitAppBar({super.key});
+  final Habit? habit;
+  const NewHabitAppBar({
+    super.key,
+    this.habit,
+    });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: 70,
-      title: const Text("New Habit",
-          style: TextStyle(
+      title: Text(habit != null ? habit!.name : "New Habit",
+          style: const TextStyle(
               fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
       leadingWidth: 70,
       centerTitle: false,
@@ -87,6 +140,19 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
+      actions: [
+        habit != null ? Padding(
+          padding: const EdgeInsets.only(right: 9.0),
+          child: IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () {
+              boxHabits.delete(habit!.key);
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const HomePage()));
+            },
+          ),
+        ) : Container()
+      ],
     );
   }
 
@@ -161,13 +227,16 @@ class InputWidget extends StatelessWidget {
 class TextInput extends StatelessWidget {
   final String placeholder;
   final String name;
+  final String? initialValue;
   final void Function(String val) onChanged;
 
   const TextInput(
       {super.key,
       required this.placeholder,
       required this.name,
-      required this.onChanged});
+      required this.onChanged,
+      this.initialValue,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +244,7 @@ class TextInput extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: TextFormField(
+            initialValue: initialValue,
             keyboardType:
                 name == 'Goal' ? TextInputType.number : TextInputType.text,
             cursorColor: MyColors().secondaryColor,

@@ -25,9 +25,9 @@ class HabitAdapter extends TypeAdapter<Habit> {
       date: fields[5] as dynamic,
       goal: fields[6] as int?,
       unit: fields[7] as String?,
-    )
-      ..completionDates = (fields[8] as Map).cast<String, bool>()
-      ..measurementValues = (fields[9] as Map).cast<String, int>();
+      completionDates: (fields[8] as Map).cast<String, bool>(),
+      measurementValues: (fields[9] as Map).cast<String, int>(),
+    );
   }
 
   @override
