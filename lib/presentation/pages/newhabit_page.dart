@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
+import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
@@ -52,7 +53,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
             final habitFormState = context.read<HabitFormCubit>().state;
             final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
             String? time;
-            Map<String, bool> completionDates = isEditing ? widget.habit!.completionDates : {};
+            Map<String, bool?> completionDates = isEditing ? widget.habit!.completionDates : {};
             Map<String, int> measurementValues = isEditing ? widget.habit!.measurementValues : {};
 
             Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit}) {
@@ -95,7 +96,16 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 if (!widget.recurrent) {
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement',recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit)) :
                   boxHabits.add(newHabit(habitType: 'Measurement', recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit));
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider<HabitHomeCubit>(
+                          create: (context) => HabitHomeCubit(),
+                        ),
+                      ],
+                      child: const HomePage(),
+                    ))
+                  );
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
                   if(habitFormState.recurrenceSet == 'Custom W.'){
@@ -114,7 +124,16 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit)) :
                   boxHabits.add(newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit));
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider<HabitHomeCubit>(
+                          create: (context) => HabitHomeCubit(),
+                        ),
+                      ],
+                      child: const HomePage(),
+                    ))
+                  );
                 }
               }
             }
@@ -126,7 +145,16 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 if (!widget.recurrent) {
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null));
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider<HabitHomeCubit>(
+                          create: (context) => HabitHomeCubit(),
+                        ),
+                      ],
+                      child: const HomePage(),
+                    ))
+                  );
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
                   if(habitFormState.recurrenceSet == 'Custom W.'){
@@ -146,7 +174,16 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence));
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage()),);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider<HabitHomeCubit>(
+                          create: (context) => HabitHomeCubit(),
+                        ),
+                      ],
+                      child: const HomePage(),
+                    ))
+                  );
                 }
               }
             }

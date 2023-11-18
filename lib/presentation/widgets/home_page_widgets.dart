@@ -12,6 +12,22 @@ import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart
 
 import '../../shared/boxes.dart';
 
+List computeRecurrencePanel({required Habit habit}) {
+  if (habit.recurrence is String && habit.recurrence == 'Every Day') {
+    return ['Every Day', {'interval': true, 'week': false, 'month' : false}];
+  }
+  if (habit.recurrence is Map) {
+    if (habit.recurrence.containsKey("interval")) {
+      return ['Every ${habit.recurrence['interval']} Days', {'interval': true, 'week': false, 'month' : false}];
+    } else if (habit.recurrence.containsKey('Monday')) {
+      return ['Custom W.', {'interval': false, 'week': true, 'month' : false}];
+    } else if (habit.recurrence.keys.every((key) => key is int)) {
+      return ['Custom M.', {'interval': false, 'week': false, 'month' : true}];
+    }
+  }
+  return [];
+}
+
 showChangeMeasurementValuePopUp({required BuildContext context, required Habit habit, required int index, required String formatedCurrentDate}){
   String textValue = '0';
   final controller = TextEditingController();
@@ -116,12 +132,12 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             int value = context.read<HabitHomeCubit>().state.measureNumber;
                             context.read<HabitHomeCubit>().setMeasurementValues("${formatedCurrentDate}_${habit.name}", value);
                             if (value >= habit.goal!){
-                                habit.completionDates[formatedCurrentDate] = true;
+                                habit.completionDates.addAll({formatedCurrentDate : null});
                                 boxHabits.putAt(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", true);
                             }
                             else {
-                                habit.completionDates[formatedCurrentDate] = false;
+                                habit.completionDates.remove(formatedCurrentDate);
                                 boxHabits.putAt(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", false);
                             }
@@ -139,22 +155,6 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
         ),
       );
     });
-}
-
-List computeRecurrencePanel({required Habit habit}) {
-  if (habit.recurrence is String && habit.recurrence == 'Every Day') {
-    return ['Every Day', {'interval': true, 'week': false, 'month' : false}];
-  }
-  if (habit.recurrence is Map) {
-    if (habit.recurrence.containsKey("interval")) {
-      return ['Every ${habit.recurrence['interval']} Days', {'interval': true, 'week': false, 'month' : false}];
-    } else if (habit.recurrence.containsKey('Monday')) {
-      return ['Custom W.', {'interval': false, 'week': true, 'month' : false}];
-    } else if (habit.recurrence.keys.every((key) => key is int)) {
-      return ['Custom M.', {'interval': false, 'week': false, 'month' : true}];
-    }
-  }
-  return [];
 }
 
 showEditHabitPopUp({required BuildContext context, required Habit habit}){                 //TODO style it better
@@ -355,7 +355,8 @@ class HabitCheckBox extends StatelessWidget {
   final String formatedCurrentDate;
   final Habit habit;
   final int index;
-  const HabitCheckBox({super.key, required this.habitName, required this.formatedCurrentDate, required this.habit, required this.index});
+  final DateTime currentDate;
+  const HabitCheckBox({super.key, required this.habitName, required this.formatedCurrentDate, required this.habit, required this.index, required this.currentDate});
 
   @override
   Widget build(BuildContext context) {
@@ -366,11 +367,21 @@ class HabitCheckBox extends StatelessWidget {
         name: habitName,
         date: formatedCurrentDate,
         onChanged: () {
-          habit.completionDates[formatedCurrentDate] = !context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_$habitName"]!;
-          boxHabits.putAt(index, habit);
-          context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_$habitName",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_$habitName"]!);               //because we cant devide with zero
-          context.read<HabitHomeCubit>().updateProgressBar();
-        },
+          if(currentDate.isAfter(DateTime.now())){
+            //do nothing
+          }
+          else {
+            if(habit.completionDates.containsKey(formatedCurrentDate)){
+              habit.completionDates.remove(formatedCurrentDate);
+            }
+            else {
+              habit.completionDates.addAll({formatedCurrentDate: null});
+            }
+            boxHabits.putAt(index, habit);
+            context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_$habitName",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_$habitName"]!);               //because we cant devide with zero
+            context.read<HabitHomeCubit>().updateProgressBar();
+          }
+        }
       ),
     );
   }
@@ -380,7 +391,8 @@ class HabitMeasurementBox extends StatelessWidget {
   final Habit habit;
   final int index;
   final String formatedCurrentDate;
-  const HabitMeasurementBox({super.key, required this.habit, required this.index, required this.formatedCurrentDate});
+  final DateTime currentDate;
+  const HabitMeasurementBox({super.key, required this.habit, required this.index, required this.formatedCurrentDate, required this.currentDate});
 
   @override
   Widget build(BuildContext context) {
@@ -389,7 +401,12 @@ class HabitMeasurementBox extends StatelessWidget {
       child: RawMaterialButton(
         padding: const EdgeInsets.fromLTRB(15, 4, 15, 4),
         onPressed: () {
-          showChangeMeasurementValuePopUp(context: context, habit: habit, index: index, formatedCurrentDate: formatedCurrentDate);
+          if(currentDate.isAfter(DateTime.now())){
+
+          }
+          else {
+            showChangeMeasurementValuePopUp(context: context, habit: habit, index: index, formatedCurrentDate: formatedCurrentDate);
+          }
         },
         constraints: const BoxConstraints(),
         fillColor: MyColors().backgroundColor,
@@ -448,4 +465,131 @@ class AddHabitButton extends StatelessWidget {
     );
   }
 }
+
+class SingleHabit extends StatelessWidget {
+  final double height;
+  final Habit habit;
+  final String formatedCurrentDate;
+  final int index;
+  final DateTime currentDate;
+  const SingleHabit({super.key, required this.height, required this.habit, required this.formatedCurrentDate, required this.index, required this.currentDate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: height == 107 || height == 145
+              ? 24
+              : 15),
+      child: Column(children: [
+        SizedBox(
+          height: habit.habitType == 'Yes or No' ? 21 : 24,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 10),
+                child: Text(
+                  habit.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                  padding:const EdgeInsets.only(right: 10, left: 20),
+                  child: (habit.habitType ==
+                          'Yes or No')
+                      ? currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 16, color: MyColors().lightGrey) : HabitCheckBox(
+                          habitName: habit.name,
+                          formatedCurrentDate:
+                              formatedCurrentDate,
+                          habit: habit,
+                          index: index,
+                          currentDate: currentDate
+                          )
+                      : currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 16, color: MyColors().lightGrey) : HabitMeasurementBox(
+                          habit: habit,
+                          index: index,
+                          formatedCurrentDate:formatedCurrentDate,
+                          currentDate: currentDate
+                          )
+              ),
+            ],
+          ),
+        ),
+        (habit.time != null)
+            ? Padding(
+                padding:
+                    const EdgeInsets.only(
+                        top: 18,
+                        left: 10,
+                        right: 10),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.watch_later,
+                      color: MyColors()
+                          .secondaryColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 10),
+                    Text('Time:',
+                        style: TextStyle(
+                            color: MyColors()
+                                .lightGrey,
+                            fontSize: 12)),
+                    const SizedBox(width: 10),
+                    Text(habit.time!,
+                        style: TextStyle(
+                            color: MyColors()
+                                .primaryColor,
+                            fontSize: 12)),
+                  ],
+                ),
+              )
+            : Container(),
+        (habit.goal != null)
+            ? Padding(
+                padding:
+                    const EdgeInsets.only(
+                        top: 18,
+                        left: 10,
+                        right: 10),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.stars,
+                      color: MyColors()
+                          .secondaryColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 10),
+                    Text('Goal:',
+                        style: TextStyle(
+                            color: MyColors()
+                                .lightGrey,
+                            fontSize: 12)),
+                    const SizedBox(width: 10),
+                    Text(
+                        "${habit.goal}  ${habit.unit}",
+                        style: TextStyle(
+                            color: MyColors()
+                                .primaryColor,
+                            fontSize: 12)),
+                  ],
+                ),
+              )
+            : Container(),
+      ]),
+    );
+  }
+}
+
+
 

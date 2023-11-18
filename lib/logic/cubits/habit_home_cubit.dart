@@ -96,9 +96,9 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
           if (habit.recurrence is Map &&
               habit.recurrence.containsKey("interval")) {
             DateTime startDate = DateTime(
-                habit.recurrence["year"],
-                habit.recurrence['month'],
-                habit.recurrence[
+                habit.date["year"],
+                habit.date['month'],
+                habit.date[
                     'day']); // Replace with your starting date
             Duration interval =
                 Duration(days: habit.recurrence["interval"]);
@@ -119,7 +119,7 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
       // Logic to determine if the habit has been checked off
       if (habit.completionDates.containsKey(formatedCurrentDate) && show == true) {
         setCheckValue(
-            "${formatedCurrentDate}_${habit.name}", habit.completionDates[formatedCurrentDate]!
+            "${formatedCurrentDate}_${habit.name}", true
         ); // updates UI
       }
       if (!habit.completionDates.containsKey(formatedCurrentDate) && show == true) {

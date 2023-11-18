@@ -43,7 +43,7 @@ class Habit extends HiveObject{
   late String? unit;
 
   @HiveField(8)
-  Map<String, bool> completionDates;
+  Map<String, bool?> completionDates = {};  //the only reason for using a Map here is for faster lookups, the Map value is not being used anywhere in the app (Hive doesnt support a Set)
 
   @HiveField(9)
   Map<String, int> measurementValues;

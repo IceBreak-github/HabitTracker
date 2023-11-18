@@ -46,62 +46,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
             icon: const Icon(Icons.search_rounded),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 9),
-            child: PopupMenuButton<String>(
-                color:const Color.fromRGBO(20, 20, 20, 1), 
-                icon: const Icon(Icons.filter_list_rounded, color: Colors.white),                //TODO implement ordering
-                itemBuilder: (BuildContext context) {
-                  return <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      enabled: false, 
-                      value: 'Order by',
-                      child: Row(
-                        children: [
-                          Text('Order Habits:', style: TextStyle(color: Colors.white, fontSize: 14)),
-                          const Spacer(),
-                          /*
-                          Icon(
-                            Icons.low_priority,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          */
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'Manually',
-                      child: Row(
-                        children: [
-                          Text('Manually', style: TextStyle(color: Colors.white,  fontSize: 14)),
-                          Spacer(),
-                          Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colors.white,
-                            size: 13,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'Alphabetically',
-                      child: Text('Alphabetically', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'By Time',
-                      child: Text('By Time', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'By Completion',
-                      child: Text('By Completion', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    ),
-
-                  ];
-                }
-            ),
-          ),
-          
+          const OrderHabits(),
         ]),
       ],
     );
@@ -455,6 +400,69 @@ class NotifyToggle extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class OrderHabits extends StatelessWidget {
+  const OrderHabits({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 9),
+      child: PopupMenuButton<String>(
+          color:const Color.fromRGBO(20, 20, 20, 1), 
+          icon: const Icon(Icons.filter_list_rounded, color: Colors.white),                //TODO implement ordering
+          itemBuilder: (BuildContext context) {
+            return <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                enabled: false, 
+                value: 'Order by',
+                child: Row(
+                  children: [
+                    Text('Order Habits:', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    const Spacer(),
+                    /*
+                    Icon(
+                      Icons.low_priority,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    */
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'By Date',
+                child: Row(
+                  children: [
+                    Text('By Date', style: TextStyle(color: Colors.white,  fontSize: 14)),
+                    Spacer(),
+                    Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                      size: 13,
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'Alphabetically',
+                child: Text('Alphabetically', style: TextStyle(color: Colors.white, fontSize: 14)),
+              ),
+              const PopupMenuItem<String>(
+                value: 'By Time',
+                child: Text('By Time', style: TextStyle(color: Colors.white, fontSize: 14)),
+              ),
+              const PopupMenuItem<String>(
+                value: 'By Completion',
+                child: Text('By Completion', style: TextStyle(color: Colors.white, fontSize: 14)),
+              ),
+
+            ];
+          }
+      ),
     );
   }
 }
