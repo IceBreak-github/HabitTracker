@@ -13,10 +13,10 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
   if(habit.recurrence is String && habit.recurrence == 'Every Day'){
     int difference = currentDate.difference(habitDate).inDays;
     int streak = 0;
-    while (habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate))) {
+    while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate))) {
       streak++;
     }
-    if(habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate))){
+    if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate))){
       streak++;
     }
     double procentage = habit.completionDates.length / (difference+1);   //date difference plus today 
@@ -31,7 +31,7 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       int difference = nearestDate.difference(habitDate).inDays;
 
       int streak = 0;
-      while (habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(nearestDate.subtract(Duration(days: gap * streak))))) {
+      while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nearestDate.subtract(Duration(days: gap * streak))))) {
         streak++;
       }
       int totalPossibleCompletions = ((difference+1) / gap).ceil();  //rounds all the totalPossibleCompletions Up
@@ -40,7 +40,51 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       return [procentage.toInt(), streak];
     }
     else if(habit.recurrence.containsKey("Monday")){
+      int difference = currentDate.difference(habitDate).inDays;
+      int totalPossibleCompletions = 0;
+      int streak = 0;
+      Map<String, int> numberedWeekDays = {
+        'Monday': 1,
+        'Tuesday': 2,
+        'Wednesday': 3,
+        'Thursday': 4,
+        'Friday': 5,
+        'Saturday': 6,
+        'Sunday': 7,
+      };
+      List<int> possibleCompletedDays = [];
+      List<int> possibleDaysGap = [];
+      habit.recurrence.forEach((day, value) {
+        if (value) {
+          int daysSinceStart = ((difference - (currentDate.weekday - numberedWeekDays[day]!) + 7) / 7).floor();
+          totalPossibleCompletions = totalPossibleCompletions + daysSinceStart;
 
+          int daysUntilCheckDay = (currentDate.weekday - numberedWeekDays[day]! + 7) % 7;
+          possibleDaysGap.add(daysUntilCheckDay);
+          possibleCompletedDays.add(numberedWeekDays[day]!);
+        }
+      });  
+      possibleDaysGap.sort();
+      calculateStreak({int week = 0, int newIteration = 1}) {
+        for (int i = 0; i < possibleDaysGap.length; i++) {
+          int number = possibleDaysGap[i] + week;
+          DateTime formattedDate = currentDate.subtract(Duration(days: number));
+          String formattedDateString = DateFormat('yyyy.MM.d').format(formattedDate);
+          if (habit.completionDates.containsKey(formattedDateString)) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+        if (streak == possibleDaysGap.length * newIteration) {
+          calculateStreak(week: week + 7, newIteration: newIteration + 1);
+        }
+      }
+      calculateStreak();
+      double procentage = habit.completionDates.length / totalPossibleCompletions;
+      procentage = procentage * 100;
+      return [procentage.toInt(), streak];
+      
     }
     else if (habit.recurrence.keys.every((key) => key is int)){
 
@@ -216,7 +260,7 @@ class HabitStatPanel extends StatelessWidget {
                       SizedBox(width: 17, height: 17, child: Image.asset('assets/temporary.png')),
                       Padding(
                         padding: const EdgeInsets.only(left: 11),
-                        child: SizedBox(width: 32,child: Text('${calculateHabitStreakAndRate(habit: habit)[0]}%', style: TextStyle(color: MyColors().primaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
+                        child: SizedBox(width: 32,child: Text('${calculateHabitStreakAndRate(habit: habit)[0]}%', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                       ),
                     ],
                   ),
@@ -224,10 +268,10 @@ class HabitStatPanel extends StatelessWidget {
                 const Spacer(),
                 Row(
                   children: [
-                    Icon(Icons.local_fire_department, color: MyColors().secondaryColor, size: 18),
+                    Icon(Icons.local_fire_department, color: MyColors().secondaryColor, size: 18), 
                     Padding(
                       padding: const EdgeInsets.only(left: 11),
-                      child: SizedBox(width: 32, child: Text('${calculateHabitStreakAndRate(habit: habit)[1]}', style: TextStyle(color: MyColors().primaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
+                      child: SizedBox(width: 32, child: Text('${calculateHabitStreakAndRate(habit: habit)[1]}', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                     ),
                   ],
                 ),
@@ -237,7 +281,7 @@ class HabitStatPanel extends StatelessWidget {
                     Icon(Icons.task_alt, color: MyColors().secondaryColor, size: 18),
                     Padding(
                       padding: const EdgeInsets.only(left: 11),
-                      child: SizedBox(width: 32, child: Text('${habit.completionDates.length}', style: TextStyle(color: MyColors().primaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
+                      child: SizedBox(width: 32, child: Text('${habit.completionDates.length}', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                     ),
                   ],
                 ),

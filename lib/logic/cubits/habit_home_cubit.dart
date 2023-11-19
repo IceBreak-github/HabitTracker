@@ -86,12 +86,8 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
             
           }
           if (habit.recurrence is Map &&
-              habit.recurrence.containsKey(
-                  DateFormat('EEEE').format(newDate)) &&
-              habit.recurrence[
-                  DateFormat('EEEE').format(newDate)]) {
-                    show = true;
-            
+              habit.recurrence.containsKey(DateFormat('EEEE').format(newDate)) && habit.recurrence[DateFormat('EEEE').format(newDate)]) {
+                show = true;
           }
           if (habit.recurrence is Map &&
               habit.recurrence.containsKey("interval")) {
