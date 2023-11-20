@@ -54,10 +54,25 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       };
       List<int> possibleCompletedDays = [];
       List<int> possibleDaysGap = [];
+
+      int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
+        int days = endDate.difference(startDate).inDays + 1;
+        int offset = (targetWeekday - startDate.weekday + 7) % 7;
+        int totalOccurrences = 0;
+        if(targetWeekday < startDate.weekday){
+          totalOccurrences = ((days - offset) / 7).floor();
+        }
+        else{
+            totalOccurrences = ((days + (7 - offset)) / 7).floor();
+        }      
+
+        return totalOccurrences >= 0 ? totalOccurrences : 0;
+      }
+
       habit.recurrence.forEach((day, value) {
         if (value) {
-          int daysSinceStart = ((difference - (currentDate.weekday - numberedWeekDays[day]!) + 7) / 7).floor();
-          totalPossibleCompletions = totalPossibleCompletions + daysSinceStart;
+          
+          totalPossibleCompletions = totalPossibleCompletions + countWeekdaysBetween(habitDate, currentDate, numberedWeekDays[day]!) ;
 
           int daysUntilCheckDay = (currentDate.weekday - numberedWeekDays[day]! + 7) % 7;
           possibleDaysGap.add(daysUntilCheckDay);
