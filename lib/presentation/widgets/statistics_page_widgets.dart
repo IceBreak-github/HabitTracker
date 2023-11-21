@@ -40,7 +40,6 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       return [procentage.toInt(), streak];
     }
     else if(habit.recurrence.containsKey("Monday")){
-      int difference = currentDate.difference(habitDate).inDays;
       int totalPossibleCompletions = 0;
       int streak = 0;
       Map<String, int> numberedWeekDays = {
@@ -56,19 +55,11 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       List<int> possibleDaysGap = [];
 
       int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
-        int days = endDate.difference(startDate).inDays + 1;
-        int offset = (targetWeekday - startDate.weekday + 7) % 7;
-        int totalOccurrences = 0;
-        if(targetWeekday < startDate.weekday){
-          totalOccurrences = ((days - offset) / 7).floor();
-        }
-        else{
-            totalOccurrences = ((days + (7 - offset)) / 7).floor();
-        }      
-
-        return totalOccurrences >= 0 ? totalOccurrences : 0;
+        int difference = endDate.difference(startDate).inDays;
+        double numberOfWeeks = (difference + startDate.weekday) / 7 + 1;
+        int endDayIndex = (difference + startDate.weekday) % 7;
+        return (numberOfWeeks + (startDate.weekday > targetWeekday ? -1 : 0 ) + (endDayIndex < targetWeekday  ? -1 : 0)).toInt();
       }
-
       habit.recurrence.forEach((day, value) {
         if (value) {
           
@@ -78,7 +69,7 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
           possibleDaysGap.add(daysUntilCheckDay);
           possibleCompletedDays.add(numberedWeekDays[day]!);
         }
-      });  
+      });
       possibleDaysGap.sort();
       calculateStreak({int week = 0, int newIteration = 1}) {
         for (int i = 0; i < possibleDaysGap.length; i++) {
