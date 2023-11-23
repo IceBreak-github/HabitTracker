@@ -7,6 +7,13 @@ import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
 
+int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
+  int difference = endDate.difference(startDate).inDays;
+  double numberOfWeeks = (difference + startDate.weekday) / 7 + 1;
+  int endDayIndex = (difference + startDate.weekday) % 7;
+  return (numberOfWeeks + (startDate.weekday > targetWeekday ? -1 : 0 ) + (endDayIndex < targetWeekday  ? -1 : 0)).toInt();
+}
+
 List<int> calculateHabitStreakAndRate({required Habit habit}) {
   DateTime habitDate = DateTime(habit.date['year'], habit.date['month'],habit.date['day']);
   DateTime currentDate = DateTime.now();
@@ -54,17 +61,9 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       List<int> possibleCompletedDays = [];
       List<int> possibleDaysGap = [];
 
-      int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
-        int difference = endDate.difference(startDate).inDays;
-        double numberOfWeeks = (difference + startDate.weekday) / 7 + 1;
-        int endDayIndex = (difference + startDate.weekday) % 7;
-        return (numberOfWeeks + (startDate.weekday > targetWeekday ? -1 : 0 ) + (endDayIndex < targetWeekday  ? -1 : 0)).toInt();
-      }
       habit.recurrence.forEach((day, value) {
         if (value) {
-          
           totalPossibleCompletions = totalPossibleCompletions + countWeekdaysBetween(habitDate, currentDate, numberedWeekDays[day]!) ;
-
           int daysUntilCheckDay = (currentDate.weekday - numberedWeekDays[day]! + 7) % 7;
           possibleDaysGap.add(daysUntilCheckDay);
           possibleCompletedDays.add(numberedWeekDays[day]!);
@@ -92,8 +91,33 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       return [procentage.toInt(), streak];
       
     }
-    else if (habit.recurrence.keys.every((key) => key is int)){
+    if (habit.recurrence.keys.every((key) => key is int)){
+      int totalPossibleCompletions = 0;
+      int streak = 0;
+     
+      for (int day in habit.recurrence.keys) {
+        DateTime nowDate = DateTime(habitDate.year, habitDate.month, day);
+        while (nowDate.isBefore(currentDate) || nowDate.isAtSameMomentAs(currentDate)) {   
+          totalPossibleCompletions++;  
+          nowDate = DateTime(nowDate.year, nowDate.month + 1, day);
+        }
+      }
+      /*
+      for (int day in habit.recurrence.keys){
+        DateTime nowDate = DateTime(habitDate.year, habitDate.month, day);
+        if(nowDate.isBefore(currentDate)){
+          if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nowDate))){
+            streak++;
+          }
+        }
+      }
+      */
+      print(habit.recurrence);
+      print(totalPossibleCompletions);
 
+      double procentage = habit.completionDates.length / totalPossibleCompletions;
+      procentage = procentage * 100;
+      return [procentage.toInt(), streak];
     }
   }
   return [0,0];
