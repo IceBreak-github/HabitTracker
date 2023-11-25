@@ -94,27 +94,74 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
     if (habit.recurrence.keys.every((key) => key is int)){
       int totalPossibleCompletions = 0;
       int streak = 0;
-     
-      for (int day in habit.recurrence.keys) {
-        DateTime nowDate = DateTime(habitDate.year, habitDate.month, day);
-        while (nowDate.isBefore(currentDate) || nowDate.isAtSameMomentAs(currentDate)) {   
-          totalPossibleCompletions++;  
-          nowDate = DateTime(nowDate.year, nowDate.month + 1, day);
-        }
+      List daysToCheck = [];
+      bool isValidDate(String input) {
+        final parts = input.split('.');
+        final year = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final day = int.parse(parts[2]);
+
+        final date = DateTime(year, month, day);
+        final originalFormatString = DateFormat('yyyy.M.d').format(date);
+        return input == originalFormatString;
       }
-      /*
-      for (int day in habit.recurrence.keys){
-        DateTime nowDate = DateTime(habitDate.year, habitDate.month, day);
-        if(nowDate.isBefore(currentDate)){
-          if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nowDate))){
-            streak++;
+      for (int day in habit.recurrence.keys) {
+        DateTime? nowDate = isValidDate("${habitDate.year}.${habitDate.month}.$day") ? DateTime(habitDate.year, habitDate.month, day) : null;
+        if(nowDate != null){
+          if(isValidDate("${nowDate.year}.${nowDate.month}.$day")){
+            daysToCheck.add(DateTime(nowDate.year, nowDate.month, day));
+            //print('Adding ${DateTime(nowDate.year, nowDate.month, day)}');
+          }
+          while (nowDate!.isBefore(currentDate) || nowDate.isAtSameMomentAs(currentDate)) {   
+            totalPossibleCompletions++;  
+            nowDate = DateTime(nowDate.year, nowDate.month + 1, day);
           }
         }
       }
-      */
-      print(habit.recurrence);
-      print(totalPossibleCompletions);
+      daysToCheck.sort((a, b) {
+        bool aAfterCurrent = a.isAfter(currentDate);
+        bool bAfterCurrent = b.isAfter(currentDate);
 
+        if (aAfterCurrent && bAfterCurrent) {
+          // Both are after the current date, sort in descending order
+          return b.compareTo(a);
+        } else if (aAfterCurrent) {
+          // a is after current date, prioritize it (descending order)
+          return -1;
+        } else if (bAfterCurrent) {
+          // b is after current date, prioritize it (descending order)
+          return 1;
+        } else {
+          // Sort in ascending order of proximity to the current date
+          Duration differenceA = a.difference(currentDate).abs();
+          Duration differenceB = b.difference(currentDate).abs();
+
+          return differenceA.compareTo(differenceB);
+        }
+      });
+      calculateStreak({int iteration = 0}) {
+        bool stop = true;
+        for (DateTime date in daysToCheck){
+          DateTime nowDate = DateTime(currentDate.year, currentDate.month - iteration, date.day);
+          if(isValidDate("${nowDate.year}.${nowDate.month}.${nowDate.day}")){
+            if(nowDate.isBefore(currentDate)){
+              if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nowDate))){ 
+                streak++;
+                stop = false;
+              }
+              else{
+                break;
+              }
+            }
+          }
+          //print('${nowDate.year}.${nowDate.month}.${nowDate.day} is ${isValidDate("${nowDate.year}.${nowDate.month}.${nowDate.day}")}');
+        }
+        if(stop == false){
+          calculateStreak(iteration: iteration+1);
+        }
+        
+      }
+      calculateStreak();
       double procentage = habit.completionDates.length / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];

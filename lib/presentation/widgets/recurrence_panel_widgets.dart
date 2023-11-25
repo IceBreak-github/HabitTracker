@@ -462,7 +462,7 @@ class MonthPage extends StatelessWidget {
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisCount: 6,
                         shrinkWrap: true,
-                        children: List.generate(32, (index) {
+                        children: List.generate(31, (index) {
                           final isSafe = state.monthDays.containsKey(index + 1)
                               ? state.monthDays[index + 1]
                               : false;
