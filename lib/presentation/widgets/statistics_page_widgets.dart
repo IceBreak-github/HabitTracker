@@ -14,9 +14,18 @@ int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday
   return (numberOfWeeks + (startDate.weekday > targetWeekday ? -1 : 0 ) + (endDayIndex < targetWeekday  ? -1 : 0)).toInt();
 }
 
-List<int> calculateHabitStreakAndRate({required Habit habit}) {
+int calculateAvgScore({required DateTime currentDate}) {
+  List<int> allScores = [];
+  for(int i = 0; i < boxHabits.length; i++){
+    allScores.add(calculateHabitStreakAndRate(habit: boxHabits.getAt(i), currentDate: currentDate)[0]);
+  }
+  int allSum = allScores.reduce((a, b) => a + b);
+  double avgScore = allSum / allScores.length;
+  return avgScore.toInt();
+}
+
+List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime currentDate}) {
   DateTime habitDate = DateTime(habit.date['year'], habit.date['month'],habit.date['day']);
-  DateTime currentDate = DateTime.now();
   if(habit.recurrence is String && habit.recurrence == 'Every Day'){
     int difference = currentDate.difference(habitDate).inDays;
     int streak = 0;
@@ -26,7 +35,17 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
     if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate))){
       streak++;
     }
-    double procentage = habit.completionDates.length / (difference+1);   //date difference plus today 
+    int completionLength = 0;
+    for(String thisDate in habit.completionDates.keys){
+        final parts = thisDate.split('.');
+        final year = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final day = int.parse(parts[2]);
+        if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
+          completionLength++;
+        }
+    }
+    double procentage = completionLength / (difference+1);   //date difference plus today 
     procentage = procentage * 100;
   
     return [procentage.toInt(), streak];
@@ -41,8 +60,18 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
       while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nearestDate.subtract(Duration(days: gap * streak))))) {
         streak++;
       }
+      int completionLength = 0;
+      for(String thisDate in habit.completionDates.keys){
+          final parts = thisDate.split('.');
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
+            completionLength++;
+          }
+      }
       int totalPossibleCompletions = ((difference+1) / gap).ceil();  //rounds all the totalPossibleCompletions Up
-      double procentage = habit.completionDates.length / totalPossibleCompletions;
+      double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
     }
@@ -86,7 +115,17 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
         }
       }
       calculateStreak();
-      double procentage = habit.completionDates.length / totalPossibleCompletions;
+      int completionLength = 0;
+      for(String thisDate in habit.completionDates.keys){
+          final parts = thisDate.split('.');
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
+            completionLength++;
+          }
+      }
+      double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
       
@@ -162,7 +201,17 @@ List<int> calculateHabitStreakAndRate({required Habit habit}) {
         
       }
       calculateStreak();
-      double procentage = habit.completionDates.length / totalPossibleCompletions;
+      int completionLength = 0;
+      for(String thisDate in habit.completionDates.keys){    //TODO find a better solution than O(n) where n is the number of completedDates
+          final parts = thisDate.split('.');
+          final year = int.parse(parts[0]);
+          final month = int.parse(parts[1]);
+          final day = int.parse(parts[2]);
+          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
+            completionLength++;
+          }
+      }
+      double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
     }
@@ -217,6 +266,9 @@ class OverallScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int avgScore = calculateAvgScore(currentDate: DateTime.now());
+    int last30DaysScore = avgScore - calculateAvgScore(currentDate: DateTime.now().subtract(const Duration(days: 30)));
+    int last7DaysScore = avgScore - calculateAvgScore(currentDate: DateTime.now().subtract(const Duration(days: 7)));
     return Padding(
       padding: const EdgeInsets.all(25),
       child: Container(
@@ -261,7 +313,41 @@ class OverallScore extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(),
+              Row(
+                children: <Widget> [
+                  Column(
+                    children: [
+                      Text('$avgScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 9),
+                      Text('Score', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          last30DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
+                          Text('$last30DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 9),
+                      Text('Month', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          last7DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
+                          Text('$last7DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 9),
+                      Text('Week', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -337,7 +423,7 @@ class HabitStatPanel extends StatelessWidget {
                       SizedBox(width: 17, height: 17, child: Image.asset('assets/temporary.png')),
                       Padding(
                         padding: const EdgeInsets.only(left: 11),
-                        child: SizedBox(width: 32,child: Text('${calculateHabitStreakAndRate(habit: habit)[0]}%', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
+                        child: SizedBox(width: 32,child: Text('${calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[0]}%', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                       ),
                     ],
                   ),
@@ -348,7 +434,7 @@ class HabitStatPanel extends StatelessWidget {
                     Icon(Icons.local_fire_department, color: MyColors().secondaryColor, size: 18), 
                     Padding(
                       padding: const EdgeInsets.only(left: 11),
-                      child: SizedBox(width: 32, child: Text('${calculateHabitStreakAndRate(habit: habit)[1]}', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
+                      child: SizedBox(width: 32, child: Text('${calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[1]}', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                     ),
                   ],
                 ),
