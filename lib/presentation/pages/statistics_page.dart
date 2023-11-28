@@ -19,22 +19,22 @@ class StatisticsPage extends StatelessWidget {
               const StatsDivider(),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(25),
+                  padding: const EdgeInsets.only(top: 25, left: 25,right: 25),
                   child: ScrollConfiguration(
                   behavior: const ScrollBehavior()
                   .copyWith(overscroll: false), 
                     child: ShaderMask(
                         shaderCallback: (Rect rect) {
                         return LinearGradient(
-                          begin: const Alignment(0.0, 0.60),
+                          begin: const Alignment(0.0, 0.75),
                           end: const Alignment(0.0, 1.0),
                           colors: [
                             Colors.transparent,
-                            MyColors().backgroundColor.withOpacity(0.9),
+                            MyColors().backgroundColor.withOpacity(0.8),
                             MyColors().backgroundColor
                           ],
                           //set stops as par your requirement
-                          stops: const [0.0, 0.4, 0.67], // 50% transparent, 50% white
+                          stops: const [0.0, 0.3, 0.9], // 50% transparent, 50% white
                         ).createShader(rect);
                       },
                       blendMode: BlendMode.dstOut,

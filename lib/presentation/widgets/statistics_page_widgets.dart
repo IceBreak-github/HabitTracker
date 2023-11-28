@@ -6,6 +6,7 @@ import 'package:habit_tracker/presentation/widgets/widgets.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
+import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 
 int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
   int difference = endDate.difference(startDate).inDays;
@@ -269,6 +270,7 @@ class OverallScore extends StatelessWidget {
     int avgScore = calculateAvgScore(currentDate: DateTime.now());
     int last30DaysScore = avgScore - calculateAvgScore(currentDate: DateTime.now().subtract(const Duration(days: 30)));
     int last7DaysScore = avgScore - calculateAvgScore(currentDate: DateTime.now().subtract(const Duration(days: 7)));
+    ValueNotifier<double> overAllScore = ValueNotifier(avgScore.toDouble());
     return Padding(
       padding: const EdgeInsets.all(25),
       child: Container(
@@ -293,7 +295,7 @@ class OverallScore extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(26),
+          padding: const EdgeInsets.only(left: 26, right: 26, top: 26),
           child: Column(
             children: [
               Row(
@@ -313,40 +315,57 @@ class OverallScore extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                children: <Widget> [
-                  Column(
-                    children: [
-                      Text('$avgScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 9),
-                      Text('Score', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          last30DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
-                          Text('$last30DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(height: 9),
-                      Text('Month', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          last7DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
-                          Text('$last7DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(height: 9),
-                      Text('Week', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(top: 30, left: 5, right: 5),
+                child: Row(
+                  children: <Widget> [
+                    SimpleCircularProgressBar(
+                      size: 40,
+                      progressColors: [MyColors().primaryColor],
+                      progressStrokeWidth: 11,
+                      backStrokeWidth: 11,
+                      backColor: const Color.fromRGBO(45, 45, 59, 1),
+                      mergeMode: true,
+                      animationDuration: 3,
+                      valueNotifier: overAllScore,
+                    ),
+                    const SizedBox(width: 31),
+                    Column(
+                      children: [
+                        Text('$avgScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 7),
+                        Text('Score', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    const SizedBox(width: 31),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            last30DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
+                            Text('$last30DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 7),
+                        Text('Month', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    const SizedBox(width: 31),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            last7DaysScore >= 0 ? Text('+', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)) : Container(),
+                            Text('$last7DaysScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 7),
+                        Text('Week', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    //const SizedBox(width: 12),
+                  ],
+                ),
               ),
             ],
           ),
@@ -420,9 +439,18 @@ class HabitStatPanel extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 8, left: 2),
                   child: Row(
                     children: [
-                      SizedBox(width: 17, height: 17, child: Image.asset('assets/temporary.png')),
+                      SimpleCircularProgressBar(
+                        size: 13,
+                        progressColors: [MyColors().secondaryColor],
+                        progressStrokeWidth: 4,
+                        backStrokeWidth: 4,
+                        backColor: const Color.fromRGBO(45, 45, 59, 1),
+                        mergeMode: true,
+                        animationDuration: 3,
+                        valueNotifier: ValueNotifier(calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[0].toDouble()),
+                      ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 11),
+                        padding: const EdgeInsets.only(left: 13),
                         child: SizedBox(width: 32,child: Text('${calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[0]}%', style: TextStyle(color: MyColors().secondaryColor, fontSize: 12, fontWeight: FontWeight.w600))),
                       ),
                     ],
