@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/presentation/widgets/home_page_widgets.dart';
@@ -15,6 +16,31 @@ int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday
   return (numberOfWeeks + (startDate.weekday > targetWeekday ? -1 : 0 ) + (endDayIndex < targetWeekday  ? -1 : 0)).toInt();
 }
 
+int calculateCompletionLength(Habit habit, DateTime currentDate){               //TODO find a better solution
+  int completionLength = 0;
+  for(String thisDate in habit.completionDates.keys){
+      final parts = thisDate.split('.');
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final day = int.parse(parts[2]);
+      if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
+        completionLength++;
+      }
+  }
+  return completionLength;
+}
+
+bool isValidDate(String input) {
+  final parts = input.split('.');
+  final year = int.parse(parts[0]);
+  final month = int.parse(parts[1]);
+  final day = int.parse(parts[2]);
+
+  final date = DateTime(year, month, day);
+  final originalFormatString = DateFormat('yyyy.M.d').format(date);
+  return input == originalFormatString;
+}
+
 int calculateAvgScore({required DateTime currentDate}) {
   List<int> allScores = [];
   for(int i = 0; i < boxHabits.length; i++){
@@ -27,28 +53,18 @@ int calculateAvgScore({required DateTime currentDate}) {
 
 List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime currentDate}) {
   DateTime habitDate = DateTime(habit.date['year'], habit.date['month'],habit.date['day']);
+  int streak = 0;
   if(habit.recurrence is String && habit.recurrence == 'Every Day'){
     int difference = currentDate.difference(habitDate).inDays;
-    int streak = 0;
     while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate))) {
       streak++;
     }
     if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate))){
       streak++;
     }
-    int completionLength = 0;
-    for(String thisDate in habit.completionDates.keys){
-        final parts = thisDate.split('.');
-        final year = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final day = int.parse(parts[2]);
-        if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
-          completionLength++;
-        }
-    }
+    int completionLength = calculateCompletionLength(habit, currentDate);
     double procentage = completionLength / (difference+1);   //date difference plus today 
     procentage = procentage * 100;
-  
     return [procentage.toInt(), streak];
   }
   if(habit.recurrence is Map){
@@ -56,21 +72,10 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
       int gap = habit.recurrence['interval'];
       DateTime nearestDate = currentDate.subtract(Duration(days: currentDate.difference(habitDate).inDays % gap));
       int difference = nearestDate.difference(habitDate).inDays;
-
-      int streak = 0;
       while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nearestDate.subtract(Duration(days: gap * streak))))) {
         streak++;
       }
-      int completionLength = 0;
-      for(String thisDate in habit.completionDates.keys){
-          final parts = thisDate.split('.');
-          final year = int.parse(parts[0]);
-          final month = int.parse(parts[1]);
-          final day = int.parse(parts[2]);
-          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
-            completionLength++;
-          }
-      }
+      int completionLength = calculateCompletionLength(habit, currentDate);
       int totalPossibleCompletions = ((difference+1) / gap).ceil();  //rounds all the totalPossibleCompletions Up
       double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
@@ -78,7 +83,6 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
     }
     else if(habit.recurrence.containsKey("Monday")){
       int totalPossibleCompletions = 0;
-      int streak = 0;
       Map<String, int> numberedWeekDays = {
         'Monday': 1,
         'Tuesday': 2,
@@ -90,7 +94,6 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
       };
       List<int> possibleCompletedDays = [];
       List<int> possibleDaysGap = [];
-
       habit.recurrence.forEach((day, value) {
         if (value) {
           totalPossibleCompletions = totalPossibleCompletions + countWeekdaysBetween(habitDate, currentDate, numberedWeekDays[day]!) ;
@@ -116,16 +119,7 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
         }
       }
       calculateStreak();
-      int completionLength = 0;
-      for(String thisDate in habit.completionDates.keys){
-          final parts = thisDate.split('.');
-          final year = int.parse(parts[0]);
-          final month = int.parse(parts[1]);
-          final day = int.parse(parts[2]);
-          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
-            completionLength++;
-          }
-      }
+      int completionLength = calculateCompletionLength(habit, currentDate);
       double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
@@ -133,18 +127,7 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
     }
     if (habit.recurrence.keys.every((key) => key is int)){
       int totalPossibleCompletions = 0;
-      int streak = 0;
       List daysToCheck = [];
-      bool isValidDate(String input) {
-        final parts = input.split('.');
-        final year = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final day = int.parse(parts[2]);
-
-        final date = DateTime(year, month, day);
-        final originalFormatString = DateFormat('yyyy.M.d').format(date);
-        return input == originalFormatString;
-      }
       for (int day in habit.recurrence.keys) {
         DateTime? nowDate = isValidDate("${habitDate.year}.${habitDate.month}.$day") ? DateTime(habitDate.year, habitDate.month, day) : null;
         if(nowDate != null){
@@ -202,16 +185,7 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
         
       }
       calculateStreak();
-      int completionLength = 0;
-      for(String thisDate in habit.completionDates.keys){    //TODO find a better solution than O(n) where n is the number of completedDates
-          final parts = thisDate.split('.');
-          final year = int.parse(parts[0]);
-          final month = int.parse(parts[1]);
-          final day = int.parse(parts[2]);
-          if(DateTime(year, month, day).isBefore(currentDate) || DateTime(year, month, day).isAtSameMomentAs(currentDate)){
-            completionLength++;
-          }
-      }
+      int completionLength = calculateCompletionLength(habit, currentDate);
       double procentage = completionLength / totalPossibleCompletions;
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
@@ -226,6 +200,9 @@ class StatisticsAppBar extends StatelessWidget implements PreferredSizeWidget{
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle(
+        systemNavigationBarColor: MyColors().backgroundColor,
+      ),
       toolbarHeight: 70,
       title: const Text("Statistics", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white)),
       leadingWidth: 70,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
@@ -17,6 +18,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: 70,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        systemNavigationBarColor: MyColors().backgroundColor,
+      ),
       title: BlocBuilder<HabitHomeCubit, HabitHomeState>(
         builder: (context, state) {
           return Text(
@@ -43,6 +47,100 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             onPressed: () {
               //TODO: Implement search
+              showGeneralDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  transitionDuration: const Duration(milliseconds: 500),
+                  barrierLabel: MaterialLocalizations.of(context).dialogLabel,
+                  barrierColor: Colors.black.withOpacity(0.5),
+                  pageBuilder: (context, _, __) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: MyColors().backgroundColor,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 60),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 51,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: MyColors().widgetColor,
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.10),
+                                    blurRadius: 4.0, // soften the shadow
+                                    spreadRadius: 4.0, //extend the shadow
+                                    offset: const Offset(
+                                      2.0, // Move to right 5  horizontally
+                                      5.0, // Move to bottom 5 Vertically
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 25, right: 12),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                          child: TextFormField(
+                                            autofocus: true,
+                                            cursorColor: MyColors().secondaryColor,
+                                            style: const TextStyle(
+                                                fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500),
+                                            decoration: InputDecoration(
+                                              isDense: true,
+                                              border: InputBorder.none,
+                                              hintText: 'Search Habits...',
+                                              hintStyle: TextStyle( 
+                                                  color: MyColors().placeHolderColor,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 14),
+                                            ),
+                                            onChanged: (value){
+                                                                        
+                                            }
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.search),
+                                        color: MyColors().primaryColor,
+                                        onPressed: (){},
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  transitionBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    return SlideTransition(
+                      position: CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOut,
+                      ).drive(Tween<Offset>(
+                        begin: const Offset(0, -1.0),
+                        end: Offset.zero,
+                      )),
+                      child: child,
+                    );
+                  },
+                );
             },
             icon: const Icon(Icons.search_rounded),
           ),
@@ -66,6 +164,9 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      systemOverlayStyle: SystemUiOverlayStyle(
+        systemNavigationBarColor: MyColors().backgroundColor,
+      ),
       toolbarHeight: 70,
       title: Text(habit != null ? habit!.name : "New Habit",
           style: const TextStyle(

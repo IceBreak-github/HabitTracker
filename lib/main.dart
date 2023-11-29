@@ -7,11 +7,13 @@ import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:habit_tracker/shared/themes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(HabitAdapter());
   boxHabits = await Hive.openBox<Habit>('habitBox');
+  //SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
   runApp(const MyApp());
 }
 

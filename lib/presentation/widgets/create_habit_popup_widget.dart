@@ -32,7 +32,7 @@ createHabitPopUp(BuildContext context) {
             builder: (context) {
               var width = MediaQuery.of(context).size.width;
               return SizedBox(
-                height: 355,
+                height: 295,
                 width: width - 50,
                 child: Padding(
                   padding: const EdgeInsets.all(15),
@@ -109,14 +109,9 @@ class HabitSetting extends StatelessWidget {
   }
 }
 
-class HabitSettingsWindow extends StatefulWidget {
+class HabitSettingsWindow extends StatelessWidget {
   const HabitSettingsWindow({super.key});
 
-  @override
-  State<HabitSettingsWindow> createState() => _HabitSettingsWindowState();
-}
-
-class _HabitSettingsWindowState extends State<HabitSettingsWindow> {
   habitType(String value, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -174,14 +169,6 @@ class _HabitSettingsWindowState extends State<HabitSettingsWindow> {
         BlocBuilder<HabitSettingCubit, HabitSettingState>(
           builder: (context, state) {
             return HabitSetting(
-                value: state.trackable,
-                text: 'Trackable',
-                icon: Icons.query_stats_rounded);
-          },
-        ),
-        BlocBuilder<HabitSettingCubit, HabitSettingState>(
-          builder: (context, state) {
-            return HabitSetting(
               value: state.recurrent,
               text: 'Recurrent',
               icon: Icons.change_circle,
@@ -189,7 +176,7 @@ class _HabitSettingsWindowState extends State<HabitSettingsWindow> {
           },
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 30),
+          padding: const EdgeInsets.only(top: 20),
           child: SizedBox(
             width: 170,
             height: 51,
