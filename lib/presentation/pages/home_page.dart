@@ -159,6 +159,7 @@ class HomePage extends StatelessWidget {
       floatingActionButton: const AddHabitButton(),
       drawer: Drawer(
         backgroundColor: MyColors().backgroundColor,
+        child: const MyDrawer(),
       ),
     );
   }

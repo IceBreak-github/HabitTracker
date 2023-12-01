@@ -6,6 +6,8 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
+import 'package:habit_tracker/presentation/pages/settings_page.dart';
+import 'package:habit_tracker/presentation/pages/statistics_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
@@ -86,7 +88,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                               child: Material(
                                 color: Colors.transparent,
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 25, right: 12),
+                                  padding: const EdgeInsets.only(left: 25, right: 25),
                                   child: Row(
                                     children: [
                                       Expanded(
@@ -112,10 +114,27 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                           ),
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.search),
-                                        color: MyColors().primaryColor,
-                                        onPressed: (){},
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 25),
+                                        child: SizedBox(
+                                          width: 33,
+                                          child: RawMaterialButton(
+                                            elevation: 0,
+                                            shape: const CircleBorder(),
+                                            fillColor: MyColors().primaryColor.withOpacity(0.2),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(0.0),
+                                              child: Icon(
+                                                Icons.search,
+                                                color: MyColors().primaryColor,
+                                                size: 18.5
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                              //TODO implement search
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -564,6 +583,97 @@ class OrderHabits extends StatelessWidget {
             ];
           }
       ),
+    );
+  }
+}
+
+class MyDrawer extends StatelessWidget {
+  const MyDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(25),
+            child: ListView(
+              children: [ 
+                Container(
+                  height: 85,
+                ),
+                Divider(
+                  color: MyColors().lightGrey,
+                ),
+                const SizedBox(height: 26),
+                Wrap(
+                  runSpacing: 5,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.event_available_rounded, size: 24),
+                      title: const Text('Today', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                      iconColor: MyColors().lightGrey,
+                      selectedColor: MyColors().secondaryColor,
+                      textColor: MyColors().lightGrey,
+                      selectedTileColor: MyColors().widgetColor,
+                      selected: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                      ),
+                      onTap: () {
+                        Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage())); 
+                      },
+                    ),
+                    NavTile(text: 'Statistics', icon: Icons.query_stats_rounded, onTap: () {
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => const StatisticsPage())); 
+                    }),
+                    Divider(
+                      color: MyColors().lightGrey,
+                    ),
+                    NavTile(text: 'Settings', icon: Icons.tune_rounded, onTap: () {
+                      Navigator.push(context,MaterialPageRoute(builder: (context) => const SettingsPage())); 
+                    }),
+                    Divider(
+                      color: MyColors().lightGrey,
+                    ),
+                    NavTile(text: 'Rate this app', icon: Icons.star_rounded, onTap: () {}),
+                    NavTile(text: 'Premium', icon: Icons.verified_rounded, onTap: () {}),
+                    Divider(
+                      color: MyColors().lightGrey,
+                    ),
+                    NavTile(text: 'About', icon: Icons.info_rounded, onTap: () {}),
+                  ],
+                ),
+              ]
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NavTile extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final VoidCallback onTap;
+  const NavTile({super.key, required this.text, required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: MyColors().lightGrey, size: 24),
+      title: Text(text, style: TextStyle(color: MyColors().lightGrey, fontSize: 14, fontWeight: FontWeight.w500)),
+      iconColor: MyColors().lightGrey,
+      selectedColor: MyColors().secondaryColor,
+      textColor: MyColors().lightGrey,
+      selectedTileColor: MyColors().widgetColor,
+      selected: false,
+      splashColor: MyColors().widgetColor.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+      ),
+      onTap: onTap,
     );
   }
 }
