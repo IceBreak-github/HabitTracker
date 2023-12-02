@@ -42,12 +42,14 @@ bool isValidDate(String input) {
 }
 
 int calculateAvgScore({required DateTime currentDate}) {
+  
   List<int> allScores = [];
   for(int i = 0; i < boxHabits.length; i++){
     allScores.add(calculateHabitStreakAndRate(habit: boxHabits.getAt(i), currentDate: currentDate)[0]);
   }
   int allSum = allScores.reduce((a, b) => a + b);
   double avgScore = allSum / allScores.length;
+  
   return avgScore.toInt();
 }
 
@@ -56,10 +58,10 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
   int streak = 0;
   if(habit.recurrence is String && habit.recurrence == 'Every Day'){
     int difference = currentDate.difference(habitDate).inDays;
-    while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(currentDate))) {
+    while (habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(currentDate))) {
       streak++;
     }
-    if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(currentDate))){
+    if(habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(currentDate))){
       streak++;
     }
     int completionLength = calculateCompletionLength(habit, currentDate);
@@ -163,26 +165,20 @@ List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime c
         }
       });
       calculateStreak({int iteration = 0}) {
-        bool stop = true;
         for (DateTime date in daysToCheck){
-          DateTime nowDate = DateTime(currentDate.year, currentDate.month - iteration, date.day);
-          if(isValidDate("${nowDate.year}.${nowDate.month}.${nowDate.day}")){
+          if(isValidDate("${currentDate.year}.${currentDate.month - iteration}.${date.day}")){
+            DateTime nowDate = DateTime(currentDate.year, currentDate.month - iteration, date.day);
             if(nowDate.isBefore(currentDate)){
               if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nowDate))){ 
                 streak++;
-                stop = false;
               }
               else{
-                break;
+                return;
               }
             }
           }
-          //print('${nowDate.year}.${nowDate.month}.${nowDate.day} is ${isValidDate("${nowDate.year}.${nowDate.month}.${nowDate.day}")}');
         }
-        if(stop == false){
-          calculateStreak(iteration: iteration+1);
-        }
-        
+        calculateStreak(iteration: iteration+1);
       }
       calculateStreak();
       int completionLength = calculateCompletionLength(habit, currentDate);
@@ -475,7 +471,8 @@ class InlineActivityPanel extends StatelessWidget {
           children: List.generate(7, (index) {
             int reversedIndex = 6 - index;
             DateTime thisDate = DateTime.now().subtract(Duration(days: reversedIndex));
-            bool selected = habit.completionDates.containsKey(DateFormat('yyyy.MM.dd').format(thisDate));
+            bool selected = habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(thisDate));
+
             return Expanded(
               child: Container(
                 margin: const EdgeInsets.only(right: 10),

@@ -133,6 +133,7 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             context.read<HabitHomeCubit>().setMeasurementValues("${formatedCurrentDate}_${habit.name}", value);
                             if (value >= habit.goal!){
                                 habit.completionDates.addAll({formatedCurrentDate : null});
+                                print('Adding date: ${formatedCurrentDate}');
                                 boxHabits.putAt(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", true);
                             }

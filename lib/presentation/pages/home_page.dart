@@ -140,7 +140,7 @@ class HomePage extends StatelessWidget {
                     context.read<HabitHomeCubit>().state.selectedDate;
                 String formatedCurrentDate =
                 DateFormat('yyyy.MM.d').format(currentDate!);
-                context.read<HabitHomeCubit>().cleanHomeCubit(formatedCurrentDate); //clears the Cubit
+                currentDate != value ? context.read<HabitHomeCubit>().cleanHomeCubit(formatedCurrentDate) : null; //clears the Cubit
                 context.read<HabitHomeCubit>().selectDate(value); //changes the selectedDate
               },
             ),
