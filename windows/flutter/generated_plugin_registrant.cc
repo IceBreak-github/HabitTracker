@@ -6,9 +6,12 @@
 
 #include "generated_plugin_registrant.h"
 
+#include <awesome_notifications/awesome_notifications_plugin_c_api.h>
 #include <simple_animation_progress_bar/simple_animation_progress_bar_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
+  AwesomeNotificationsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("AwesomeNotificationsPluginCApi"));
   SimpleAnimationProgressBarPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("SimpleAnimationProgressBarPluginCApi"));
 }

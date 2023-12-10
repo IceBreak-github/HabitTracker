@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +13,7 @@ import 'package:habit_tracker/presentation/pages/settings_page.dart';
 import 'package:habit_tracker/presentation/pages/statistics_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
+import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../pages/home_page.dart';
 
@@ -210,7 +214,21 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.only(right: 9.0),
           child: IconButton(
             icon: const Icon(Icons.delete_forever),
-            onPressed: () {
+            onPressed: () async {
+              List<String> decodeJsonList(String jsonList) {
+                List<dynamic> decodedList = jsonDecode(jsonList);
+                return decodedList.map((item) => item.toString()).toList();
+              }
+              Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
+              List<String> decodedValues = decodeJsonList(allNotifications[habit?.name]!);
+              Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
+                (key, value) => MapEntry(key, value as int)
+              );
+              if(decodedSchedule.isNotEmpty){ 
+                for (int scheduleId in decodedSchedule.values) {
+                  AwesomeNotifications().cancel(scheduleId);
+                }
+              }
               boxHabits.delete(habit!.key);
               Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => const HomePage()));
@@ -542,7 +560,7 @@ class OrderHabits extends StatelessWidget {
                 child: Row(
                   children: [
                     Text('Order Habits:', style: TextStyle(color: Colors.white, fontSize: 14)),
-                    const Spacer(),
+                    Spacer(),
                     /*
                     Icon(
                       Icons.low_priority,

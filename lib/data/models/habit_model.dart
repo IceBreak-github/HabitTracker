@@ -47,4 +47,5 @@ class Habit extends HiveObject{
 
   @HiveField(9)
   Map<String, int> measurementValues;
+
 }

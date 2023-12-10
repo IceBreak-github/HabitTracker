@@ -47,8 +47,14 @@ int calculateAvgScore({required DateTime currentDate}) {
   for(int i = 0; i < boxHabits.length; i++){
     allScores.add(calculateHabitStreakAndRate(habit: boxHabits.getAt(i), currentDate: currentDate)[0]);
   }
-  int allSum = allScores.reduce((a, b) => a + b);
-  double avgScore = allSum / allScores.length;
+  double avgScore;
+  if(allScores.isEmpty){
+    avgScore = 0;
+  }
+  else{
+    int allSum = allScores.reduce((a, b) => a + b);
+    avgScore = allSum / allScores.length;
+  }
   
   return avgScore.toInt();
 }

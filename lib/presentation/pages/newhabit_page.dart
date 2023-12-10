@@ -5,9 +5,12 @@ import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
+import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
+import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 //import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
 //import 'package:habit_tracker/presentation/widgets/button_widgets.dart';
 
@@ -52,11 +55,14 @@ class _NewHabitPageState extends State<NewHabitPage> {
           onPressed: () {
             final habitFormState = context.read<HabitFormCubit>().state;
             final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
-            String? time;
+            String? time = habitFormState.time != null ? "${habitFormState.time!.hour}:${habitFormState.time!.minute}" : null;
             Map<String, bool?> completionDates = isEditing ? widget.habit!.completionDates : {};
             Map<String, int> measurementValues = isEditing ? widget.habit!.measurementValues : {};
 
-            Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit}) {
+            Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit, Map<String, int> scheduleIds = const {}}) {
+              if(scheduleIds.isNotEmpty){
+                StoredNotifications.saveNotification(habitName: habitFormState.habitName!, schedule: scheduleIds, recurrence: recurrence, time: time!); 
+              }
               return Habit(
                 habitType: habitType, 
                 name: habitFormState.habitName!, 
@@ -74,14 +80,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 measurementValues: measurementValues,
               );
             }
-            if(habitFormState.time == null){
-              time = null;
-            }
-            else{
-              time = "${habitFormState.time!.hour}:${habitFormState.time!.minute}";
-            }
-
-
             if (widget.habitType == 'Measurement') {
               if (habitFormState.habitName == null ||
                   habitFormState.habitName!.trim().isEmpty) {
@@ -156,7 +154,27 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     ))
                   );
                 } else {
+                  Map<String, int> scheduleIds = {};
                   dynamic recurrence = habitFormState.recurrenceSet;
+                  if(habitFormState.recurrenceSet == 'Every Day'){
+                    if(habitFormState.notify == true) {
+                      for(int i = 0; i < 7; i++){                     //plans the notifications 7 days ahead
+                        int scheduleId = const Uuid().v4().hashCode;
+                        DateTime thisDate = DateTime.now().add(Duration(days: i));
+                        NotificationService.createCalendarNotification(
+                          id: scheduleId,
+                          day: thisDate.day,
+                          month: thisDate.month,
+                          year: thisDate.year,
+                          hour: habitFormState.time!.hour,
+                          minute: habitFormState.time!.minute,
+                          title: '${habitFormState.habitName}',
+                          body: "Don't forget to complete your Habit !",
+                        );
+                        scheduleIds[DateFormat('yyyy.M.d').format(thisDate)] = scheduleId;
+                      }
+                    }
+                  }
                   if(habitFormState.recurrenceSet == 'Custom W.'){
                     recurrence = habitRecurrenceState.weekDays;
                   }
@@ -172,8 +190,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     };
                     //recurrence = [interval, starting year, starting month, starting day]
                   }
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence)) :
-                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds));
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => MultiBlocProvider(
                       providers: [
