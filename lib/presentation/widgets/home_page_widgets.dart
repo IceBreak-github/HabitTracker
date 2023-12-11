@@ -223,10 +223,10 @@ showDialog(
                                             habitName: habit.name, 
                                             time: timeParts != null ? TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1])) : null,
                                             notify: habit.notify,
-                                            recurrenceSet: computeRecurrencePanel(habit: habit)[0],          //TODO Compute the string
+                                            recurrenceSet: computeRecurrencePanel(habit: habit)[0],          
                                             goal: habit.goal,
                                             unit: habit.unit,
-                                            selectedDate: DateTime(habit.date['year'], habit.date['month'], habit.date['day']),           //TODO Convert from String to DateTime
+                                            selectedDate: DateTime(habit.date['year'], habit.date['month'], habit.date['day']),           
                                           ),
                                         ),
                                         BlocProvider<HabitRecurrenceCubit>(
