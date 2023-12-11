@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:habit_tracker/main.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/colors.dart';
+import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,7 +24,7 @@ class NotificationService {
           channelDescription: 'Notifications channel for Habit Tracker',
           defaultColor: MyColors().primaryColor,
           ledColor: Colors.white,
-          importance: NotificationImportance.Max,
+          importance: NotificationImportance.Max, 
           channelShowBadge: true,
           onlyAlertOnce: true,
           playSound: true,
@@ -97,35 +98,28 @@ class NotificationService {
   static Future<void> notificationPlanner({
     required Map<String, String> allNotifications,
   }) async {
-    List<String> decodeJsonList(String jsonList) {
-      List<dynamic> decodedList = jsonDecode(jsonList);
-      return decodedList.map((item) => item.toString()).toList();
-    }
     if(allNotifications.isEmpty){
       return;
     }
     for(String habitName in allNotifications.keys){
-      List<String> decodedValues = decodeJsonList(allNotifications[habitName]!);
-      Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
-        (key, value) => MapEntry(key, value as int)
-      );
-      String time = decodedValues[1];
-      print('My decoded schedule is ${decodedSchedule}');  
-      dynamic recurrence;
+      //getting data
+      List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habitName);
+      Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+      String time = sharedPreferencesValues[1]; 
+      dynamic recurrence = sharedPreferencesValues[2];
+      print('My decoded schedule is ${decodedSchedule}'); 
+
+      //cleaning
       List<String> keysToRemove = [];
-      for (String date in decodedSchedule.keys){                                           //since clearing of the keys will happen, the map should not get too big
+      for (String date in decodedSchedule.keys){                                           
         List<String> dateParts = date.split('.');
         if(DateTime(int.parse(dateParts[0]), int.parse(dateParts[1]), int.parse(dateParts[2])).isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){          //if notification date is before current, remove it since its not needed anymore
-          keysToRemove.add(date);                                       //clear the previous dates
+          keysToRemove.add(date);                                       
         }
       }
       keysToRemove.forEach((key) => decodedSchedule.remove(key));
-      if(decodedValues[2] == 'Every Day'){
-        recurrence = 'Every Day';
-      }
-      else{
-        //TODO if its a Map, complete later
-      }
+
+      //planning future notifications
       if(recurrence == 'Every Day'){                       //if habit recurrence is everyday
         List<DateTime> dateList = decodedSchedule.keys.toList().map((dateString) {
           List<String> dateParts = dateString.split('.');

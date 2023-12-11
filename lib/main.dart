@@ -73,6 +73,13 @@ Future<void> main() async {
   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);           //TODO later set to false
   _listenForUpdatesFromWorkManager();
   runApp(const MyApp());
+  /*
+  Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
+  Workmanager().registerPeriodicTask('notificationPlanner', taskName, frequency: const Duration(days: 3), inputData: <String, dynamic>{
+      'allNotifications': json.encode(allNotifications),
+  });
+  */ //TODO uncomment later
+
 }
 
 class MyApp extends StatelessWidget {
@@ -82,8 +89,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //Workmanager().registerPeriodicTask(UniqueKey().hashCode.toString(), taskName, frequency: const Duration(days: 3)); //plans the notifications for another week each 3 days (unless done before)
-    //TODO later, make this run only ones, when the user opens the app for the first time
     return MultiBlocProvider(
       providers: [
         BlocProvider<HabitHomeCubit>(

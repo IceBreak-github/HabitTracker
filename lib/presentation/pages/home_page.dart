@@ -71,11 +71,6 @@ class HomePage extends StatelessWidget {
                             height = 145;
                           }
                         }
-                        //print('On load: ${habit.scheduleIds}');
-                        //print("Hive measurementValues: ${habit.measurementValues}");
-                        //print("State measurementValues: ${state.measurementValues}");
-                        //print("Hive completion dates: ${habit.completionDates}");
-                        //print("State isChecked: ${state.isChecked}");
                         return GestureDetector(
                           onTap: () async {
                             if(currentDate.isAfter(DateTime.now())){
@@ -83,20 +78,12 @@ class HomePage extends StatelessWidget {
                             }
                             else {
                               if(habit.habitType == 'Yes or No'){
+                                List<String> timeParts = habit.time!.split(':');
+                                String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
+                                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
+                                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                                 if(habit.completionDates.containsKey(formatedCurrentDate)){
                                   if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
-                                    print('creating the notification again');
-                                    List<String> timeParts = habit.time!.split(':');
-                                    String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
-                                    List<String> decodeJsonList(String jsonList) {
-                                      List<dynamic> decodedList = jsonDecode(jsonList);
-                                      return decodedList.map((item) => item.toString()).toList();
-                                    }
-                                    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-                                    List<String> decodedValues = decodeJsonList(allNotifications[habit.name]!);
-                                    Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
-                                      (key, value) => MapEntry(key, value as int)
-                                    );
                                     if(decodedSchedule.containsKey(nowDate)){
                                       NotificationService.createCalendarNotification(
                                         id: decodedSchedule[nowDate]!,
@@ -113,35 +100,23 @@ class HomePage extends StatelessWidget {
                                   habit.completionDates.remove(formatedCurrentDate);
                                 }
                                 else{
-                                  
                                   if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
-                                    print('canceling the notification');
-                                    List<String> decodeJsonList(String jsonList) {
-                                      List<dynamic> decodedList = jsonDecode(jsonList);
-                                      return decodedList.map((item) => item.toString()).toList();
-                                    }
-                                    String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
-                                    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-                                    List<String> decodedValues = decodeJsonList(allNotifications[habit.name]!);
-                                    Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
-                                      (key, value) => MapEntry(key, value as int)
-                                    );
-                                    
                                     if(decodedSchedule.containsKey(nowDate)){
                                       AwesomeNotifications().cancel(decodedSchedule[nowDate]!);
                                     }      
                                   }
-                                  
                                   habit.completionDates.addAll({formatedCurrentDate: null});
                                 }
                                 boxHabits.putAt(state.shownHabitIndexes[index], habit);
-                                if (!context.mounted) return;
-                                context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!);               //because we cant devide with zero
-                                context.read<HabitHomeCubit>().updateProgressBar();
+                                if (context.mounted) {
+                                  context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!);               //because we cant devide with zero
+                                  context.read<HabitHomeCubit>().updateProgressBar();
+                                }
                               }
                               if(habit.habitType == 'Measurement'){
-                                if (!context.mounted) return;
-                                showChangeMeasurementValuePopUp(context: context, habit: habit, index: state.shownHabitIndexes[index], formatedCurrentDate: formatedCurrentDate);
+                                if (context.mounted) {
+                                  showChangeMeasurementValuePopUp(context: context, habit: habit, index: state.shownHabitIndexes[index], formatedCurrentDate: formatedCurrentDate);
+                                }
                               }
                             }
                           },
@@ -206,8 +181,6 @@ class HomePage extends StatelessWidget {
                   icon: const Icon(Icons.query_stats),
                   label: const Text('Statistics'),
                   onPressed: () async {
-                    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-                    print('Here in the UI: $allNotifications');
                     Navigator.push(context,MaterialPageRoute(builder: (context) => const StatisticsPage())); 
             })),
             Positioned(       //TODO this is here only for testing, remove later

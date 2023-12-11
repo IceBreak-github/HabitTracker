@@ -26,4 +26,19 @@ class StoredNotifications{
     String encodedValues = json.encode(values);
     return prefs.setString(habitName, encodedValues);
   }
+
+  static Future<List> decodeSharedPreferences({required String name}) async {
+    List<String> decodeJsonList(String jsonList) {
+      List<dynamic> decodedList = jsonDecode(jsonList);
+      return decodedList.map((item) => item.toString()).toList();
+    }
+    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
+    List<String> decodedValues = decodeJsonList(allNotifications[name]!);
+    Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
+      (key, value) => MapEntry(key, value as int)
+    );
+    String time = decodedValues[1];
+    dynamic recurrence = decodedValues[2];
+    return [decodedSchedule, time, recurrence];
+  }
 }
