@@ -263,13 +263,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                         initialTime: isEditing ? widget.habit!.time != null ? TimeOfDay(hour: int.parse(timeParts![0]), minute: int.parse(timeParts[1])) : const TimeOfDay(hour: 12, minute: 12) : const TimeOfDay(hour: 12, minute: 12),
                                       );
                                       if (newTime != null) {
-                                        context
-                                            .read<HabitFormCubit>()
-                                            .setHabitTime(newTime);
-                                        context
-                                            .read<HabitFormCubit>()
-                                            .toggleHabitNotify(true);
-                                        //print(time);
+                                        if (context.mounted) {
+                                          context.read<HabitFormCubit>().setHabitTime(newTime);
+                                          context.read<HabitFormCubit>().toggleHabitNotify(true);
+                                        }
                                       }
                                     }),
                               ),
@@ -356,9 +353,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       },
                                     );
                                     if (pickedDate != null) {
-                                      context
-                                          .read<HabitFormCubit>()
-                                          .setHabitDate(pickedDate);
+                                      if (context.mounted) {
+                                        context.read<HabitFormCubit>().setHabitDate(pickedDate);
+                                      }
                                     }
                                   }),
                           widget.habitType == "Measurement"
@@ -459,9 +456,9 @@ class _NewHabitPageState extends State<NewHabitPage> {
                                       },
                                     );
                                     if (pickedDate != null) {
-                                      context
-                                          .read<HabitFormCubit>()
-                                          .setHabitDate(pickedDate);
+                                      if (context.mounted) {
+                                        context.read<HabitFormCubit>().setHabitDate(pickedDate);
+                                      }
                                     }
                                   }
                             ),

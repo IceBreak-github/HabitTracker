@@ -486,7 +486,7 @@ class InlineActivityPanel extends StatelessWidget {
                   children: <Widget> [
                     Text(DateFormat('E').format(thisDate).substring(0, 2), style: TextStyle(color: MyColors().lightGrey, fontSize: 11, fontWeight: FontWeight.w500)),
                     Padding(
-                      padding: const EdgeInsets.only(top: 5),       //TODO, make the whole widget space evenly inside the parent Row, starting from right to left
+                      padding: const EdgeInsets.only(top: 5),       
                       child: FractionallySizedBox(
                         child: AspectRatio(
                           aspectRatio: 1,

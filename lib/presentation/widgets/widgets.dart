@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -215,23 +213,20 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: IconButton(
             icon: const Icon(Icons.delete_forever),
             onPressed: () async {
-              List<String> decodeJsonList(String jsonList) {
-                List<dynamic> decodedList = jsonDecode(jsonList);
-                return decodedList.map((item) => item.toString()).toList();
-              }
-              Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-              List<String> decodedValues = decodeJsonList(allNotifications[habit?.name]!);
-              Map<String, int> decodedSchedule = (json.decode(decodedValues[0]) as Map<String, dynamic>).map(
-                (key, value) => MapEntry(key, value as int)
-              );
-              if(decodedSchedule.isNotEmpty){ 
-                for (int scheduleId in decodedSchedule.values) {
-                  AwesomeNotifications().cancel(scheduleId);
+              if(habit!.notify == true){
+                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit!.name);
+                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+                if(decodedSchedule.isNotEmpty){ 
+                  for (int scheduleId in decodedSchedule.values) {
+                    AwesomeNotifications().cancel(scheduleId);
+                  }
                 }
               }
               boxHabits.delete(habit!.key);
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const HomePage()));
+              if (context.mounted) {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const HomePage()));
+              }
             },
           ),
         ) : Container()

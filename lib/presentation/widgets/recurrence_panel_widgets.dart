@@ -345,7 +345,7 @@ class IntervalPage extends StatelessWidget {
             child: Row(children: [
               Column(
                 children: <Widget>[
-                  SetInterval(value:'Every Day'), //TODO add a feature so the user can select the values them selfs
+                  SetInterval(value:'Every Day'),
                   SetInterval(value: 'Every 2 Days', number: 2),
                   SetInterval(value: 'Every 3 Days', number: 3),
                   SetInterval(value: 'Every 4 Days', number: 4),

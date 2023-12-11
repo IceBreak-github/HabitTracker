@@ -78,12 +78,12 @@ class HomePage extends StatelessWidget {
                             }
                             else {
                               if(habit.habitType == 'Yes or No'){
-                                List<String> timeParts = habit.time!.split(':');
                                 String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
-                                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
-                                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                                 if(habit.completionDates.containsKey(formatedCurrentDate)){
-                                  if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
+                                  if(habit.notify == true && habit.time != null && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
+                                    List<String> timeParts = habit.time!.split(':');
+                                    List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
+                                    Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                                     if(decodedSchedule.containsKey(nowDate)){
                                       NotificationService.createCalendarNotification(
                                         id: decodedSchedule[nowDate]!,
@@ -101,6 +101,8 @@ class HomePage extends StatelessWidget {
                                 }
                                 else{
                                   if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
+                                    List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
+                                    Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                                     if(decodedSchedule.containsKey(nowDate)){
                                       AwesomeNotifications().cancel(decodedSchedule[nowDate]!);
                                     }      

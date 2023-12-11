@@ -133,7 +133,6 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             context.read<HabitHomeCubit>().setMeasurementValues("${formatedCurrentDate}_${habit.name}", value);
                             if (value >= habit.goal!){
                                 habit.completionDates.addAll({formatedCurrentDate : null});
-                                print('Adding date: ${formatedCurrentDate}');
                                 boxHabits.putAt(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", true);
                             }
@@ -425,7 +424,6 @@ class HabitMeasurementBox extends StatelessWidget {
             if(state.isChecked["${formatedCurrentDate}_${habit.name}"] == true){                       //TODO when the user edits the habit goal it remains checked even when it shouldnt
               done = true;
             }
-            
             return Text(
                 "$result", //TODO change here
                 style: TextStyle(
