@@ -92,7 +92,7 @@ class NotificationService {
     );
   }
 
-  static Future<void> notificationPlanner({
+  static Future<void> notificationPlanner({              //running on the workmanager isolate
     required Map<String, String> allNotifications,
   }) async {
     if(allNotifications.isEmpty){
@@ -136,6 +136,57 @@ class NotificationService {
         send?.send([habitName, decodedSchedule, time, recurrence]);
       }
     }
+  }
+
+  static Future<Map<String, int>> initalNotificationCreation({required dynamic recurrence, required DateTime startDate, required String habitName, required String time}) async {   //creates first 7 notifications when habit is created
+    Map<String, int> scheduleIds = {};
+    List<String> timeParts = time.split(':');
+    if(recurrence == null) {      //create a one time notification
+      print(recurrence);
+      int scheduleId = const Uuid().v4().hashCode;
+      NotificationService.createCalendarNotification(
+        id: scheduleId,
+        day: startDate.day,
+        month: startDate.month,
+        year: startDate.year,
+        hour: int.parse(timeParts[0]),
+        minute: int.parse(timeParts[1]),
+        title: habitName,
+        body: "Don't forget to complete your Habit !",
+      );
+      scheduleIds[DateFormat('yyyy.M.d').format(startDate)] = scheduleId;
+      return scheduleIds;
+    }
+    if(recurrence is String && recurrence == 'Every Day'){
+      for(int i = 0; i < 7; i++){                     //plans the notifications 7 days ahead
+        int scheduleId = const Uuid().v4().hashCode;
+        DateTime thisDate = startDate.add(Duration(days: i));
+        NotificationService.createCalendarNotification(
+          id: scheduleId,
+          day: thisDate.day,
+          month: thisDate.month,
+          year: thisDate.year,
+          hour: int.parse(timeParts[0]),
+          minute: int.parse(timeParts[1]),
+          title: habitName,
+          body: "Don't forget to complete your Habit !",
+        );
+        scheduleIds[DateFormat('yyyy.M.d').format(thisDate)] = scheduleId; 
+      }
+      return scheduleIds;
+    }
+    if(recurrence is Map){
+      if(recurrence.containsKey("interval")){
+
+      }
+      else if(recurrence.containsKey("Monday")){
+
+      }
+      if (recurrence.keys.every((key) => key is int)){
+
+      }
+    }
+    return scheduleIds;
   }
    
 }

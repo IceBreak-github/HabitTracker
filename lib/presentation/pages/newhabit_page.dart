@@ -49,7 +49,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
       bottomNavigationBar: SubmitButton(
           text: 'Save Habit',
           width: MediaQuery.of(context).size.width,
-          onPressed: () {
+          onPressed: () async {
             final habitFormState = context.read<HabitFormCubit>().state;
             final habitRecurrenceState = context.read<HabitRecurrenceCubit>().state;
             String? time = habitFormState.time != null ? "${habitFormState.time!.hour}:${habitFormState.time!.minute}" : null;
@@ -138,38 +138,32 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null)) :
-                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null));
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => MultiBlocProvider(
-                      providers: [
-                        BlocProvider<HabitHomeCubit>(
-                          create: (context) => HabitHomeCubit(),
-                        ),
-                      ],
-                      child: const HomePage(),
-                    ))
-                  );
+                  Map<String, int> scheduleIds = {};
+                  if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: null, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                  }
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds));
+                  if(context.mounted){
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider<HabitHomeCubit>(
+                            create: (context) => HabitHomeCubit(),
+                          ),
+                        ],
+                        child: const HomePage(),
+                      ))
+                    );
+                  }
                 } else {
                   Map<String, int> scheduleIds = {};
                   dynamic recurrence = habitFormState.recurrenceSet;
                   if(habitFormState.recurrenceSet == 'Every Day'){
                     if(habitFormState.notify == true) {
-                      for(int i = 0; i < 7; i++){                     //plans the notifications 7 days ahead
-                        int scheduleId = const Uuid().v4().hashCode;
-                        DateTime thisDate = DateTime.now().add(Duration(days: i));
-                        NotificationService.createCalendarNotification(
-                          id: scheduleId,
-                          day: thisDate.day,
-                          month: thisDate.month,
-                          year: thisDate.year,
-                          hour: habitFormState.time!.hour,
-                          minute: habitFormState.time!.minute,
-                          title: '${habitFormState.habitName}',
-                          body: "Don't forget to complete your Habit !",
-                        );
-                        scheduleIds[DateFormat('yyyy.M.d').format(thisDate)] = scheduleId;
-                      }
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: habitFormState.recurrenceSet, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
                     }
                   }
                   if(habitFormState.recurrenceSet == 'Custom W.'){
@@ -189,18 +183,19 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds));
-                  
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => MultiBlocProvider(
-                      providers: [
-                        BlocProvider<HabitHomeCubit>(
-                          create: (context) => HabitHomeCubit(),
-                        ),
-                      ],
-                      child: const HomePage(),
-                    ))
-                  );
-                  context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!); //to update the completion bar
+                  if(context.mounted){
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider<HabitHomeCubit>(
+                            create: (context) => HabitHomeCubit(),
+                          ),
+                        ],
+                        child: const HomePage(),
+                      ))
+                    );
+                    context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!); //to update the completion bar
+                  }
                 }
               }
             }

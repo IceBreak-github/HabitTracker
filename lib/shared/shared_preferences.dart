@@ -19,6 +19,9 @@ class StoredNotifications{
     if(recurrence is Map){
       encodedRecurrence = json.encode(recurrence);
     }
+    if(recurrence == null){
+      encodedRecurrence = 'null';
+    }
     else{
       encodedRecurrence = recurrence;
     }

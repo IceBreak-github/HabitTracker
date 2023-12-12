@@ -223,7 +223,7 @@ showDialog(
                                             habitName: habit.name, 
                                             time: timeParts != null ? TimeOfDay(hour: int.parse(timeParts[0]), minute: int.parse(timeParts[1])) : null,
                                             notify: habit.notify,
-                                            recurrenceSet: computeRecurrencePanel(habit: habit)[0],          
+                                            recurrenceSet: habit.recurrence != null ? computeRecurrencePanel(habit: habit)[0] : null,          
                                             goal: habit.goal,
                                             unit: habit.unit,
                                             selectedDate: DateTime(habit.date['year'], habit.date['month'], habit.date['day']),           
