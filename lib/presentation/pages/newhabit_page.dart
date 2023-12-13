@@ -10,7 +10,6 @@ import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import '../../shared/colors.dart';
 import '../widgets/recurrence_panel_widgets.dart';
 import '../widgets/widgets.dart';
@@ -179,7 +178,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
                       "day" :     int.parse(DateFormat('d').format(DateTime.now())),
                     };
-                    //recurrence = [interval, starting year, starting month, starting day]
                   }
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds));

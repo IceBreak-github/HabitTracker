@@ -9,6 +9,8 @@ import 'package:habit_tracker/shared/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 
+//TODO habits which have a recurrence of null are not counted, should that be changed? probably not, but the user should be informed
+
 int countWeekdaysBetween(DateTime startDate, DateTime endDate, int targetWeekday) {
   int difference = endDate.difference(startDate).inDays;
   double numberOfWeeks = (difference + startDate.weekday) / 7 + 1;
@@ -45,7 +47,11 @@ int calculateAvgScore({required DateTime currentDate}) {
   
   List<int> allScores = [];
   for(int i = 0; i < boxHabits.length; i++){
-    allScores.add(calculateHabitStreakAndRate(habit: boxHabits.getAt(i), currentDate: currentDate)[0]);
+    try{
+      allScores.add(calculateHabitStreakAndRate(habit: boxHabits.getAt(i), currentDate: currentDate)[0]!);
+    } catch(e){
+      //do nothing
+    }
   }
   double avgScore;
   if(allScores.isEmpty){
@@ -59,9 +65,12 @@ int calculateAvgScore({required DateTime currentDate}) {
   return avgScore.toInt();
 }
 
-List<int> calculateHabitStreakAndRate({required Habit habit, required DateTime currentDate}) {
+List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime currentDate}) {
   DateTime habitDate = DateTime(habit.date['year'], habit.date['month'],habit.date['day']);
   int streak = 0;
+  if(habit.recurrence == null){
+    return [null,null];
+  }
   if(habit.recurrence is String && habit.recurrence == 'Every Day'){
     int difference = currentDate.difference(habitDate).inDays;
     while (habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(currentDate.subtract(Duration(days: 1 + streak)))) && habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(currentDate))) {
@@ -308,7 +317,7 @@ class OverallScore extends StatelessWidget {
                       animationDuration: 3,
                       valueNotifier: overAllScore,
                     ),
-                    const SizedBox(width: 31),
+                    const Spacer(),
                     Column(
                       children: [
                         Text('$avgScore%', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.bold)),
@@ -316,7 +325,7 @@ class OverallScore extends StatelessWidget {
                         Text('Score', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
-                    const SizedBox(width: 31),
+                    const Spacer(),
                     Column(
                       children: [
                         Row(
@@ -329,7 +338,7 @@ class OverallScore extends StatelessWidget {
                         Text('Month', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
-                    const SizedBox(width: 31),
+                    const Spacer(),
                     Column(
                       children: [
                         Row(
@@ -342,7 +351,7 @@ class OverallScore extends StatelessWidget {
                         Text('Week', style: TextStyle(color: MyColors().lightGrey, fontSize: 12, fontWeight: FontWeight.w500)),
                       ],
                     ),
-                    //const SizedBox(width: 12),
+                    const Spacer(),
                   ],
                 ),
               ),
@@ -366,7 +375,7 @@ class StatsDivider extends StatelessWidget {
           Expanded(child: Divider(color: Color.fromRGBO(81,81,81, 1))),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 7.0),
-            child: Text('All Habits', style: TextStyle(color: Color.fromRGBO(81,81,81, 1), fontSize: 12)),
+            child: Text('Recurrent Habits', style: TextStyle(color: Color.fromRGBO(81,81,81, 1), fontSize: 12)),
           ),
           Expanded(child: Divider(color: Color.fromRGBO(81,81,81, 1))),
         ],
@@ -426,7 +435,7 @@ class HabitStatPanel extends StatelessWidget {
                         backColor: const Color.fromRGBO(45, 45, 59, 1),
                         mergeMode: true,
                         animationDuration: 3,
-                        valueNotifier: ValueNotifier(calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[0].toDouble()),
+                        valueNotifier: ValueNotifier(calculateHabitStreakAndRate(habit: habit, currentDate: DateTime.now())[0]!.toDouble()),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 13),

@@ -28,7 +28,7 @@ class StatisticsPage extends StatelessWidget {
                       itemCount: boxHabits.length,
                       itemBuilder: (context, index) {
                         Habit habit = boxHabits.getAt(index);
-                        return Padding(
+                        return habit.recurrence != null ? Padding(
                           padding: const EdgeInsets.only(bottom: 30),
                           child: Container(
                             width: MediaQuery.of(context).size.width,
@@ -53,7 +53,7 @@ class StatisticsPage extends StatelessWidget {
                               ),
                             child: HabitStatPanel(habit: habit)
                           ),
-                        );
+                        ) : Container();
                       }
                     ),
                   ),
