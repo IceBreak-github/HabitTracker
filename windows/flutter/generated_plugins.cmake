@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
+  awesome_notifications_core
   simple_animation_progress_bar
 )
 

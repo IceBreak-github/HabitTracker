@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,6 +183,7 @@ class HomePage extends StatelessWidget {
                   onPressed: () async {
                     Navigator.push(context,MaterialPageRoute(builder: (context) => const StatisticsPage())); 
             })),
+            
             Positioned(       //TODO this is here only for testing, remove later
               bottom: 110,
               left: 100,
@@ -192,11 +191,10 @@ class HomePage extends StatelessWidget {
                   icon: const Icon(Icons.warning_rounded),
                   label: const Text('Test Schedule'),
                   onPressed: () async {
-                    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-                    Workmanager().registerOneOffTask(UniqueKey().hashCode.toString(), 'notificationPlanner', inputData: <String, dynamic>{
-                        'allNotifications': json.encode(allNotifications),
-                    });
+                    //Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
+                    Workmanager().registerOneOffTask(UniqueKey().hashCode.toString(), 'notificationPlanner');
               })),
+              
         ],
       ),
       floatingActionButton: const AddHabitButton(),

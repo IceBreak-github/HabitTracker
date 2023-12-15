@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/logic/services/habit_service.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:intl/intl.dart';
 
@@ -63,55 +64,7 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
     String formatedCurrentDate = DateFormat('yyyy.MM.d').format(currentDate!);   
     for (int index = 0; index < boxHabits.length; index++) {
       Habit habit = boxHabits.getAt(index);
-      bool show = false;
-      if (habit.recurrence == null) {
-        if ("${habit.date['year']}.${habit.date['month']}.${habit.date['day']}" ==
-            DateFormat('yyyy.MM.d').format(newDate)) {
-          show = true;
-          
-        }
-      } else {
-        if (DateTime(habit.date['year'], habit.date['month'],
-                habit.date['day'])
-            .isBefore(newDate)) {
-          if (habit.recurrence is String &&
-              habit.recurrence == 'Every Day') {
-                show = true;
-           
-          }
-          if (habit.recurrence is Map &&
-              habit.recurrence.containsKey(int.parse(
-                  DateFormat('d').format(newDate)))) {
-                    show = true;
-            
-          }
-          if (habit.recurrence is Map &&
-              habit.recurrence.containsKey(DateFormat('EEEE').format(newDate)) && habit.recurrence[DateFormat('EEEE').format(newDate)]) {
-                show = true;
-          }
-          if (habit.recurrence is Map &&
-              habit.recurrence.containsKey("interval")) {
-            DateTime startDate = DateTime(
-                habit.date["year"],
-                habit.date['month'],
-                habit.date[
-                    'day']); // Replace with your starting date
-            Duration interval =
-                Duration(days: habit.recurrence["interval"]);
-            // Calculate the difference in days between the current date and the starting date
-            int daysDifference =
-                newDate.difference(startDate).inDays;
-
-            // Check if the current date is every X day from the starting date
-            bool isEveryXDay =
-                daysDifference % interval.inDays == 0;
-
-            if (isEveryXDay) {
-              show = true;
-            }
-          }
-        }
-      }
+      bool show = showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: newDate);
       // Logic to determine if the habit has been checked off
       if (habit.completionDates.containsKey(formatedCurrentDate) && show == true) {
         setCheckValue(

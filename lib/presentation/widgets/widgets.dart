@@ -218,9 +218,10 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                 if(decodedSchedule.isNotEmpty){ 
                   for (int scheduleId in decodedSchedule.values) {
-                    AwesomeNotifications().cancel(scheduleId);
+                    AwesomeNotifications().cancel(scheduleId); 
                   }
                 }
+                await StoredNotifications.removeNotification(habitName: habit!.name);
               }
               boxHabits.delete(habit!.key);
               if (context.mounted) {

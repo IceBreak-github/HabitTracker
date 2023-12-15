@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:isolate';
 import 'dart:ui';
 
@@ -23,10 +22,12 @@ void callbackDispatcher() {
       case 'notificationPlanner':
         try {
           //Task Logic here
+          /*
           Map<String, String> allNotifications = (json.decode(inputData?['allNotifications']) as Map<String, dynamic>).map(
             (key, value) => MapEntry(key, value as String)
           );
-          await NotificationService.notificationPlanner(allNotifications: allNotifications);
+          */
+          await NotificationService.notificationPlanner();
         } catch (err) {
           throw Exception(err); 
         }
@@ -45,8 +46,10 @@ void _listenForUpdatesFromWorkManager() {
       Map<String, int> schedule = data[1];
       String time = data[2];
       dynamic recurrence = data[3]; 
+      Map<String, int> startDateMap = data[4];
+      DateTime startDate = DateTime(startDateMap['year']!, startDateMap['month']!, startDateMap['day']!);
       print('saving schedule: $schedule');
-      StoredNotifications.saveNotification(habitName: habitName, schedule: schedule, time: time, recurrence: recurrence);
+      StoredNotifications.saveNotification(habitName: habitName, schedule: schedule, time: time, recurrence: recurrence, startDate: startDate);
       for(String date in schedule.keys){
         List<String> timeParts = time.split(':');
         List<String> dateParts = date.split('.');
@@ -73,12 +76,10 @@ Future<void> main() async {
   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);           //TODO later set to false
   _listenForUpdatesFromWorkManager();
   runApp(const MyApp());
-  /*
-  Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
-  Workmanager().registerPeriodicTask('notificationPlanner', taskName, frequency: const Duration(days: 3), inputData: <String, dynamic>{
-      'allNotifications': json.encode(allNotifications),
-  });
-  */ //TODO uncomment later
+  
+  //Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
+  Workmanager().registerPeriodicTask('notificationPlanner', taskName, frequency: const Duration(days: 1));
+   //TODO uncomment later
 
 }
 

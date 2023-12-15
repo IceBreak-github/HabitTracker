@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:habit_tracker/logic/services/habit_service.dart';
 import 'package:habit_tracker/main.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/colors.dart';
@@ -77,24 +78,24 @@ class NotificationService {
         body: body,
         actionType: ActionType.Default,
         notificationLayout: NotificationLayout.Default,
+        criticalAlert: true,
       ),
       schedule: NotificationCalendar(
         hour: hour,
         minute: minute,
-        second: 0,
         day: day,
         month: month,
         year: year,
         timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
         preciseAlarm: true,
-        repeats: true
+        repeats: true,
+        allowWhileIdle: true,
       )
     );
   }
 
-  static Future<void> notificationPlanner({              //running on the workmanager isolate
-    required Map<String, String> allNotifications,
-  }) async {
+  static Future<void> notificationPlanner() async {
+    Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
     if(allNotifications.isEmpty){
       return;
     }
@@ -104,45 +105,41 @@ class NotificationService {
       Map<String, int> decodedSchedule = sharedPreferencesValues[0];
       String time = sharedPreferencesValues[1]; 
       dynamic recurrence = sharedPreferencesValues[2];
+      Map<String, int> decodedStartDateMap = sharedPreferencesValues[3];
       print('My decoded schedule is $decodedSchedule'); 
 
-      //cleaning
-      List<String> keysToRemove = [];
-      for (String date in decodedSchedule.keys){                                           
-        List<String> dateParts = date.split('.');
-        if(DateTime(int.parse(dateParts[0]), int.parse(dateParts[1]), int.parse(dateParts[2])).isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){          //if notification date is before current, remove it since its not needed anymore
-          keysToRemove.add(date);                                       
-        }
-      }
-      keysToRemove.forEach((key) => decodedSchedule.remove(key));
-
-      //planning future notifications
-      if(recurrence == 'Every Day'){                       //if habit recurrence is everyday
-        List<DateTime> dateList = decodedSchedule.keys.toList().map((dateString) {
-          List<String> dateParts = dateString.split('.');
-          return DateTime(int.parse(dateParts[0]), int.parse(dateParts[1]), int.parse(dateParts[2]));
-        }).toList();
-        DateTime mostFutureDate = dateList.reduce((a, b) => a.isAfter(b) ? a : b);          //find the most future date
-        DateTime mostPastDate = dateList.reduce((a, b) => a.isBefore(b) ? a : b);                              
-        if(!decodedSchedule.containsKey(DateFormat('yyyy.M.d').format(mostPastDate.add(const Duration(days: 8))))){              //if a notification 8 days ahead is planned, the script already ran
-          for(int i = 0; i < 7; i++){                     //plans the notifications another 7 days ahead, O(1)
-            int scheduleId = const Uuid().v4().hashCode;
-            DateTime futureDate = mostFutureDate.add(Duration(days: i));
-            decodedSchedule[DateFormat('yyyy.M.d').format(futureDate)] = scheduleId;
+      if(decodedSchedule.isNotEmpty){
+        List<String> keysToRemove = [];
+        for (String date in decodedSchedule.keys){                                           
+          List<String> dateParts = date.split('.');
+          if(DateTime(int.parse(dateParts[0]), int.parse(dateParts[1]), int.parse(dateParts[2])).isBefore(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){          //if notification date is before current, remove it since its not needed anymore
+            keysToRemove.add(date);                                       
           }
         }
-        print('Sending schedule: $decodedSchedule');
-        SendPort? send = IsolateNameServer.lookupPortByName('notificationPlanner');
-        send?.send([habitName, decodedSchedule, time, recurrence]);
+        keysToRemove.forEach((key) => decodedSchedule.remove(key));
       }
+      for(int i = 0; i < 3; i++){
+        DateTime thisDate = DateTime.now().add(Duration(days: i));
+        bool show = showHabitOrNot(recurrence: recurrence, habitDate: decodedStartDateMap, newDate: thisDate);
+        if(!decodedSchedule.containsKey(DateFormat('yyyy.M.d').format(thisDate))){
+          if(show){
+            int scheduleId = const Uuid().v4().hashCode;
+            decodedSchedule[DateFormat('yyyy.M.d').format(thisDate)] = scheduleId;
+          }
+        }
+      }
+      print('Sending schedule: $decodedSchedule');
+      SendPort? send = IsolateNameServer.lookupPortByName('notificationPlanner');
+      send?.send([habitName, decodedSchedule, time, recurrence, decodedStartDateMap]);
     }
   }
-
+  
   static Future<Map<String, int>> initalNotificationCreation({required dynamic recurrence, required DateTime startDate, required String habitName, required String time}) async {   //creates first 7 notifications when habit is created
     Map<String, int> scheduleIds = {};
     List<String> timeParts = time.split(':');
+    Map<String, int> startDateMap = {'year' : startDate.year, 'month' : startDate.month, 'day' : startDate.day};
+    bool isBefore = startDate.isBefore(DateTime.now());
     if(recurrence == null) {      //create a one time notification
-      print(recurrence);
       int scheduleId = const Uuid().v4().hashCode;
       NotificationService.createCalendarNotification(
         id: scheduleId,
@@ -157,10 +154,11 @@ class NotificationService {
       scheduleIds[DateFormat('yyyy.M.d').format(startDate)] = scheduleId;
       return scheduleIds;
     }
-    if(recurrence is String && recurrence == 'Every Day'){
-      for(int i = 0; i < 7; i++){                     //plans the notifications 7 days ahead
-        int scheduleId = const Uuid().v4().hashCode;
-        DateTime thisDate = startDate.add(Duration(days: i));
+    for(int i = 0; i < 2; i++){                     //plans the notifications 2 dates ahead
+      int scheduleId = const Uuid().v4().hashCode;
+      DateTime thisDate = isBefore ? DateTime.now().add(Duration(days: i)) : startDate.add(Duration(days: i));
+      bool show = showHabitOrNot(recurrence: recurrence, habitDate: startDateMap, newDate: thisDate);
+      if(show){
         NotificationService.createCalendarNotification(
           id: scheduleId,
           day: thisDate.day,
@@ -173,20 +171,7 @@ class NotificationService {
         );
         scheduleIds[DateFormat('yyyy.M.d').format(thisDate)] = scheduleId; 
       }
-      return scheduleIds;
-    }
-    if(recurrence is Map){
-      if(recurrence.containsKey("interval")){
-
-      }
-      else if(recurrence.containsKey("Monday")){
-
-      }
-      if (recurrence.keys.every((key) => key is int)){
-
-      }
     }
     return scheduleIds;
   }
-   
 }

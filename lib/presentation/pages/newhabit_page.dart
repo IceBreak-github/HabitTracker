@@ -54,10 +54,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
             String? time = habitFormState.time != null ? "${habitFormState.time!.hour}:${habitFormState.time!.minute}" : null;
             Map<String, bool?> completionDates = isEditing ? widget.habit!.completionDates : {};
             Map<String, int> measurementValues = isEditing ? widget.habit!.measurementValues : {};
+            Map<String, int> scheduleIds = {};
 
-            Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit, Map<String, int> scheduleIds = const {}}) {
-              if(scheduleIds.isNotEmpty){
-                StoredNotifications.saveNotification(habitName: habitFormState.habitName!, schedule: scheduleIds, recurrence: recurrence, time: time!); 
+            Habit newHabit({required String habitType, dynamic recurrence, int? goal, String? unit, Map<String, int> scheduleIds = const {}, required bool notify}) {
+              if(notify){
+                StoredNotifications.saveNotification(habitName: habitFormState.habitName!, schedule: scheduleIds, recurrence: recurrence, time: time!, startDate: habitFormState.selectedDate!); 
               }
               return Habit(
                 habitType: habitType, 
@@ -88,8 +89,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeUnitKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement',recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit)) :
-                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement',recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify)) :
+                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify));
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => MultiBlocProvider(
                       providers: [
@@ -102,11 +103,25 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   );
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
+                  if(habitFormState.recurrenceSet == 'Every Day'){
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: habitFormState.recurrenceSet, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
+                  }
                   if(habitFormState.recurrenceSet == 'Custom W.'){
                     recurrence = habitRecurrenceState.weekDays;
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
                   if(habitFormState.recurrenceSet == 'Custom M.'){
                     recurrence = habitRecurrenceState.monthDays;
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
                   if(habitFormState.recurrenceSet.contains('Days')) {
                     recurrence = {
@@ -115,9 +130,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
                       "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
                       "day" :     int.parse(DateFormat('d').format(DateTime.now())),
                     };
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit)) :
-                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify)) :
+                  boxHabits.add(newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify));
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => MultiBlocProvider(
                       providers: [
@@ -137,13 +156,12 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 shakeNameKey.currentState?.shake();
               } else {
                 if (!widget.recurrent) {
-                  Map<String, int> scheduleIds = {};
                   if(habitFormState.notify == true) {
                       Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: null, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
                       scheduleIds.addAll(addScheduleIds);
                   }
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds)) :
-                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds, notify: habitFormState.notify)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: null, scheduleIds: scheduleIds, notify: habitFormState.notify));
                   if(context.mounted){
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => MultiBlocProvider(
@@ -157,7 +175,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     );
                   }
                 } else {
-                  Map<String, int> scheduleIds = {};
                   dynamic recurrence = habitFormState.recurrenceSet;
                   if(habitFormState.recurrenceSet == 'Every Day'){
                     if(habitFormState.notify == true) {
@@ -167,20 +184,29 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   if(habitFormState.recurrenceSet == 'Custom W.'){
                     recurrence = habitRecurrenceState.weekDays;
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
                   if(habitFormState.recurrenceSet == 'Custom M.'){
                     recurrence = habitRecurrenceState.monthDays;
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
                   if(habitFormState.recurrenceSet.contains('Days')) {
                     recurrence = {
                       "interval" : int.parse(habitFormState.recurrenceSet.substring(6,7)),
-                      "year" :    int.parse(DateFormat('yyyy').format(DateTime.now())), 
-                      "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
-                      "day" :     int.parse(DateFormat('d').format(DateTime.now())),
                     };
+                    if(habitFormState.notify == true) {
+                      Map<String, int> addScheduleIds = await NotificationService.initalNotificationCreation(recurrence: recurrence, startDate: habitFormState.selectedDate!, habitName: habitFormState.habitName!, time: time!);
+                      scheduleIds.addAll(addScheduleIds);
+                    }
                   }
-                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds)) :
-                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds));
+                  isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify)) :
+                  boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify));
                   if(context.mounted){
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => MultiBlocProvider(
