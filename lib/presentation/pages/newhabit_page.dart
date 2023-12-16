@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
@@ -77,6 +78,23 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 measurementValues: measurementValues,
               );
             }
+            //clear the notifications if they are being edited
+            if(isEditing){
+              try {
+                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habitFormState.habitName!);
+                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+                if(decodedSchedule.isNotEmpty){ 
+                  for (int scheduleId in decodedSchedule.values) {
+                    AwesomeNotifications().cancel(scheduleId); 
+                  }
+                }
+                await StoredNotifications.removeNotification(habitName: habitFormState.habitName!);
+              }
+              catch (e){
+                //null check operator used on a null value   - if it doesnt exist in SharedPreferences, we dont have to remove it
+              }
+            }
+
             if (widget.habitType == 'Measurement') {
               if (habitFormState.habitName == null ||
                   habitFormState.habitName!.trim().isEmpty) {
@@ -91,16 +109,18 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 if (!widget.recurrent) {
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement',recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify)) :
                   boxHabits.add(newHabit(habitType: 'Measurement', recurrence: null, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify));
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => MultiBlocProvider(
-                      providers: [
-                        BlocProvider<HabitHomeCubit>(
-                          create: (context) => HabitHomeCubit(),
-                        ),
-                      ],
-                      child: const HomePage(),
-                    ))
-                  );
+                  if(context.mounted){
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider<HabitHomeCubit>(
+                            create: (context) => HabitHomeCubit(),
+                          ),
+                        ],
+                        child: const HomePage(),
+                      ))
+                    );
+                  }
                 } else {
                   dynamic recurrence = habitFormState.recurrenceSet;
                   if(habitFormState.recurrenceSet == 'Every Day'){
@@ -137,16 +157,18 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   }
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify)) :
                   boxHabits.add(newHabit(habitType: 'Measurement', recurrence: recurrence, goal: habitFormState.goal, unit: habitFormState.unit, notify: habitFormState.notify));
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => MultiBlocProvider(
-                      providers: [
-                        BlocProvider<HabitHomeCubit>(
-                          create: (context) => HabitHomeCubit(),
-                        ),
-                      ],
-                      child: const HomePage(),
-                    ))
-                  );
+                  if(context.mounted){
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider<HabitHomeCubit>(
+                            create: (context) => HabitHomeCubit(),
+                          ),
+                        ],
+                        child: const HomePage(),
+                      ))
+                    );
+                  }
                 }
               }
             }

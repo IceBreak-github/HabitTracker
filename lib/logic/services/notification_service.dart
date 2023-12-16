@@ -86,6 +86,7 @@ class NotificationService {
         day: day,
         month: month,
         year: year,
+        second: 1,
         timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
         preciseAlarm: true,
         repeats: true,
