@@ -7,6 +7,8 @@ class HabitHomeState extends Equatable {
   final int measureNumber;
   final Map<String, int> measurementValues;
   final List<int> shownHabitIndexes;
+  final bool isSearched;
+  final List<int> searchHabitIndexes;
   const HabitHomeState({
     this.selectedDate,
     this.isChecked = const {},
@@ -14,6 +16,8 @@ class HabitHomeState extends Equatable {
     this.measureNumber = 0,
     this.measurementValues = const {},
     this.shownHabitIndexes = const [],
+    this.isSearched = false,
+    this.searchHabitIndexes = const [],
   });
 
   HabitHomeState copyWith({
@@ -23,6 +27,8 @@ class HabitHomeState extends Equatable {
     int? measureNumber,
     Map<String, int>? measurementValues,
     List<int>? shownHabitIndexes,
+    bool? isSearched,
+    List<int>? searchHabitIndexes,
   }) {
     return HabitHomeState(
       selectedDate: selectedDate ?? this.selectedDate,
@@ -31,9 +37,11 @@ class HabitHomeState extends Equatable {
       measureNumber: measureNumber ?? this.measureNumber,
       measurementValues: measurementValues ?? this.measurementValues,
       shownHabitIndexes: shownHabitIndexes ?? this.shownHabitIndexes,
+      isSearched: isSearched ?? this.isSearched,
+      searchHabitIndexes: searchHabitIndexes ?? this.searchHabitIndexes,
     );
   }
 
   @override
-  List<Object?> get props => [selectedDate, isChecked, measureNumber, measurementValues, progressBar, shownHabitIndexes];
+  List<Object?> get props => [selectedDate, isChecked, measureNumber, measurementValues, progressBar, shownHabitIndexes, isSearched, searchHabitIndexes];
 }

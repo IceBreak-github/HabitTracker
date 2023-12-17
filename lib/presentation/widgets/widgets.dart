@@ -20,6 +20,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<int> pastShownHabitIndexes =
+        context.read<HabitHomeCubit>().state.shownHabitIndexes;
     return AppBar(
       toolbarHeight: 70,
       systemOverlayStyle: SystemUiOverlayStyle(
@@ -28,13 +30,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: BlocBuilder<HabitHomeCubit, HabitHomeState>(
         builder: (context, state) {
           return Text(
-              DateFormat("dd.MM.yyyy").format(context
-                          .read<HabitHomeCubit>()
-                          .state
-                          .selectedDate!) ==
+              DateFormat("dd.MM.yyyy").format(
+                          context.read<HabitHomeCubit>().state.selectedDate!) ==
                       DateFormat("dd.MM.yyyy").format(DateTime.now())
                   ? "Today"
-                  : DateFormat("dd.MM.yyyy").format(context.read<HabitHomeCubit>().state.selectedDate!),
+                  : DateFormat("dd.MM.yyyy").format(
+                      context.read<HabitHomeCubit>().state.selectedDate!),
               style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -51,117 +52,13 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           IconButton(
             onPressed: () {
               //TODO: Implement search
-              showGeneralDialog(
-                  context: context,
-                  barrierDismissible: true,
-                  transitionDuration: const Duration(milliseconds: 500),
-                  barrierLabel: MaterialLocalizations.of(context).dialogLabel,
-                  barrierColor: Colors.black.withOpacity(0.5),
-                  pageBuilder: (context, _, __) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: MyColors().backgroundColor,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 60),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: 51,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: MyColors().widgetColor,
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.10),
-                                    blurRadius: 4.0, // soften the shadow
-                                    spreadRadius: 4.0, //extend the shadow
-                                    offset: const Offset(
-                                      2.0, // Move to right 5  horizontally
-                                      5.0, // Move to bottom 5 Vertically
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 25, right: 25),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                          child: TextFormField(
-                                            autofocus: true,
-                                            cursorColor: MyColors().secondaryColor,
-                                            style: const TextStyle(
-                                                fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500),
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              border: InputBorder.none,
-                                              hintText: 'Search Habits...',
-                                              hintStyle: TextStyle( 
-                                                  color: MyColors().placeHolderColor,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14),
-                                            ),
-                                            onChanged: (value){
-                                                                        
-                                            }
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 25),
-                                        child: SizedBox(
-                                          width: 33,
-                                          child: RawMaterialButton(
-                                            elevation: 0,
-                                            shape: const CircleBorder(),
-                                            fillColor: MyColors().primaryColor.withOpacity(0.2),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(0.0),
-                                              child: Icon(
-                                                Icons.search,
-                                                color: MyColors().primaryColor,
-                                                size: 18.5
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              //TODO implement search
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                  transitionBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOut,
-                      ).drive(Tween<Offset>(
-                        begin: const Offset(0, -1.0),
-                        end: Offset.zero,
-                      )),
-                      child: child,
-                    );
-                  },
-                );
+              if (context.read<HabitHomeCubit>().state.isSearched == false) {
+                context.read<HabitHomeCubit>().setSearch(true);
+                context
+                    .read<HabitHomeCubit>()
+                    .handleSearch(pastShownHabitIndexes);
+                showCustomDialog(context);
+              }
             },
             icon: const Icon(Icons.search_rounded),
           ),
@@ -180,7 +77,7 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
   const NewHabitAppBar({
     super.key,
     this.habit,
-    });
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -208,29 +105,35 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
       actions: [
-        habit != null ? Padding(
-          padding: const EdgeInsets.only(right: 9.0),
-          child: IconButton(
-            icon: const Icon(Icons.delete_forever),
-            onPressed: () async {
-              if(habit!.notify == true){
-                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit!.name);
-                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
-                if(decodedSchedule.isNotEmpty){ 
-                  for (int scheduleId in decodedSchedule.values) {
-                    AwesomeNotifications().cancel(scheduleId); 
-                  }
-                }
-                await StoredNotifications.removeNotification(habitName: habit!.name);
-              }
-              boxHabits.delete(habit!.key);
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const HomePage()));
-              }
-            },
-          ),
-        ) : Container()
+        habit != null
+            ? Padding(
+                padding: const EdgeInsets.only(right: 9.0),
+                child: IconButton(
+                  icon: const Icon(Icons.delete_forever),
+                  onPressed: () async {
+                    if (habit!.notify == true) {
+                      List sharedPreferencesValues =
+                          await StoredNotifications.decodeSharedPreferences(
+                              name: habit!.name);
+                      Map<String, int> decodedSchedule =
+                          sharedPreferencesValues[0];
+                      if (decodedSchedule.isNotEmpty) {
+                        for (int scheduleId in decodedSchedule.values) {
+                          AwesomeNotifications().cancel(scheduleId);
+                        }
+                      }
+                      await StoredNotifications.removeNotification(
+                          habitName: habit!.name);
+                    }
+                    boxHabits.delete(habit!.key);
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => const HomePage()));
+                    }
+                  },
+                ),
+              )
+            : Container()
       ],
     );
   }
@@ -309,13 +212,13 @@ class TextInput extends StatelessWidget {
   final String? initialValue;
   final void Function(String val) onChanged;
 
-  const TextInput(
-      {super.key,
-      required this.placeholder,
-      required this.name,
-      required this.onChanged,
-      this.initialValue,
-      });
+  const TextInput({
+    super.key,
+    required this.placeholder,
+    required this.name,
+    required this.onChanged,
+    this.initialValue,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +236,7 @@ class TextInput extends StatelessWidget {
               isDense: true,
               border: InputBorder.none,
               hintText: placeholder,
-              hintStyle: TextStyle( 
+              hintStyle: TextStyle(
                   color: MyColors().placeHolderColor,
                   fontWeight: FontWeight.w500,
                   fontSize: 14),
@@ -546,24 +449,19 @@ class OrderHabits extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 9),
       child: PopupMenuButton<String>(
-          color:const Color.fromRGBO(20, 20, 20, 1), 
-          icon: const Icon(Icons.filter_list_rounded, color: Colors.white),                //TODO implement ordering
+          color: const Color.fromRGBO(20, 20, 20, 1),
+          icon: const Icon(Icons.filter_list_rounded,
+              color: Colors.white), //TODO implement ordering
           itemBuilder: (BuildContext context) {
             return <PopupMenuEntry<String>>[
               const PopupMenuItem<String>(
-                enabled: false, 
+                enabled: false,
                 value: 'Order by',
                 child: Row(
                   children: [
-                    Text('Order Habits:', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    Text('Order Habits:',
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
                     Spacer(),
-                    /*
-                    Icon(
-                      Icons.low_priority,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    */
                   ],
                 ),
               ),
@@ -571,7 +469,8 @@ class OrderHabits extends StatelessWidget {
                 value: 'By Date',
                 child: Row(
                   children: [
-                    Text('By Date', style: TextStyle(color: Colors.white,  fontSize: 14)),
+                    Text('By Date',
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
                     Spacer(),
                     Icon(
                       Icons.arrow_back_ios_new,
@@ -583,20 +482,21 @@ class OrderHabits extends StatelessWidget {
               ),
               const PopupMenuItem<String>(
                 value: 'Alphabetically',
-                child: Text('Alphabetically', style: TextStyle(color: Colors.white, fontSize: 14)),
+                child: Text('Alphabetically',
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
               const PopupMenuItem<String>(
                 value: 'By Time',
-                child: Text('By Time', style: TextStyle(color: Colors.white, fontSize: 14)),
+                child: Text('By Time',
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
               const PopupMenuItem<String>(
                 value: 'By Completion',
-                child: Text('By Completion', style: TextStyle(color: Colors.white, fontSize: 14)),
+                child: Text('By Completion',
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
-
             ];
-          }
-      ),
+          }),
     );
   }
 }
@@ -611,55 +511,78 @@ class MyDrawer extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(25),
-            child: ListView(
-              children: [ 
-                Container(
-                  height: 85,
-                ),
-                Divider(
-                  color: MyColors().lightGrey,
-                ),
-                const SizedBox(height: 26),
-                Wrap(
-                  runSpacing: 5,
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.event_available_rounded, size: 24),
-                      title: const Text('Today', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                      iconColor: MyColors().lightGrey,
-                      selectedColor: MyColors().secondaryColor,
-                      textColor: MyColors().lightGrey,
-                      selectedTileColor: MyColors().widgetColor,
-                      selected: true,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                      ),
+            child: ListView(children: [
+              Container(
+                height: 85,
+              ),
+              Divider(
+                color: MyColors().lightGrey,
+              ),
+              const SizedBox(height: 26),
+              Wrap(
+                runSpacing: 5,
+                children: [
+                  ListTile(
+                    leading:
+                        const Icon(Icons.event_available_rounded, size: 24),
+                    title: const Text('Today',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
+                    iconColor: MyColors().lightGrey,
+                    selectedColor: MyColors().secondaryColor,
+                    textColor: MyColors().lightGrey,
+                    selectedTileColor: MyColors().widgetColor,
+                    selected: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()));
+                    },
+                  ),
+                  NavTile(
+                      text: 'Statistics',
+                      icon: Icons.query_stats_rounded,
                       onTap: () {
-                        Navigator.push(context,MaterialPageRoute(builder: (context) => const HomePage())); 
-                      },
-                    ),
-                    NavTile(text: 'Statistics', icon: Icons.query_stats_rounded, onTap: () {
-                      Navigator.push(context,MaterialPageRoute(builder: (context) => const StatisticsPage())); 
-                    }),
-                    Divider(
-                      color: MyColors().lightGrey,
-                    ),
-                    NavTile(text: 'Settings', icon: Icons.tune_rounded, onTap: () {
-                      Navigator.push(context,MaterialPageRoute(builder: (context) => const SettingsPage())); 
-                    }),
-                    Divider(
-                      color: MyColors().lightGrey,
-                    ),
-                    NavTile(text: 'Rate this app', icon: Icons.star_rounded, onTap: () {}),
-                    NavTile(text: 'Premium', icon: Icons.verified_rounded, onTap: () {}),
-                    Divider(
-                      color: MyColors().lightGrey,
-                    ),
-                    NavTile(text: 'About', icon: Icons.info_rounded, onTap: () {}),
-                  ],
-                ),
-              ]
-            ),
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const StatisticsPage()));
+                      }),
+                  Divider(
+                    color: MyColors().lightGrey,
+                  ),
+                  NavTile(
+                      text: 'Settings',
+                      icon: Icons.tune_rounded,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SettingsPage()));
+                      }),
+                  Divider(
+                    color: MyColors().lightGrey,
+                  ),
+                  NavTile(
+                      text: 'Rate this app',
+                      icon: Icons.star_rounded,
+                      onTap: () {}),
+                  NavTile(
+                      text: 'Premium',
+                      icon: Icons.verified_rounded,
+                      onTap: () {}),
+                  Divider(
+                    color: MyColors().lightGrey,
+                  ),
+                  NavTile(
+                      text: 'About', icon: Icons.info_rounded, onTap: () {}),
+                ],
+              ),
+            ]),
           ),
         ],
       ),
@@ -671,13 +594,18 @@ class NavTile extends StatelessWidget {
   final String text;
   final IconData icon;
   final VoidCallback onTap;
-  const NavTile({super.key, required this.text, required this.icon, required this.onTap});
+  const NavTile(
+      {super.key, required this.text, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(icon, color: MyColors().lightGrey, size: 24),
-      title: Text(text, style: TextStyle(color: MyColors().lightGrey, fontSize: 14, fontWeight: FontWeight.w500)),
+      title: Text(text,
+          style: TextStyle(
+              color: MyColors().lightGrey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500)),
       iconColor: MyColors().lightGrey,
       selectedColor: MyColors().secondaryColor,
       textColor: MyColors().lightGrey,
@@ -685,9 +613,186 @@ class NavTile extends StatelessWidget {
       selected: false,
       splashColor: MyColors().widgetColor.withOpacity(0.5),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
       ),
       onTap: onTap,
     );
+  }
+}
+
+void showCustomDialog(BuildContext context) {
+  OverlayEntry? overlayEntry;
+  final FocusNode focusNode = FocusNode();
+  AnimationController controller = AnimationController(
+    vsync: Overlay.of(context),
+    duration:
+        const Duration(milliseconds: 300), // Adjust the duration as needed
+  );
+
+  overlayEntry = OverlayEntry(
+    builder: (context) => Positioned(
+      top: 0,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, -1), // Slide from top
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: controller,
+          curve: Curves.fastOutSlowIn,
+        )),
+        child: SafeArea(
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: MyColors().backgroundColor,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 45),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 51,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: MyColors().widgetColor,
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.10),
+                            blurRadius: 4.0, // soften the shadow
+                            spreadRadius: 4.0, //extend the shadow
+                            offset: const Offset(
+                              2.0, // Move to right 5  horizontally
+                              5.0, // Move to bottom 5 Vertically
+                            ),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 23),
+                              child: Icon(Icons.search,
+                                  color: MyColors().primaryColor, size: 20),
+                            ),
+                            BlocBuilder<HabitHomeCubit, HabitHomeState>(
+                              builder: (context, state) {
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    child: TextFormField(
+                                        onTapOutside: (event) {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                        },
+                                        focusNode: focusNode,
+                                        cursorColor: MyColors().secondaryColor,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500),
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          border: InputBorder.none,
+                                          hintText: 'Search Habits...',
+                                          hintStyle: TextStyle(
+                                              color:
+                                                  MyColors().placeHolderColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                        ),
+                                        onChanged: (value) {
+                                          List<int> updatedShownHabitIndexes =
+                                              [];
+                                          if (value.isEmpty) {
+                                            // if the search field is empty or only contains white-space, we'll display all habits
+                                            updatedShownHabitIndexes = state.shownHabitIndexes;
+                                          } else {
+                                            var filteredValues = boxHabits
+                                                .values
+                                                .where((habit) => habit.name
+                                                    .toString()
+                                                    .contains(value))
+                                                .toList();
+                                            updatedShownHabitIndexes =
+                                                (filteredValues
+                                                    .map((e) => e.key)
+                                                    .cast<int>()
+                                                    .toList());
+                                            // we use the toLowerCase() method to make it case-insensitive
+                                          }
+                                          print(updatedShownHabitIndexes);
+                                          context
+                                              .read<HabitHomeCubit>()
+                                              .handleSearch(
+                                                  updatedShownHabitIndexes);
+                                        }),
+                                  ),
+                                );
+                              },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 25),
+                              child: SizedBox(
+                                width: 27,
+                                child: RawMaterialButton(
+                                  elevation: 0,
+                                  shape: const CircleBorder(),
+                                  fillColor:
+                                      MyColors().darkGrey.withOpacity(0.2),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(0.0),
+                                    child: Icon(Icons.expand_less_rounded,
+                                        color: MyColors().lightGrey, size: 20),
+                                  ),
+                                  onPressed: () {
+                                    controller
+                                        .reverse(); // Reverse the animation
+                                    Future.delayed(
+                                      const Duration(milliseconds: 300),
+                                      () {
+                                        try {
+                                          overlayEntry!.remove();
+                                          controller
+                                              .dispose(); // Dispose of the controller
+                                          focusNode.unfocus();
+                                        } catch (e) {
+                                          //nothing
+                                        }
+                                      },
+                                    );
+                                    context
+                                        .read<HabitHomeCubit>()
+                                        .setSearch(false);
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  try {
+    Overlay.of(context).insert(overlayEntry);
+    controller.forward();
+    focusNode.requestFocus();
+  } catch (e) {
+    //nothing
   }
 }

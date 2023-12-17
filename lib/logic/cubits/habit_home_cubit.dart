@@ -15,6 +15,8 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
     measureNumber: 0,
     measurementValues: const {},
     shownHabitIndexes: const [],
+    isSearched: false,
+    searchHabitIndexes: const [],
   )){
     updateProgressBar();        //Fixes flickering
   }
@@ -79,6 +81,15 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
       show ? updatedShownHabitIndexes.add(index) : null;              //adds the habit into a list for ListView.builder in the UI
     }
     emit(state.copyWith(shownHabitIndexes: updatedShownHabitIndexes));      //emits the state
+  }
+
+  void handleSearch(List<int> habitIndexes) {
+    //TODO handle search if the habit is not found in the current indexList, look for it in future dates and redirect the user to it
+    emit(state.copyWith(searchHabitIndexes: habitIndexes));
+  }
+
+  void setSearch(bool value) {
+    emit(state.copyWith(isSearched: value));
   }
 
 }

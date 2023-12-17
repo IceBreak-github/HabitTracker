@@ -18,7 +18,10 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
-    context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!);             //handles the inital habit load
+    context.read<HabitHomeCubit>().handleSelectedDateChange(context
+        .read<HabitHomeCubit>()
+        .state
+        .selectedDate!); //handles the inital habit load
     return Scaffold(
       appBar: const HomeAppBar(),
       resizeToAvoidBottomInset: false,
@@ -48,19 +51,27 @@ class HomePage extends StatelessWidget {
                 child: BlocBuilder<HabitHomeCubit, HabitHomeState>(
                   buildWhen: (previousState, state) {
                     if (previousState.selectedDate != state.selectedDate) {
-                      context.read<HabitHomeCubit>().handleSelectedDateChange(state.selectedDate!);
+                      context
+                          .read<HabitHomeCubit>()
+                          .handleSelectedDateChange(state.selectedDate!);
                     }
                     return true;
                   },
                   builder: (context, state) {
                     return ListView.builder(
                       padding: const EdgeInsets.only(bottom: 160),
-                      itemCount: state.shownHabitIndexes.length,
+                      itemCount: state.isSearched
+                          ? state.searchHabitIndexes.length
+                          : state.shownHabitIndexes.length,
                       itemBuilder: (context, index) {
-                        Habit habit = boxHabits.getAt(state.shownHabitIndexes[index]);
+                        Habit habit = boxHabits.getAt(state.isSearched
+                            ? state.searchHabitIndexes[index]
+                            : state.shownHabitIndexes[index]);
+                        print(habit.name);
                         double height = 51;
                         DateTime? currentDate = state.selectedDate;
-                        String formatedCurrentDate = DateFormat('yyyy.MM.d').format(currentDate!);  
+                        String formatedCurrentDate =
+                            DateFormat('yyyy.MM.d').format(currentDate!);
                         if (habit.time != null ||
                             habit.habitType == 'Measurement') {
                           height = 107;
@@ -71,19 +82,35 @@ class HomePage extends StatelessWidget {
                         }
                         return GestureDetector(
                           onTap: () async {
-                            if(currentDate.isAfter(DateTime.now())){
+                            if (currentDate.isAfter(DateTime.now())) {
                               //nothing
-                            }
-                            else {
-                              if(habit.habitType == 'Yes or No'){
-                                String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
-                                if(habit.completionDates.containsKey(formatedCurrentDate)){
-                                  if(habit.notify == true && habit.time != null && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
-                                    List<String> timeParts = habit.time!.split(':');
-                                    List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
-                                    Map<String, int> decodedSchedule = sharedPreferencesValues[0];
-                                    if(decodedSchedule.containsKey(nowDate)){
-                                      NotificationService.createCalendarNotification(
+                            } else {
+                              if (habit.habitType == 'Yes or No') {
+                                String nowDate = DateFormat('yyyy.M.d')
+                                    .format(DateTime.now());
+                                if (habit.completionDates
+                                    .containsKey(formatedCurrentDate)) {
+                                  if (habit.notify == true &&
+                                      habit.time != null &&
+                                      DateTime(
+                                              currentDate.year,
+                                              currentDate.month,
+                                              currentDate.day)
+                                          .isAtSameMomentAs(DateTime(
+                                              DateTime.now().year,
+                                              DateTime.now().month,
+                                              DateTime.now().day))) {
+                                    List<String> timeParts =
+                                        habit.time!.split(':');
+                                    List sharedPreferencesValues =
+                                        await StoredNotifications
+                                            .decodeSharedPreferences(
+                                                name: habit.name);
+                                    Map<String, int> decodedSchedule =
+                                        sharedPreferencesValues[0];
+                                    if (decodedSchedule.containsKey(nowDate)) {
+                                      NotificationService
+                                          .createCalendarNotification(
                                         id: decodedSchedule[nowDate]!,
                                         hour: int.parse(timeParts[0]),
                                         minute: int.parse(timeParts[1]),
@@ -91,31 +118,64 @@ class HomePage extends StatelessWidget {
                                         month: DateTime.now().month,
                                         year: DateTime.now().year,
                                         title: habit.name,
-                                        body: "Don't forget to complete your Habit !",
-                                      ); 
+                                        body:
+                                            "Don't forget to complete your Habit !",
+                                      );
                                     }
                                   }
-                                  habit.completionDates.remove(formatedCurrentDate);
-                                }
-                                else{
-                                  if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
-                                    List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
-                                    Map<String, int> decodedSchedule = sharedPreferencesValues[0];
-                                    if(decodedSchedule.containsKey(nowDate)){
-                                      AwesomeNotifications().cancel(decodedSchedule[nowDate]!);
-                                    }      
+                                  habit.completionDates
+                                      .remove(formatedCurrentDate);
+                                } else {
+                                  if (habit.notify == true &&
+                                      DateTime(
+                                              currentDate.year,
+                                              currentDate.month,
+                                              currentDate.day)
+                                          .isAtSameMomentAs(DateTime(
+                                              DateTime.now().year,
+                                              DateTime.now().month,
+                                              DateTime.now().day))) {
+                                    List sharedPreferencesValues =
+                                        await StoredNotifications
+                                            .decodeSharedPreferences(
+                                                name: habit.name);
+                                    Map<String, int> decodedSchedule =
+                                        sharedPreferencesValues[0];
+                                    if (decodedSchedule.containsKey(nowDate)) {
+                                      AwesomeNotifications()
+                                          .cancel(decodedSchedule[nowDate]!);
+                                    }
                                   }
-                                  habit.completionDates.addAll({formatedCurrentDate: null});
+                                  habit.completionDates
+                                      .addAll({formatedCurrentDate: null});
                                 }
-                                boxHabits.putAt(state.shownHabitIndexes[index], habit);
+                                boxHabits.putAt(
+                                    state.isSearched
+                                        ? state.searchHabitIndexes[index]
+                                        : state.shownHabitIndexes[index],
+                                    habit);
                                 if (context.mounted) {
-                                  context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!);               //because we cant devide with zero
-                                  context.read<HabitHomeCubit>().updateProgressBar();
+                                  context.read<HabitHomeCubit>().setCheckValue(
+                                      "${formatedCurrentDate}_${habit.name}",
+                                      !context
+                                              .read<HabitHomeCubit>()
+                                              .state
+                                              .isChecked[
+                                          "${formatedCurrentDate}_${habit.name}"]!); //because we cant devide with zero
+                                  context
+                                      .read<HabitHomeCubit>()
+                                      .updateProgressBar();
                                 }
                               }
-                              if(habit.habitType == 'Measurement'){
+                              if (habit.habitType == 'Measurement') {
                                 if (context.mounted) {
-                                  showChangeMeasurementValuePopUp(context: context, habit: habit, index: state.shownHabitIndexes[index], formatedCurrentDate: formatedCurrentDate);
+                                  showChangeMeasurementValuePopUp(
+                                      context: context,
+                                      habit: habit,
+                                      index: state.isSearched
+                                          ? state.searchHabitIndexes[index]
+                                          : state.shownHabitIndexes[index],
+                                      formatedCurrentDate: formatedCurrentDate);
                                 }
                               }
                             }
@@ -126,28 +186,31 @@ class HomePage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 30),
                             child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: height,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: MyColors().widgetColor,
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color:
-                                        Colors.black.withOpacity(0.10),
-                                    blurRadius:
-                                        4.0, // soften the shadow
-                                    spreadRadius:
-                                        4.0, //extend the shadow
-                                    offset: const Offset(
-                                      2.0, // Move to right 5  horizontally
-                                      5.0, // Move to bottom 5 Vertically
+                                width: MediaQuery.of(context).size.width,
+                                height: height,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: MyColors().widgetColor,
+                                  boxShadow: <BoxShadow>[
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.10),
+                                      blurRadius: 4.0, // soften the shadow
+                                      spreadRadius: 4.0, //extend the shadow
+                                      offset: const Offset(
+                                        2.0, // Move to right 5  horizontally
+                                        5.0, // Move to bottom 5 Vertically
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              child: SingleHabit(height: height, formatedCurrentDate: formatedCurrentDate, index: state.shownHabitIndexes[index], habit: habit, currentDate: currentDate)
-                            ),
+                                  ],
+                                ),
+                                child: SingleHabit(
+                                    height: height,
+                                    formatedCurrentDate: formatedCurrentDate,
+                                    index: state.isSearched
+                                        ? state.searchHabitIndexes[index]
+                                        : state.shownHabitIndexes[index],
+                                    habit: habit,
+                                    currentDate: currentDate)),
                           ),
                         );
                       },
@@ -168,9 +231,15 @@ class HomePage extends StatelessWidget {
                 DateTime? currentDate =
                     context.read<HabitHomeCubit>().state.selectedDate;
                 String formatedCurrentDate =
-                DateFormat('yyyy.MM.d').format(currentDate!);
-                currentDate != value ? context.read<HabitHomeCubit>().cleanHomeCubit(formatedCurrentDate) : null; //clears the Cubit
-                context.read<HabitHomeCubit>().selectDate(value); //changes the selectedDate
+                    DateFormat('yyyy.MM.d').format(currentDate!);
+                currentDate != value
+                    ? context
+                        .read<HabitHomeCubit>()
+                        .cleanHomeCubit(formatedCurrentDate)
+                    : null; //clears the Cubit
+                context
+                    .read<HabitHomeCubit>()
+                    .selectDate(value); //changes the selectedDate
               },
             ),
           ),
@@ -181,9 +250,12 @@ class HomePage extends StatelessWidget {
                   icon: const Icon(Icons.query_stats),
                   label: const Text('Statistics'),
                   onPressed: () async {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => const StatisticsPage())); 
-            })),
-            
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const StatisticsPage()));
+                  })),
+          /*
             Positioned(       //TODO this is here only for testing, remove later
               bottom: 110,
               left: 100,
@@ -194,7 +266,7 @@ class HomePage extends StatelessWidget {
                     //Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
                     Workmanager().registerOneOffTask(UniqueKey().hashCode.toString(), 'notificationPlanner');
               })),
-              
+              */
         ],
       ),
       floatingActionButton: const AddHabitButton(),

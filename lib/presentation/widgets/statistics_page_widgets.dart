@@ -304,18 +304,21 @@ class OverallScore extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 30, left: 5, right: 5),
+                padding: const EdgeInsets.only(top: 30, right: 0),
                 child: Row(
                   children: <Widget> [
-                    SimpleCircularProgressBar(
-                      size: 40,
-                      progressColors: [MyColors().primaryColor],
-                      progressStrokeWidth: 11,
-                      backStrokeWidth: 11,
-                      backColor: const Color.fromRGBO(45, 45, 59, 1),
-                      mergeMode: true,
-                      animationDuration: 3,
-                      valueNotifier: overAllScore,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8, left: 6),
+                      child: SimpleCircularProgressBar(
+                        size: 40,
+                        progressColors: [MyColors().primaryColor],
+                        progressStrokeWidth: 11,
+                        backStrokeWidth: 11,
+                        backColor: const Color.fromRGBO(45, 45, 59, 1),
+                        mergeMode: true,
+                        animationDuration: 3,
+                        valueNotifier: overAllScore,
+                      ),
                     ),
                     const Spacer(),
                     Column(
@@ -418,7 +421,7 @@ class HabitStatPanel extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 2),
+            padding: const EdgeInsets.only(top: 2, left: 4),
             child: Row(
               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               mainAxisSize: MainAxisSize.max,

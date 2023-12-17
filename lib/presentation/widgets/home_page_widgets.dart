@@ -1,13 +1,17 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_recurrence_cubit.dart';
+import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/presentation/pages/newhabit_page.dart';
 import 'package:habit_tracker/presentation/widgets/button_widgets.dart';
 import 'package:habit_tracker/presentation/widgets/create_habit_popup_widget.dart';
 import 'package:habit_tracker/shared/colors.dart';
+import 'package:habit_tracker/shared/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
 
 import '../../shared/boxes.dart';
@@ -128,22 +132,50 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             elevation: 0.0,
                             shadowColor: Colors.transparent,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             int value = context.read<HabitHomeCubit>().state.measureNumber;
                             context.read<HabitHomeCubit>().setMeasurementValues("${formatedCurrentDate}_${habit.name}", value);
+                            List<String> dateParts = formatedCurrentDate.split('.');
+                            DateTime currentDate = DateTime(int.parse(dateParts[0]), int.parse(dateParts[1]), int.parse(dateParts[2]));
+                            String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
                             if (value >= habit.goal!){
                                 habit.completionDates.addAll({formatedCurrentDate : null});
                                 boxHabits.putAt(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", true);
+                                if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){
+                                  List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
+                                  Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+                                  if(decodedSchedule.containsKey(nowDate)){
+                                    AwesomeNotifications().cancel(decodedSchedule[nowDate]!);
+                                  }    
+                                }
                             }
                             else {
-                                habit.completionDates.remove(formatedCurrentDate);
-                                boxHabits.putAt(index, habit);
-                                context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", false);
+                              habit.completionDates.remove(formatedCurrentDate);
+                              boxHabits.putAt(index, habit);
+                              context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", false);
+                              if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){
+                                List<String> timeParts = habit.time!.split(':');
+                                List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
+                                Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+                                if(decodedSchedule.containsKey(nowDate)){
+                                  NotificationService.createCalendarNotification(
+                                    id: decodedSchedule[nowDate]!,
+                                    hour: int.parse(timeParts[0]),
+                                    minute: int.parse(timeParts[1]),
+                                    day: DateTime.now().day,
+                                    month: DateTime.now().month,
+                                    year: DateTime.now().year,
+                                    title: habit.name,
+                                    body: "Don't forget to complete your Habit !",
+                                  ); 
+                                }
+                              }
                             }
-                            context.read<HabitHomeCubit>().updateProgressBar();
-
-                            Navigator.pop(context);
+                            if(context.mounted){
+                              context.read<HabitHomeCubit>().updateProgressBar();
+                              Navigator.pop(context);
+                            }
                           },
                           child: Text('Save', style: TextStyle(color: MyColors().primaryColor, fontSize: 14, fontWeight: FontWeight.w500))),
                     ),
