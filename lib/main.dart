@@ -1,6 +1,3 @@
-import 'dart:isolate';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
@@ -9,7 +6,6 @@ import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
-import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:habit_tracker/shared/themes.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:workmanager/workmanager.dart';
@@ -21,12 +17,7 @@ void callbackDispatcher() {
     switch (taskName) {
       case 'notificationPlanner':
         try {
-          //Task Logic here
-          /*
-          Map<String, String> allNotifications = (json.decode(inputData?['allNotifications']) as Map<String, dynamic>).map(
-            (key, value) => MapEntry(key, value as String)
-          );
-          */
+          await NotificationService.initializeNotification();
           await NotificationService.notificationPlanner();
         } catch (err) {
           throw Exception(err); 
@@ -38,35 +29,6 @@ void callbackDispatcher() {
   });
 }
 
-void _listenForUpdatesFromWorkManager() {
-    var port = ReceivePort();
-    IsolateNameServer.registerPortWithName(port.sendPort, "notificationPlanner");
-    port.listen((dynamic data) async {    
-      String habitName = data[0];
-      Map<String, int> schedule = data[1];
-      String time = data[2];
-      dynamic recurrence = data[3]; 
-      Map<String, int> startDateMap = data[4];
-      DateTime startDate = DateTime(startDateMap['year']!, startDateMap['month']!, startDateMap['day']!);
-      print('saving schedule: $schedule');
-      StoredNotifications.saveNotification(habitName: habitName, schedule: schedule, time: time, recurrence: recurrence, startDate: startDate);
-      for(String date in schedule.keys){
-        List<String> timeParts = time.split(':');
-        List<String> dateParts = date.split('.');
-        NotificationService.createCalendarNotification(       //creates the notification for another week in the future
-          id: schedule[date]!,
-          day: int.parse(dateParts[2]),
-          month: int.parse(dateParts[1]),
-          year: int.parse(dateParts[0]),
-          hour: int.parse(timeParts[0]),
-          minute: int.parse(timeParts[1]),
-          title: habitName,
-          body: "Don't forget to complete your Habit !",
-        );
-      }
-    });
-  }
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -74,12 +36,9 @@ Future<void> main() async {
   Hive.registerAdapter(HabitAdapter());
   boxHabits = await Hive.openBox<Habit>('habitBox');
   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);           //TODO later set to false
-  _listenForUpdatesFromWorkManager();
   runApp(const MyApp());
   
-  //Map<String, String> allNotifications = await StoredNotifications.getAllPrefs();
   Workmanager().registerPeriodicTask('notificationPlanner', taskName, frequency: const Duration(days: 1));
-   //TODO uncomment later
 
 }
 

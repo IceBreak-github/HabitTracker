@@ -1,5 +1,3 @@
-import 'dart:isolate';
-import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:habit_tracker/logic/services/habit_service.dart';
@@ -129,9 +127,22 @@ class NotificationService {
           }
         }
       }
-      print('Sending schedule: $decodedSchedule');
-      SendPort? send = IsolateNameServer.lookupPortByName('notificationPlanner');
-      send?.send([habitName, decodedSchedule, time, recurrence, decodedStartDateMap]);
+
+      await StoredNotifications.saveNotification(habitName: habitName, schedule: decodedSchedule, time: time, recurrence: recurrence, startDate: DateTime(decodedStartDateMap['year']!, decodedStartDateMap['month']!, decodedStartDateMap['day']!));
+      for(String date in decodedSchedule.keys){
+        List<String> timeParts = time.split(':');
+        List<String> dateParts = date.split('.');
+        await NotificationService.createCalendarNotification(       //re-schedules the notification in the future
+          id: decodedSchedule[date]!,
+          day: int.parse(dateParts[2]),
+          month: int.parse(dateParts[1]),
+          year: int.parse(dateParts[0]),
+          hour: int.parse(timeParts[0]),
+          minute: int.parse(timeParts[1]),
+          title: habitName,
+          body: "Don't forget to complete your Habit !",
+        );
+      }
     }
   }
   

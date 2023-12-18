@@ -255,7 +255,7 @@ class HomePage extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => const StatisticsPage()));
                   })),
-          /*
+            /*            
             Positioned(       //TODO this is here only for testing, remove later
               bottom: 110,
               left: 100,
