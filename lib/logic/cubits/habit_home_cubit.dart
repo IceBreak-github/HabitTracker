@@ -78,13 +78,12 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
       }
  
       updateProgressBar();           //updates the progress Bar
-      show ? updatedShownHabitIndexes.add(index) : null;              //adds the habit into a list for ListView.builder in the UI
+      show ? updatedShownHabitIndexes.add(habit.key) : null;              //adds the habit into a list for ListView.builder in the UI
     }
     emit(state.copyWith(shownHabitIndexes: updatedShownHabitIndexes));      //emits the state
   }
 
   void handleSearch(List<int> habitIndexes) {
-    //TODO handle search if the habit is not found in the current indexList, look for it in future dates and redirect the user to it
     emit(state.copyWith(searchHabitIndexes: habitIndexes));
   }
 

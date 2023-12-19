@@ -1,3 +1,4 @@
+import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:intl/intl.dart';
 
 bool showHabitOrNot({required dynamic recurrence, required dynamic habitDate, required DateTime newDate}) {   //habitDate expecting Map<String, int> like: "${habitDate['year']}.${habitDate['month']}.${habitDate['day']}"
@@ -51,4 +52,25 @@ bool showHabitOrNot({required dynamic recurrence, required dynamic habitDate, re
     }
   }
   return show;
+}
+
+DateTime calculateNearestFutureRecurrence({required Habit habit, required DateTime currentDate}) {       //returns the date of the nearest habit recurrence in the future, from the provided Date
+  DateTime habitDate = DateTime(habit.date['year'], habit.date['month'],habit.date['day']);
+  if(habit.recurrence == null){
+    return habitDate;
+  }
+  if(habit.recurrence is String && habit.recurrence == 'Every Day'){
+    return currentDate;
+  }
+  if(habit.recurrence is Map){
+    if(habit.recurrence.containsKey("interval")){
+      int gap = habit.recurrence['interval'];
+      DateTime nearestDate = currentDate.add(Duration(days: currentDate.difference(habitDate).inDays % gap));
+      return nearestDate;
+    }
+    if(habit.recurrence.containsKey('Monday')){
+      print(habit.recurrence);
+    }
+  }
+  return habit.date;  //remove later, its here just so I dont get an error while writing 
 }

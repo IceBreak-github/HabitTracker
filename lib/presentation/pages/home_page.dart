@@ -64,10 +64,10 @@ class HomePage extends StatelessWidget {
                           ? state.searchHabitIndexes.length
                           : state.shownHabitIndexes.length,
                       itemBuilder: (context, index) {
-                        Habit habit = boxHabits.getAt(state.isSearched
+                        Habit habit = boxHabits.get(state.isSearched
                             ? state.searchHabitIndexes[index]
                             : state.shownHabitIndexes[index]);
-                        print(habit.name);
+                     
                         double height = 51;
                         DateTime? currentDate = state.selectedDate;
                         String formatedCurrentDate =

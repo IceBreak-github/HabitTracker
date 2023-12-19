@@ -7,6 +7,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
+import 'package:habit_tracker/logic/services/habit_service.dart';
 import 'package:habit_tracker/presentation/pages/settings_page.dart';
 import 'package:habit_tracker/presentation/pages/statistics_page.dart';
 import 'package:habit_tracker/shared/boxes.dart';
@@ -709,30 +710,27 @@ void showCustomDialog(BuildContext context) {
                                               fontSize: 14),
                                         ),
                                         onChanged: (value) {
-                                          List<int> updatedShownHabitIndexes =
-                                              [];
+                                          List<int> updatedShownHabitIndexes = [];
+                                          var unfilteredValues = boxHabits.values.map((habit) => habit.key).toList();
                                           if (value.isEmpty) {
                                             // if the search field is empty or only contains white-space, we'll display all habits
                                             updatedShownHabitIndexes = state.shownHabitIndexes;
                                           } else {
-                                            var filteredValues = boxHabits
-                                                .values
-                                                .where((habit) => habit.name
-                                                    .toString()
-                                                    .contains(value))
-                                                .toList();
-                                            updatedShownHabitIndexes =
-                                                (filteredValues
-                                                    .map((e) => e.key)
-                                                    .cast<int>()
-                                                    .toList());
+                                            for(int i = 0; i < unfilteredValues.length; i++){
+                                              Habit habit = boxHabits.get(unfilteredValues[i]);
+                                              if(habit.name.toLowerCase().contains(value.toLowerCase())){
+                                                if(!showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: state.selectedDate!)){
+                                                  DateTime goToDate = calculateNearestFutureRecurrence(habit: habit, currentDate: state.selectedDate!);
+                                                  context.read<HabitHomeCubit>().selectDate(goToDate);
+                                                  print(goToDate);
+                                                }
+                                                updatedShownHabitIndexes.add(habit.key);
+                                              }
+                                            }
                                             // we use the toLowerCase() method to make it case-insensitive
                                           }
-                                          print(updatedShownHabitIndexes);
-                                          context
-                                              .read<HabitHomeCubit>()
-                                              .handleSearch(
-                                                  updatedShownHabitIndexes);
+                                          //print(updatedShownHabitIndexes);
+                                          context.read<HabitHomeCubit>().handleSearch(updatedShownHabitIndexes);
                                         }),
                                   ),
                                 );
@@ -771,6 +769,14 @@ void showCustomDialog(BuildContext context) {
                                     context
                                         .read<HabitHomeCubit>()
                                         .setSearch(false);
+                                        //TODO redirect the user back to the current Date
+                                    /*
+                                    context.read<HabitHomeCubit>().handleSelectedDateChange(DateTime.now());
+                                    context.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.MM.d').format(DateTime.now()));
+                                    context.read<HabitHomeCubit>().selectDate(DateTime.now());
+                                    context.read<HabitHomeCubit>().updateProgressBar();
+                                    */
+                                    
                                   },
                                 ),
                               ),
