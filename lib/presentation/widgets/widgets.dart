@@ -31,11 +31,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: BlocBuilder<HabitHomeCubit, HabitHomeState>(
         builder: (context, state) {
           return Text(
-              DateFormat("dd.MM.yyyy").format(
+              DateFormat("dd.M.yyyy").format(
                           context.read<HabitHomeCubit>().state.selectedDate!) ==
-                      DateFormat("dd.MM.yyyy").format(DateTime.now())
+                      DateFormat("dd.M.yyyy").format(DateTime.now())
                   ? "Today"
-                  : DateFormat("dd.MM.yyyy").format(
+                  : DateFormat("dd.M.yyyy").format(
                       context.read<HabitHomeCubit>().state.selectedDate!),
               style: const TextStyle(
                   fontSize: 17,
@@ -675,16 +675,17 @@ void showCustomDialog(BuildContext context) {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.only(left: 25, right: 25),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 23),
-                              child: Icon(Icons.search,
-                                  color: MyColors().primaryColor, size: 20),
-                            ),
-                            BlocBuilder<HabitHomeCubit, HabitHomeState>(
-                              builder: (context, state) {
-                                return Expanded(
+                        child: BlocBuilder<HabitHomeCubit, HabitHomeState>(
+                          builder: (context, state) {
+                            BuildContext myContext = context;
+                            return Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 23),
+                                  child: Icon(Icons.search,
+                                      color: MyColors().primaryColor, size: 20),
+                                ),
+                                Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
@@ -721,7 +722,8 @@ void showCustomDialog(BuildContext context) {
                                               if(habit.name.toLowerCase().contains(value.toLowerCase())){
                                                 if(!showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: state.selectedDate!)){
                                                   DateTime goToDate = calculateNearestFutureRecurrence(habit: habit, currentDate: state.selectedDate!);
-                                                  context.read<HabitHomeCubit>().selectDate(goToDate);
+                                                  myContext.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.M.d').format(state.selectedDate!));
+                                                  myContext.read<HabitHomeCubit>().selectDate(goToDate);
                                                   print(goToDate);
                                                 }
                                                 updatedShownHabitIndexes.add(habit.key);
@@ -733,55 +735,49 @@ void showCustomDialog(BuildContext context) {
                                           context.read<HabitHomeCubit>().handleSearch(updatedShownHabitIndexes);
                                         }),
                                   ),
-                                );
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 25),
-                              child: SizedBox(
-                                width: 27,
-                                child: RawMaterialButton(
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  fillColor:
-                                      MyColors().darkGrey.withOpacity(0.2),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(0.0),
-                                    child: Icon(Icons.expand_less_rounded,
-                                        color: MyColors().lightGrey, size: 20),
-                                  ),
-                                  onPressed: () {
-                                    controller
-                                        .reverse(); // Reverse the animation
-                                    Future.delayed(
-                                      const Duration(milliseconds: 300),
-                                      () {
-                                        try {
-                                          overlayEntry!.remove();
-                                          controller
-                                              .dispose(); // Dispose of the controller
-                                          focusNode.unfocus();
-                                        } catch (e) {
-                                          //nothing
-                                        }
+                                ),                       
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 25),
+                                  child: SizedBox(
+                                    width: 27,
+                                    child: RawMaterialButton(
+                                      elevation: 0,
+                                      shape: const CircleBorder(),
+                                      fillColor:
+                                          MyColors().darkGrey.withOpacity(0.2),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(0.0),
+                                        child: Icon(Icons.expand_less_rounded,
+                                            color: MyColors().lightGrey, size: 20),
+                                      ),
+                                      onPressed: () {
+                                        myContext.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.M.d').format(state.selectedDate!));
+                                        myContext.read<HabitHomeCubit>().selectDate(DateTime.now());
+                                        myContext
+                                            .read<HabitHomeCubit>()
+                                            .setSearch(false);
+                                        controller
+                                            .reverse(); // Reverse the animation
+                                        Future.delayed(
+                                          const Duration(milliseconds: 300),
+                                          () {
+                                            try {
+                                              overlayEntry!.remove();
+                                              controller
+                                                  .dispose(); // Dispose of the controller
+                                              focusNode.unfocus();
+                                            } catch (e) {
+                                              //nothing
+                                            }
+                                          },
+                                        );
                                       },
-                                    );
-                                    context
-                                        .read<HabitHomeCubit>()
-                                        .setSearch(false);
-                                        //TODO redirect the user back to the current Date
-                                    /*
-                                    context.read<HabitHomeCubit>().handleSelectedDateChange(DateTime.now());
-                                    context.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.MM.d').format(DateTime.now()));
-                                    context.read<HabitHomeCubit>().selectDate(DateTime.now());
-                                    context.read<HabitHomeCubit>().updateProgressBar();
-                                    */
-                                    
-                                  },
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),

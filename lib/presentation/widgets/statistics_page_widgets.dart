@@ -80,7 +80,10 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
       streak++;
     }
     int completionLength = calculateCompletionLength(habit, currentDate);
-    double procentage = completionLength / (difference+1);   //date difference plus today 
+    double procentage = 0;
+    if(difference+1 != 0){
+      procentage = completionLength / (difference+1);  //date difference plus today 
+    }
     procentage = procentage * 100;
     return [procentage.toInt(), streak];
   }
@@ -89,12 +92,15 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
       int gap = habit.recurrence['interval'];
       DateTime nearestDate = currentDate.subtract(Duration(days: currentDate.difference(habitDate).inDays % gap));
       int difference = nearestDate.difference(habitDate).inDays;
-      while (habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nearestDate.subtract(Duration(days: gap * streak))))) {
+      while (habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(nearestDate.subtract(Duration(days: gap * streak))))) {
         streak++;
       }
       int completionLength = calculateCompletionLength(habit, currentDate);
       int totalPossibleCompletions = ((difference+1) / gap).ceil();  //rounds all the totalPossibleCompletions Up
-      double procentage = completionLength / totalPossibleCompletions;
+      double procentage = 0;
+      if(totalPossibleCompletions != 0){
+        procentage = completionLength / totalPossibleCompletions;
+      }
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
     }
@@ -124,7 +130,7 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
         for (int i = 0; i < possibleDaysGap.length; i++) {
           int number = possibleDaysGap[i] + week;
           DateTime formattedDate = currentDate.subtract(Duration(days: number));
-          String formattedDateString = DateFormat('yyyy.MM.d').format(formattedDate);
+          String formattedDateString = DateFormat('yyyy.M.d').format(formattedDate);
           if (habit.completionDates.containsKey(formattedDateString)) {
             streak++;
           } else {
@@ -137,7 +143,10 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
       }
       calculateStreak();
       int completionLength = calculateCompletionLength(habit, currentDate);
-      double procentage = completionLength / totalPossibleCompletions;
+      double procentage = 0;
+      if(totalPossibleCompletions != 0){
+        procentage = completionLength / totalPossibleCompletions;
+      }
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
       
@@ -184,7 +193,7 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
           if(isValidDate("${currentDate.year}.${currentDate.month - iteration}.${date.day}")){
             DateTime nowDate = DateTime(currentDate.year, currentDate.month - iteration, date.day);
             if(nowDate.isBefore(currentDate)){
-              if(habit.completionDates.containsKey(DateFormat('yyyy.MM.d').format(nowDate))){ 
+              if(habit.completionDates.containsKey(DateFormat('yyyy.M.d').format(nowDate))){ 
                 streak++;
               }
               else{
@@ -197,7 +206,10 @@ List<int?> calculateHabitStreakAndRate({required Habit habit, required DateTime 
       }
       calculateStreak();
       int completionLength = calculateCompletionLength(habit, currentDate);
-      double procentage = completionLength / totalPossibleCompletions;
+      double procentage = 0;
+      if(totalPossibleCompletions != 0){
+        procentage = completionLength / totalPossibleCompletions;
+      }
       procentage = procentage * 100;
       return [procentage.toInt(), streak];
     }

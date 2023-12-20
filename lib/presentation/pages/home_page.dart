@@ -71,7 +71,7 @@ class HomePage extends StatelessWidget {
                         double height = 51;
                         DateTime? currentDate = state.selectedDate;
                         String formatedCurrentDate =
-                            DateFormat('yyyy.MM.d').format(currentDate!);
+                            DateFormat('yyyy.M.d').format(currentDate!);
                         if (habit.time != null ||
                             habit.habitType == 'Measurement') {
                           height = 107;
@@ -231,7 +231,7 @@ class HomePage extends StatelessWidget {
                 DateTime? currentDate =
                     context.read<HabitHomeCubit>().state.selectedDate;
                 String formatedCurrentDate =
-                    DateFormat('yyyy.MM.d').format(currentDate!);
+                    DateFormat('yyyy.M.d').format(currentDate!);
                 currentDate != value
                     ? context
                         .read<HabitHomeCubit>()

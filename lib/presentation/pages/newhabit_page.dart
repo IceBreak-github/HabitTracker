@@ -68,7 +68,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 notify: habitFormState.notify, 
                 date: {
                     "year" :    int.parse(DateFormat('yyyy').format(habitFormState.selectedDate!)), 
-                    "month" :   int.parse(DateFormat('MM').format(habitFormState.selectedDate!)), 
+                    "month" :   int.parse(DateFormat('M').format(habitFormState.selectedDate!)), 
                     "day" :     int.parse(DateFormat('d').format(habitFormState.selectedDate!)),
                 },
                 goal: goal,
@@ -147,7 +147,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                     recurrence = {
                       "interval" : int.parse(habitFormState.recurrenceSet.substring(6,7)),
                       "year" :    int.parse(DateFormat('yyyy').format(DateTime.now())), 
-                      "month" :   int.parse(DateFormat('MM').format(DateTime.now())), 
+                      "month" :   int.parse(DateFormat('M').format(DateTime.now())), 
                       "day" :     int.parse(DateFormat('d').format(DateTime.now())),
                     };
                     if(habitFormState.notify == true) {
@@ -230,6 +230,11 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify));
                   if(context.mounted){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                    /*
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => MultiBlocProvider(
                         providers: [
@@ -240,6 +245,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                         child: const HomePage(),
                       ))
                     );
+                    */
                     context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!); //to update the completion bar
                   }
                 }

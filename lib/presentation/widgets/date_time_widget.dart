@@ -61,7 +61,7 @@ class _DateTimeLineState extends State<DateTimeLine> {
     final DateFormat dateFormatter = DateFormat('d');
     final String date = dateFormatter.format(dateTime);
 
-    return Padding(
+    return Padding(            //TODO rewrite to Blocc
       padding: const EdgeInsets.only(left: 14),
       child: GestureDetector(
         onTap: () {
