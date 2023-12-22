@@ -21,8 +21,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<int> pastShownHabitIndexes =
-        context.read<HabitHomeCubit>().state.shownHabitIndexes;
     return AppBar(
       toolbarHeight: 70,
       systemOverlayStyle: SystemUiOverlayStyle(
@@ -49,22 +47,27 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: MyColors().backgroundColor,
       elevation: 0,
       actions: [
-        Row(children: <Widget>[
-          IconButton(
-            onPressed: () {
-              //TODO: Implement search
-              if (context.read<HabitHomeCubit>().state.isSearched == false) {
-                context.read<HabitHomeCubit>().setSearch(true);
-                context
-                    .read<HabitHomeCubit>()
-                    .handleSearch(pastShownHabitIndexes);
-                showCustomDialog(context);
-              }
-            },
-            icon: const Icon(Icons.search_rounded),
-          ),
-          const OrderHabits(),
-        ]),
+        BlocBuilder<HabitHomeCubit, HabitHomeState>(
+          builder: (context, state) {
+            List<int> pastShownHabitIndexes = state.shownHabitIndexes;
+            return Row(children: <Widget>[
+              IconButton(
+                onPressed: () {
+                  if (context.read<HabitHomeCubit>().state.isSearched ==
+                      false) {
+                    context.read<HabitHomeCubit>().setSearch(true);
+                    context
+                        .read<HabitHomeCubit>()
+                        .handleSearch(pastShownHabitIndexes);
+                    showCustomDialog(context);
+                  }
+                },
+                icon: const Icon(Icons.search_rounded),
+              ),
+              const OrderHabits(),
+            ]);
+          },
+        ),
       ],
     );
   }
@@ -113,23 +116,28 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
                   icon: const Icon(Icons.delete_forever),
                   onPressed: () async {
                     if (habit!.notify == true) {
-                      List sharedPreferencesValues =
-                          await StoredNotifications.decodeSharedPreferences(
-                              name: habit!.name);
-                      Map<String, int> decodedSchedule =
-                          sharedPreferencesValues[0];
+                      List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit!.name);
+                      Map<String, int> decodedSchedule = sharedPreferencesValues[0];
                       if (decodedSchedule.isNotEmpty) {
                         for (int scheduleId in decodedSchedule.values) {
                           AwesomeNotifications().cancel(scheduleId);
                         }
                       }
-                      await StoredNotifications.removeNotification(
-                          habitName: habit!.name);
+                      await StoredNotifications.removeNotification(habitName: habit!.name);
                     }
+                    
                     boxHabits.delete(habit!.key);
                     if (context.mounted) {
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => const HomePage()));
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider<HabitHomeCubit>(
+                              create: (context) => HabitHomeCubit(),
+                            ),
+                          ],
+                          child: const HomePage(),
+                        ))
+                      );
                     }
                   },
                 ),
@@ -711,31 +719,48 @@ void showCustomDialog(BuildContext context) {
                                               fontSize: 14),
                                         ),
                                         onChanged: (value) {
-                                          List<int> updatedShownHabitIndexes = [];
-                                          var unfilteredValues = boxHabits.values.map((habit) => habit.key).toList();
+                                          List<int> updatedShownHabitIndexes =
+                                              [];
+                                          var unfilteredValues = boxHabits
+                                              .values
+                                              .map((habit) => habit.key)
+                                              .toList();
                                           if (value.isEmpty) {
                                             // if the search field is empty or only contains white-space, we'll display all habits
-                                            updatedShownHabitIndexes = state.shownHabitIndexes;
+                                            updatedShownHabitIndexes =
+                                                state.shownHabitIndexes;
                                           } else {
-                                            for(int i = 0; i < unfilteredValues.length; i++){
+                                            for (int i = 0; i < unfilteredValues.length; i++) {
                                               Habit habit = boxHabits.get(unfilteredValues[i]);
-                                              if(habit.name.toLowerCase().contains(value.toLowerCase())){
-                                                if(!showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: state.selectedDate!)){
+                                              if (habit.name
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      value.toLowerCase())) {
+                                                if (!showHabitOrNot(
+                                                    recurrence:
+                                                        habit.recurrence,
+                                                    habitDate: habit.date,
+                                                    newDate:
+                                                        state.selectedDate!)) {
                                                   DateTime goToDate = calculateNearestFutureRecurrence(habit: habit, currentDate: state.selectedDate!);
                                                   myContext.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.M.d').format(state.selectedDate!));
-                                                  myContext.read<HabitHomeCubit>().selectDate(goToDate);
-                                                  print(goToDate);
+                                                  myContext
+                                                      .read<HabitHomeCubit>()
+                                                      .selectDate(goToDate);
                                                 }
-                                                updatedShownHabitIndexes.add(habit.key);
+                                                updatedShownHabitIndexes
+                                                    .add(habit.key);
                                               }
                                             }
                                             // we use the toLowerCase() method to make it case-insensitive
                                           }
-                                          //print(updatedShownHabitIndexes);
-                                          context.read<HabitHomeCubit>().handleSearch(updatedShownHabitIndexes);
+                                          context
+                                              .read<HabitHomeCubit>()
+                                              .handleSearch(
+                                                  updatedShownHabitIndexes);
                                         }),
                                   ),
-                                ),                       
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 25),
                                   child: SizedBox(
@@ -748,11 +773,18 @@ void showCustomDialog(BuildContext context) {
                                       child: Padding(
                                         padding: const EdgeInsets.all(0.0),
                                         child: Icon(Icons.expand_less_rounded,
-                                            color: MyColors().lightGrey, size: 20),
+                                            color: MyColors().lightGrey,
+                                            size: 20),
                                       ),
                                       onPressed: () {
-                                        myContext.read<HabitHomeCubit>().cleanHomeCubit(DateFormat('yyyy.M.d').format(state.selectedDate!));
-                                        myContext.read<HabitHomeCubit>().selectDate(DateTime.now());
+                                        myContext
+                                            .read<HabitHomeCubit>()
+                                            .cleanHomeCubit(
+                                                DateFormat('yyyy.M.d').format(
+                                                    state.selectedDate!));
+                                        myContext
+                                            .read<HabitHomeCubit>()
+                                            .selectDate(DateTime.now());
                                         myContext
                                             .read<HabitHomeCubit>()
                                             .setSearch(false);

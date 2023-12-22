@@ -65,19 +65,19 @@ DateTime calculateNearestFutureRecurrence({required Habit habit, required DateTi
   if(habit.recurrence is Map){
     if(habit.recurrence.containsKey("interval")){
       int gap = habit.recurrence['interval'];
-      DateTime nearestDate = currentDate.add(Duration(days: habitDate.difference(currentDate).inDays % gap));
-      print('going to $nearestDate');
+      DateTime nearestDate = currentDate.isBefore(habitDate) ? habitDate : currentDate.add(Duration(days: habitDate.difference(currentDate).inDays % gap));
       return nearestDate;
     }
 		else {
 			int counter = habit.recurrence.containsKey('Monday') ? 7 : 31;  //if the recurrence is weekly, do 7, else its monthly - do 31 iterations
 			for(int i = 0; i < counter; i++){
-				DateTime futureDate = currentDate.add(Duration(days: i));
+				DateTime futureDate = currentDate.isBefore(habitDate) ? habitDate.add(Duration(days: i)) : currentDate.add(Duration(days: i));
 				if(showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: futureDate)){
 					return futureDate;
 				}
 			}
 		}
   }
-  return habit.date;  //remove later, its here just so I dont get an error while writing 
+  //This should not happen, maybe trow an exception here later.
+  return habitDate;  //remove later, its here just so I dont get an error while writing 
 }

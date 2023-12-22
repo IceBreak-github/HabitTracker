@@ -105,7 +105,7 @@ class NotificationService {
       String time = sharedPreferencesValues[1]; 
       dynamic recurrence = sharedPreferencesValues[2];
       Map<String, int> decodedStartDateMap = sharedPreferencesValues[3];
-      print('My decoded schedule is $decodedSchedule'); 
+      //print('My decoded schedule is $decodedSchedule'); 
 
       if(decodedSchedule.isNotEmpty){
         List<String> keysToRemove = [];

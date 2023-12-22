@@ -115,7 +115,7 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                               context.read<HabitHomeCubit>().changeMeasurementValue(0);
                             } else {
                               habit.measurementValues[formatedCurrentDate] = int.parse(value);
-                              boxHabits.putAt(index, habit);
+                              boxHabits.put(habit.key, habit);
                               context.read<HabitHomeCubit>().changeMeasurementValue(int.parse(value));
                             }
                           },
@@ -140,7 +140,7 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             String nowDate = DateFormat('yyyy.M.d').format(DateTime.now());
                             if (value >= habit.goal!){
                                 habit.completionDates.addAll({formatedCurrentDate : null});
-                                boxHabits.putAt(index, habit);
+                                boxHabits.put(index, habit);
                                 context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", true);
                                 if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){
                                   List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit.name);
@@ -152,7 +152,7 @@ showChangeMeasurementValuePopUp({required BuildContext context, required Habit h
                             }
                             else {
                               habit.completionDates.remove(formatedCurrentDate);
-                              boxHabits.putAt(index, habit);
+                              boxHabits.put(index, habit);
                               context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_${habit.name}", false);
                               if(habit.notify == true && DateTime(currentDate.year, currentDate.month, currentDate.day).isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))){
                                 List<String> timeParts = habit.time!.split(':');
@@ -409,7 +409,7 @@ class HabitCheckBox extends StatelessWidget {
             else {
               habit.completionDates.addAll({formatedCurrentDate: null});
             }
-            boxHabits.putAt(index, habit);
+            boxHabits.put(habit.key, habit);
             context.read<HabitHomeCubit>().setCheckValue("${formatedCurrentDate}_$habitName",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_$habitName"]!);               //because we cant devide with zero
             context.read<HabitHomeCubit>().updateProgressBar();
           }
@@ -457,7 +457,7 @@ class HabitMeasurementBox extends StatelessWidget {
               done = true;
             }
             return Text(
-                "$result", //TODO change here
+                "$result",
                 style: TextStyle(
                     color: done ? MyColors().primaryColor : MyColors().lightGrey,
                     fontWeight:

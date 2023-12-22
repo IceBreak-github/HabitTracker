@@ -9,7 +9,6 @@ import 'package:habit_tracker/presentation/widgets/home_page_widgets.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:workmanager/workmanager.dart';
 import '../../shared/colors.dart';
 import '../widgets/date_time_widget.dart';
 import '../widgets/widgets.dart';
@@ -64,10 +63,7 @@ class HomePage extends StatelessWidget {
                           ? state.searchHabitIndexes.length
                           : state.shownHabitIndexes.length,
                       itemBuilder: (context, index) {
-                        Habit habit = boxHabits.get(state.isSearched
-                            ? state.searchHabitIndexes[index]
-                            : state.shownHabitIndexes[index]);
-                     
+                        Habit habit = state.isSearched ? boxHabits.get(state.searchHabitIndexes[index]) : boxHabits.get(state.shownHabitIndexes[index]);
                         double height = 51;
                         DateTime? currentDate = state.selectedDate;
                         String formatedCurrentDate =
@@ -149,11 +145,7 @@ class HomePage extends StatelessWidget {
                                   habit.completionDates
                                       .addAll({formatedCurrentDate: null});
                                 }
-                                boxHabits.putAt(
-                                    state.isSearched
-                                        ? state.searchHabitIndexes[index]
-                                        : state.shownHabitIndexes[index],
-                                    habit);
+                                boxHabits.put(habit.key, habit);
                                 if (context.mounted) {
                                   context.read<HabitHomeCubit>().setCheckValue(
                                       "${formatedCurrentDate}_${habit.name}",
@@ -226,20 +218,11 @@ class HomePage extends StatelessWidget {
             child: DateTimeLine(
               width: MediaQuery.of(context).size.width,
               color: MyColors().primaryColor,
-              hintText: "",
               onSelected: (value) {
-                DateTime? currentDate =
-                    context.read<HabitHomeCubit>().state.selectedDate;
-                String formatedCurrentDate =
-                    DateFormat('yyyy.M.d').format(currentDate!);
-                currentDate != value
-                    ? context
-                        .read<HabitHomeCubit>()
-                        .cleanHomeCubit(formatedCurrentDate)
-                    : null; //clears the Cubit
-                context
-                    .read<HabitHomeCubit>()
-                    .selectDate(value); //changes the selectedDate
+                DateTime? currentDate = context.read<HabitHomeCubit>().state.selectedDate;
+                String formatedCurrentDate = DateFormat('yyyy.M.d').format(currentDate!);
+                context.read<HabitHomeCubit>().selectDate(value); //changes the selectedDate
+                currentDate != value ? context.read<HabitHomeCubit>().cleanHomeCubit(formatedCurrentDate)  : null;
               },
             ),
           ),

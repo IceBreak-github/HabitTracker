@@ -243,16 +243,13 @@ class StatisticsAppBar extends StatelessWidget implements PreferredSizeWidget{
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
-      actions: [
+      actions: const [
         Row(
           children: <Widget>[
-          IconButton(
-            onPressed: () {
-              //TODO: Implement search
-            },
-            icon: const Icon(Icons.search_rounded),
+          Icon(
+            Icons.search_rounded,
           ),
-          const OrderHabits(),
+          OrderHabits(),
           
         ]),
       ],
