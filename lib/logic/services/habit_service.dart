@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 import 'package:intl/intl.dart';
 
 bool showHabitOrNot({required dynamic recurrence, required dynamic habitDate, required DateTime newDate}) {   //habitDate expecting Map<String, int> like: "${habitDate['year']}.${habitDate['month']}.${habitDate['day']}"
@@ -80,4 +83,91 @@ DateTime calculateNearestFutureRecurrence({required Habit habit, required DateTi
   }
   //This should not happen, maybe trow an exception here later.
   return habitDate;  //remove later, its here just so I dont get an error while writing 
+}
+
+List<int> orderHabitsByCompletion({required List<int> currentList, required DateTime selectedDate}) {
+  List<int> myList = currentList;
+  myList.sort((int index1, int index2) {
+    Habit habit1 = boxHabits.get(index1);
+    Habit habit2 = boxHabits.get(index2);
+
+    bool completed1 = habit1.completionDates.containsKey(DateFormat('yyyy.M.d').format(selectedDate));
+    bool completed2 = habit2.completionDates.containsKey(DateFormat('yyyy.M.d').format(selectedDate));
+
+    // Put completed habits at the top
+    if (completed1 && !completed2) {
+      return -1;
+    } else if (!completed1 && completed2) {
+      return 1;
+    } else {
+      // Keep the original order for uncompleted habits
+      return 0;
+    }
+  });
+  return myList;
+}
+
+bool isEarlier(TimeOfDay time1, TimeOfDay time2) {
+  DateTime dateTime1 = DateTime(2023, 1, 1, time1.hour, time1.minute);
+  DateTime dateTime2 = DateTime(2023, 1, 1, time2.hour, time2.minute);
+  return dateTime1.isBefore(dateTime2);
+}
+
+List<int> orderHabitsByTime({required List<int> currentList, required DateTime selectedDate}) {
+  List<int> myList = currentList;
+  myList.sort((int index1, int index2) {
+    Habit habit1 = boxHabits.get(index1);
+    Habit habit2 = boxHabits.get(index2);
+
+    bool hasTime1 = habit1.time != null;
+    bool hasTime2 = habit2.time != null;
+    if (hasTime1 && hasTime2){
+      List<String> timeParts1 = habit1.time!.split(':');
+      List<String> timeParts2 = habit2.time!.split(':');
+      TimeOfDay time1 = TimeOfDay(hour: int.parse(timeParts1[0]), minute: int.parse(timeParts1[1]));
+      TimeOfDay time2 = TimeOfDay(hour: int.parse(timeParts2[0]), minute: int.parse(timeParts2[1]));
+      if (isEarlier(time1, time2)) {
+        return -1; 
+      }
+      else{
+        return 1;
+      }
+    } else if (hasTime1 && !hasTime2) {
+      return -1;
+    } else if (!hasTime1 && hasTime2) {
+      return 1;
+    } else {
+      return 0;
+    }
+    
+  });
+  return myList;
+}
+
+List<int> orderHabitsByAlphabet({required List<int> currentList, required DateTime selectedDate}){
+  List<int> myList = currentList;
+  myList.sort((int index1, int index2) {
+    Habit habit1 = boxHabits.get(index1);
+    Habit habit2 = boxHabits.get(index2);
+    return habit1.name.compareTo(habit2.name);
+  });
+  return myList;
+}
+
+List<int> orderHabitsByDate({required List<int> currentList, required DateTime selectedDate}){
+  List<int> myList = currentList;
+  myList.sort((int index1, int index2) {
+    Habit habit1 = boxHabits.get(index1);
+    Habit habit2 = boxHabits.get(index2);
+    DateTime habitDate1 = DateTime(habit1.date['year'], habit1.date['month'],habit1.date['day']);
+    DateTime habitDate2 = DateTime(habit2.date['year'], habit2.date['month'],habit2.date['day']);
+    if(habitDate1.isBefore(habitDate2)){
+      return -1;
+    } else if(habitDate1.isAfter(habitDate2) || habitDate1.isAtSameMomentAs(habitDate2)){
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return myList;
 }

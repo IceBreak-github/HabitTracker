@@ -87,6 +87,10 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
     emit(state.copyWith(searchHabitIndexes: habitIndexes));
   }
 
+  void handleReOrder(List<int> habitIndexes) {
+    emit(state.copyWith(shownHabitIndexes: habitIndexes));
+  }
+
   void setSearch(bool value) {
     emit(state.copyWith(isSearched: value));
   }

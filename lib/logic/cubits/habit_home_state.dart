@@ -1,6 +1,6 @@
 part of 'habit_home_cubit.dart';
 
-class HabitHomeState extends Equatable {
+class HabitHomeState {
   final DateTime? selectedDate;
   final Map<String, bool> isChecked;
   final Map<String, dynamic> progressBar;
@@ -42,6 +42,4 @@ class HabitHomeState extends Equatable {
     );
   }
 
-  @override
-  List<Object?> get props => [selectedDate, isChecked, measureNumber, measurementValues, progressBar, shownHabitIndexes, isSearched, searchHabitIndexes];
 }

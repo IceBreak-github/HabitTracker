@@ -50,14 +50,12 @@ class HomePage extends StatelessWidget {
                 child: BlocBuilder<HabitHomeCubit, HabitHomeState>(
                   buildWhen: (previousState, state) {
                     if (previousState.selectedDate != state.selectedDate) {
-                      context
-                          .read<HabitHomeCubit>()
-                          .handleSelectedDateChange(state.selectedDate!);
+                      context.read<HabitHomeCubit>().handleSelectedDateChange(state.selectedDate!);
                     }
                     return true;
                   },
                   builder: (context, state) {
-                    return ListView.builder(
+                    return boxHabits.isEmpty || state.shownHabitIndexes.isEmpty ? const NothingHere() : ListView.builder(   //TODO change this into AnimatedList later
                       padding: const EdgeInsets.only(bottom: 160),
                       itemCount: state.isSearched
                           ? state.searchHabitIndexes.length
@@ -77,6 +75,7 @@ class HomePage extends StatelessWidget {
                           }
                         }
                         return GestureDetector(
+                          key: ValueKey(index),
                           onTap: () async {
                             if (currentDate.isAfter(DateTime.now())) {
                               //nothing
@@ -115,7 +114,7 @@ class HomePage extends StatelessWidget {
                                         year: DateTime.now().year,
                                         title: habit.name,
                                         body:
-                                            "Don't forget to complete your Habit !",
+                                            "Don't forget to complete your Habit !", //TODO make these message random in the future, or maybe changable by the user
                                       );
                                     }
                                   }
@@ -237,7 +236,7 @@ class HomePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const StatisticsPage()));
-                  })),
+            })),
             /*            
             Positioned(       //TODO this is here only for testing, remove later
               bottom: 110,

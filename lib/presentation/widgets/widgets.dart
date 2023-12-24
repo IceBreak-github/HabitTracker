@@ -474,11 +474,14 @@ class OrderHabits extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<String>(
-                value: 'By Date',
-                child: Row(
+              PopupMenuItem<String>(
+                onTap: () {
+                  context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!);
+                },
+                value: 'Automatically',
+                child: const Row(
                   children: [
-                    Text('By Date',
+                    Text('Automatically',
                         style: TextStyle(color: Colors.white, fontSize: 14)),
                     Spacer(),
                     Icon(
@@ -489,20 +492,50 @@ class OrderHabits extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
+                onTap: () {
+                  List<int> currentList = orderHabitsByDate(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                  context.read<HabitHomeCubit>().handleReOrder(currentList);
+                },
+                value: 'By Date',
+                child: const Row(
+                  children: [
+                    Text('By Date',
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                    Spacer(),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                onTap: () {
+                  List<int> currentList = orderHabitsByAlphabet(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                  context.read<HabitHomeCubit>().handleReOrder(currentList);
+                },
                 value: 'Alphabetically',
-                child: Text('Alphabetically',
+                child: const Text('Alphabetically',
                     style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
+                onTap: () {
+                  List<int> currentList = orderHabitsByTime(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                  context.read<HabitHomeCubit>().handleReOrder(currentList);
+                },
                 value: 'By Time',
-                child: Text('By Time',
+                child: const Text('By Time',
                     style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
-              const PopupMenuItem<String>(
+              PopupMenuItem<String>(
+                onTap: () {
+                  List<int> currentList = orderHabitsByCompletion(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                  context.read<HabitHomeCubit>().handleReOrder(currentList);
+                },
                 value: 'By Completion',
-                child: Text('By Completion',
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
+                child: const Row(
+                  children: [
+                    Text('By Completion',
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                  ],
+                ),
               ),
             ];
           }),
@@ -828,5 +861,31 @@ void showCustomDialog(BuildContext context) {
     focusNode.requestFocus();
   } catch (e) {
     //nothing
+  }
+}
+
+class NothingHere extends StatelessWidget {
+  const NothingHere({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.15),
+      child: Center(
+        child: Column(
+          children: <Widget> [
+            Icon(
+              Icons.import_contacts_outlined,
+              size: 80,
+              color: MyColors().widgetColor,
+            ),
+            const SizedBox(height: 30),
+            const Text('No habits scheduled', style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 20),
+            Text('Add some more !', style: TextStyle(fontSize: 14, color: MyColors().lightGrey, fontWeight: FontWeight.w500))
+          ],
+        ),
+      ),
+    );
   }
 }

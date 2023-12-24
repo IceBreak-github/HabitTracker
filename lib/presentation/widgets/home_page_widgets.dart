@@ -536,7 +536,7 @@ class SingleHabit extends StatelessWidget {
                   padding:const EdgeInsets.only(right: 10, left: 20),
                   child: (habit.habitType ==
                           'Yes or No')
-                      ? currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 16, color: MyColors().lightGrey) : HabitCheckBox(
+                      ? currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 18, color: MyColors().lightGrey) : HabitCheckBox(
                           habitName: habit.name,
                           formatedCurrentDate:
                               formatedCurrentDate,
@@ -544,7 +544,7 @@ class SingleHabit extends StatelessWidget {
                           index: index,
                           currentDate: currentDate
                           )
-                      : currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 16, color: MyColors().lightGrey) : HabitMeasurementBox(
+                      : currentDate.isAfter(DateTime.now()) ? Icon(Icons.lock_clock_outlined, size: 18, color: MyColors().lightGrey) : HabitMeasurementBox(
                           habit: habit,
                           index: index,
                           formatedCurrentDate:formatedCurrentDate,
