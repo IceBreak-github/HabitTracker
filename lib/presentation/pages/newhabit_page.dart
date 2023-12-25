@@ -230,13 +230,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   isEditing ? boxHabits.put(widget.habit!.key, newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify)) :
                   boxHabits.add(newHabit(habitType: 'Yes or No', recurrence: recurrence, scheduleIds: scheduleIds, notify: habitFormState.notify));
                   if(context.mounted){
-                    /*
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                    */
-                    
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => MultiBlocProvider(
                         providers: [
@@ -247,7 +240,6 @@ class _NewHabitPageState extends State<NewHabitPage> {
                         child: const HomePage(),
                       ))
                     );
-                  
                     context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!); //to update the completion bar
                   }
                 }

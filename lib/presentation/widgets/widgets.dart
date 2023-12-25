@@ -7,6 +7,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
+import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/logic/services/habit_service.dart';
 import 'package:habit_tracker/presentation/pages/settings_page.dart';
 import 'package:habit_tracker/presentation/pages/statistics_page.dart';
@@ -478,10 +479,10 @@ class OrderHabits extends StatelessWidget {
                 onTap: () {
                   context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!);
                 },
-                value: 'Automatically',
+                value: 'Automatic',
                 child: const Row(
                   children: [
-                    Text('Automatically',
+                    Text('Automatic',
                         style: TextStyle(color: Colors.white, fontSize: 14)),
                     Spacer(),
                     Icon(
@@ -491,6 +492,15 @@ class OrderHabits extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              PopupMenuItem<String>(
+                onTap: () {
+                  List<int> currentList = orderHabitsByAlphabet(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                  context.read<HabitHomeCubit>().handleReOrder(currentList);
+                },
+                value: 'Alphabetic',
+                child: const Text('Alphabetic',
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
               PopupMenuItem<String>(
                 onTap: () {
@@ -505,15 +515,6 @@ class OrderHabits extends StatelessWidget {
                     Spacer(),
                   ],
                 ),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  List<int> currentList = orderHabitsByAlphabet(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
-                  context.read<HabitHomeCubit>().handleReOrder(currentList);
-                },
-                value: 'Alphabetically',
-                child: const Text('Alphabetically',
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
               ),
               PopupMenuItem<String>(
                 onTap: () {
@@ -601,10 +602,16 @@ class MyDrawer extends StatelessWidget {
                       text: 'Settings',
                       icon: Icons.tune_rounded,
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SettingsPage()));
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => MultiBlocProvider(
+                            providers: [
+                              BlocProvider<HabitSettingsCubit>(
+                                create: (context) => HabitSettingsCubit(),
+                              ),
+                            ],
+                            child: const SettingsPage(),
+                          ))
+                        );
                       }),
                   Divider(
                     color: MyColors().lightGrey,

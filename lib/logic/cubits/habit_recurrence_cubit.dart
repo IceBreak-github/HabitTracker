@@ -55,26 +55,17 @@ class HabitRecurrenceCubit extends Cubit<HabitRecurrenceState> {
 
  void setWeekDays(Map<String, bool> savedState) {                          
   emit(state.copyWith(weekDays: savedState));
-}
+  }
 
-void setMonthDays(Map<int, bool> savedState) {
-  emit(state.copyWith(monthDays: savedState));
-}
+  void setMonthDays(Map<int, bool> savedState) {
+    emit(state.copyWith(monthDays: savedState));
+  }
 
-void setPages(Map<String, bool> savedState) {
-  emit(state.copyWith(pages: savedState));
-}
+  void setPages(Map<String, bool> savedState) {
+    emit(state.copyWith(pages: savedState));
+  }
 
-void setRecurrenceValue(String value){
-  emit(state.copyWith(recurrenceValue: value));
-}
-
-/*
-void changeIntervalValue(String key, String value){
-    final Map<String, String> updatedIntervalValues = Map.from(state.intervalValues);
-    updatedIntervalValues[key] = value;
-    emit(state.copyWith(intervalValues: updatedIntervalValues));
-}
-*/
-  
+  void setRecurrenceValue(String value){
+    emit(state.copyWith(recurrenceValue: value));
+  }  
 }

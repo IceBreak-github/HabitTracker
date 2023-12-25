@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/widgets/settings_widget.dart';
 import 'package:habit_tracker/presentation/widgets/widgets.dart';
 
@@ -27,28 +29,37 @@ class SettingsPage extends StatelessWidget {
                       InputWidget(
                         text: 'Vibrations:',
                         icon: Icons.edgesensor_high_rounded,
-                        width: 241,
-                        child: Container(),
+                        width: 292,
+                        child: const ToggleVibrations(),
                         onTap: () {
-                          
+                          context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
                         },
                       ),
                       InputWidget(
                         text: 'Notifications:',
                         icon: Icons.notifications_active_rounded,
-                        width: 271,
-                        child: Container(),
+                        width: MediaQuery.of(context).size.width,
+                        child: const ToggleNotifications(),
                         onTap: () {
-                          
+                          context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
                         },
                       ),
                       InputWidget(
-                        text: 'Set as a widget:',
+                        text: 'Order Habits:',
+                        icon: Icons.filter_list_rounded,
+                        width: MediaQuery.of(context).size.width,
+                        child: const SelectHabitOrdering(),
+                        onTap: () async {
+                          //await showOrderMenu(context);
+                        },
+                      ),
+                      InputWidget(
+                        text: 'Set Widget:',
                         icon: Icons.widgets_rounded,
                         width: MediaQuery.of(context).size.width,
-                        child: Container(),
+                        child: const ToggleWidget(),
                         onTap: () {
-                          
+                          context.read<HabitSettingsCubit>().toggleWidget(!context.read<HabitSettingsCubit>().state.setWidget);
                         },
                       ),
                       InputWidget(

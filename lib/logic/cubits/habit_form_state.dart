@@ -55,26 +55,3 @@ class HabitFormState extends Equatable {
   @override
   List<Object?> get props => [habitName, time, notify, recurrenceSet, goal, unit, selectedDate];
 }
-/*
-class HabitFormWithMeasurement extends HabitFormState {
-  final double? goal;
-  final String? unit;
-
-  const HabitFormWithMeasurement({
-    required String? habitName,
-    required TimeOfDay? time,
-    required bool notify,
-    required String recurrenceSet,
-    required this.goal,
-    required this.unit,
-  }) : super(
-          habitName: habitName,
-          time: time,
-          notify: notify,
-          recurrenceSet: recurrenceSet,
-        );
-
-  @override
-  List<Object?> get props => super.props + [goal, unit];
-}
-*/

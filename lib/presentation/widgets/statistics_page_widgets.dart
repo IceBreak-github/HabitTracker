@@ -243,7 +243,7 @@ class StatisticsAppBar extends StatelessWidget implements PreferredSizeWidget{
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
-      actions: const [
+      actions: const [         //TODO icons are not spaced evenly like on the HomePage, fix later
         Row(
           children: <Widget>[
           Icon(
