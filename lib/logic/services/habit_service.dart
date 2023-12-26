@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
-import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:intl/intl.dart';
 

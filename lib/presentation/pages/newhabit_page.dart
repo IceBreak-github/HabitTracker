@@ -254,258 +254,262 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 onTap: () {
                   FocusScope.of(context).requestFocus(FocusNode());
                 },
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Padding(
-                      padding: const EdgeInsets.all(25),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          ShakeMe(
-                              key: shakeNameKey,
-                              shakeCount: 3,
-                              shakeOffset: 8,
-                              shakeDuration: const Duration(milliseconds: 500),
-                              child: InputWidget(
-                                  text: "Name:",
-                                  icon: Icons.drive_file_rename_outline_rounded,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: TextInput(
-                                      initialValue: isEditing ? widget.habit!.name : null,
-                                      placeholder: "e.g. Meditation",
-                                      name: 'Name',
-                                      onChanged: (val) {
-                                        context
-                                            .read<HabitFormCubit>()
-                                            .setHabitName(val);
-                                      }),
-                                  onTap: () {})),
-                          Row(
-                            children: [
-                              ShakeMe(
-                                // pass the GlobalKey as an argument
-                                key: shakeTimeKey,
-                                // configure the animation parameters
+                child: ScrollConfiguration(
+                  behavior: const ScrollBehavior()
+                  .copyWith(overscroll: false), 
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: formKey,
+                      child: Padding(
+                        padding: const EdgeInsets.all(25),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            ShakeMe(
+                                key: shakeNameKey,
                                 shakeCount: 3,
                                 shakeOffset: 8,
-                                shakeDuration:
-                                    const Duration(milliseconds: 500),
-                                // Add the child widget that will be animated
+                                shakeDuration: const Duration(milliseconds: 500),
                                 child: InputWidget(
-                                    text: "Time:",
-                                    icon: Icons.watch_later,
-                                    width: 230,
-                                    child: const TimeSelect(),
+                                    text: "Name:",
+                                    icon: Icons.drive_file_rename_outline_rounded,
+                                    width: MediaQuery.of(context).size.width,
+                                    child: TextInput(
+                                        initialValue: isEditing ? widget.habit!.name : null,
+                                        placeholder: "e.g. Meditation",
+                                        name: 'Name',
+                                        onChanged: (val) {
+                                          context
+                                              .read<HabitFormCubit>()
+                                              .setHabitName(val);
+                                        }),
+                                    onTap: () {})),
+                            Row(
+                              children: [
+                                ShakeMe(
+                                  // pass the GlobalKey as an argument
+                                  key: shakeTimeKey,
+                                  // configure the animation parameters
+                                  shakeCount: 3,
+                                  shakeOffset: 8,
+                                  shakeDuration:
+                                      const Duration(milliseconds: 500),
+                                  // Add the child widget that will be animated
+                                  child: InputWidget(
+                                      text: "Time:",
+                                      icon: Icons.watch_later,
+                                      width: 230,
+                                      child: const TimeSelect(),
+                                      onTap: () async {
+                                        List<String>? timeParts = isEditing ? widget.habit!.time != null ? widget.habit!.time!.split(':') : null : null;
+                                        TimeOfDay? newTime = await showTimePicker(
+                                          initialEntryMode:
+                                              TimePickerEntryMode.dialOnly,
+                                          context: context,
+                                          initialTime: isEditing ? widget.habit!.time != null ? TimeOfDay(hour: int.parse(timeParts![0]), minute: int.parse(timeParts[1])) : const TimeOfDay(hour: 12, minute: 12) : const TimeOfDay(hour: 12, minute: 12),
+                                        );
+                                        if (newTime != null) {
+                                          if (context.mounted) {
+                                            context.read<HabitFormCubit>().setHabitTime(newTime);
+                                            context.read<HabitFormCubit>().toggleHabitNotify(true);
+                                          }
+                                        }
+                                      }),
+                                ),
+                                const SizedBox(width: 25),
+                                const TimeDelete(),
+                              ],
+                            ),
+                            InputWidget(
+                                text: "Notify:",
+                                icon: Icons.notifications_active_rounded,
+                                width: 270,
+                                child: NotifyToggle(shakeTimeKey: shakeTimeKey),
+                                onTap: () {
+                                  final habitFormState =
+                                      context.read<HabitFormCubit>().state;
+                                  bool? timeSet =
+                                      habitFormState.time == null ? false : true;
+                                  bool notify = habitFormState.notify;
+                
+                                  timeSet
+                                      ? null
+                                      : shakeTimeKey.currentState
+                                          ?.shake(); //shake the widget when timeSet is false
+                                  timeSet
+                                      ? context
+                                          .read<HabitFormCubit>()
+                                          .toggleHabitNotify(!notify)
+                                      : context
+                                          .read<HabitFormCubit>()
+                                          .toggleHabitNotify(false);
+                                }),
+                            widget.recurrent
+                                ? InputWidget(
+                                    text: "Recurrence:",
+                                    icon: Icons.change_circle,
+                                    width: 310,
+                                    child: const RecurrenceSelect(),
+                                    onTap: () {
+                                      recurrencePanel(context); 
+                                    })
+                                : InputWidget(
+                                    text: 'Date: ',
+                                    icon: Icons.calendar_month,
+                                    width: 275,
+                                    child: const DateSelect(),
                                     onTap: () async {
-                                      List<String>? timeParts = isEditing ? widget.habit!.time != null ? widget.habit!.time!.split(':') : null : null;
-                                      TimeOfDay? newTime = await showTimePicker(
-                                        initialEntryMode:
-                                            TimePickerEntryMode.dialOnly,
+                                      DateTime? pickedDate = await showDatePicker(
                                         context: context,
-                                        initialTime: isEditing ? widget.habit!.time != null ? TimeOfDay(hour: int.parse(timeParts![0]), minute: int.parse(timeParts[1])) : const TimeOfDay(hour: 12, minute: 12) : const TimeOfDay(hour: 12, minute: 12),
+                                        initialDate: context
+                                            .read<HabitFormCubit>()
+                                            .state
+                                            .selectedDate!,
+                                        firstDate: DateTime(2018),
+                                        lastDate: DateTime(2050),
+                                        builder: (context, child) {
+                                          return Theme(
+                                              data: ThemeData.dark().copyWith(
+                                                colorScheme: ColorScheme.dark(
+                                                  onPrimary: Colors
+                                                      .black, // selected text color
+                                                  onSurface: Colors.white,
+                                                  primary:
+                                                      MyColors().primaryColor,
+                                                  surface:
+                                                      MyColors().backgroundColor,
+                                                ),
+                                                dialogBackgroundColor:
+                                                    MyColors().widgetColor,
+                                                textButtonTheme:
+                                                    TextButtonThemeData(
+                                                  style: TextButton.styleFrom(
+                                                    textStyle: TextStyle(
+                                                      color:
+                                                          MyColors().primaryColor,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 14,
+                                                    ),
+                                                    foregroundColor: MyColors()
+                                                        .primaryColor, // color of button's letters
+                                                  ),
+                                                ),
+                                              ),
+                                              child: child!);
+                                        },
                                       );
-                                      if (newTime != null) {
+                                      if (pickedDate != null) {
                                         if (context.mounted) {
-                                          context.read<HabitFormCubit>().setHabitTime(newTime);
-                                          context.read<HabitFormCubit>().toggleHabitNotify(true);
+                                          context.read<HabitFormCubit>().setHabitDate(pickedDate);
                                         }
                                       }
                                     }),
-                              ),
-                              const SizedBox(width: 25),
-                              const TimeDelete(),
-                            ],
-                          ),
-                          InputWidget(
-                              text: "Notify:",
-                              icon: Icons.notifications_active_rounded,
-                              width: 270,
-                              child: NotifyToggle(shakeTimeKey: shakeTimeKey),
-                              onTap: () {
-                                final habitFormState =
-                                    context.read<HabitFormCubit>().state;
-                                bool? timeSet =
-                                    habitFormState.time == null ? false : true;
-                                bool notify = habitFormState.notify;
-
-                                timeSet
-                                    ? null
-                                    : shakeTimeKey.currentState
-                                        ?.shake(); //shake the widget when timeSet is false
-                                timeSet
-                                    ? context
-                                        .read<HabitFormCubit>()
-                                        .toggleHabitNotify(!notify)
-                                    : context
-                                        .read<HabitFormCubit>()
-                                        .toggleHabitNotify(false);
-                              }),
-                          widget.recurrent
-                              ? InputWidget(
-                                  text: "Recurrence:",
-                                  icon: Icons.change_circle,
-                                  width: 310,
-                                  child: const RecurrenceSelect(),
-                                  onTap: () {
-                                    recurrencePanel(context); 
-                                  })
-                              : InputWidget(
-                                  text: 'Date: ',
-                                  icon: Icons.calendar_month,
-                                  width: 275,
-                                  child: const DateSelect(),
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: context
-                                          .read<HabitFormCubit>()
-                                          .state
-                                          .selectedDate!,
-                                      firstDate: DateTime(2018),
-                                      lastDate: DateTime(2050),
-                                      builder: (context, child) {
-                                        return Theme(
-                                            data: ThemeData.dark().copyWith(
-                                              colorScheme: ColorScheme.dark(
-                                                onPrimary: Colors
-                                                    .black, // selected text color
-                                                onSurface: Colors.white,
-                                                primary:
-                                                    MyColors().primaryColor,
-                                                surface:
-                                                    MyColors().backgroundColor,
-                                              ),
-                                              dialogBackgroundColor:
-                                                  MyColors().widgetColor,
-                                              textButtonTheme:
-                                                  TextButtonThemeData(
-                                                style: TextButton.styleFrom(
-                                                  textStyle: TextStyle(
-                                                    color:
-                                                        MyColors().primaryColor,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 14,
-                                                  ),
-                                                  foregroundColor: MyColors()
-                                                      .primaryColor, // color of button's letters
-                                                ),
-                                              ),
-                                            ),
-                                            child: child!);
-                                      },
-                                    );
-                                    if (pickedDate != null) {
-                                      if (context.mounted) {
-                                        context.read<HabitFormCubit>().setHabitDate(pickedDate);
-                                      }
-                                    }
-                                  }),
-                          widget.habitType == "Measurement"
-                              ? ShakeMe(
-                                  key: shakeGoalKey,
-                                  shakeCount: 3,
-                                  shakeOffset: 8,
-                                  shakeDuration:
-                                      const Duration(milliseconds: 500),
-                                  child: InputWidget(
-                                      text: 'Goal:',
-                                      icon: Icons.stars,
-                                      width: 190,
-                                      child: TextInput(
-                                          initialValue: isEditing ? '${widget.habit!.goal}' : null,
-                                          placeholder: "e.g. 10",
-                                          name: 'Goal',
-                                          onChanged: (val) {
-                                            if (val == '') {
-                                            } else {
+                            widget.habitType == "Measurement"
+                                ? ShakeMe(
+                                    key: shakeGoalKey,
+                                    shakeCount: 3,
+                                    shakeOffset: 8,
+                                    shakeDuration:
+                                        const Duration(milliseconds: 500),
+                                    child: InputWidget(
+                                        text: 'Goal:',
+                                        icon: Icons.stars,
+                                        width: 190,
+                                        child: TextInput(
+                                            initialValue: isEditing ? '${widget.habit!.goal}' : null,
+                                            placeholder: "e.g. 10",
+                                            name: 'Goal',
+                                            onChanged: (val) {
+                                              if (val == '') {
+                                              } else {
+                                                context
+                                                    .read<HabitFormCubit>()
+                                                    .setHabitGoal(
+                                                        int.parse(val));
+                                              }
+                                            }),
+                                        onTap: () {}),
+                                  )
+                                : Container(),
+                            widget.habitType == "Measurement"
+                                ? ShakeMe(
+                                    key: shakeUnitKey,
+                                    shakeCount: 3,
+                                    shakeOffset: 8,
+                                    shakeDuration:
+                                        const Duration(milliseconds: 500),
+                                    child: InputWidget(
+                                        text: 'Unit:',
+                                        icon: Icons.scale_rounded,
+                                        width: 240,
+                                        child: TextInput(
+                                            initialValue: isEditing ? widget.habit!.unit : null,
+                                            placeholder: "e.g. minutes",
+                                            name: 'Unit',
+                                            onChanged: (val) {
                                               context
                                                   .read<HabitFormCubit>()
-                                                  .setHabitGoal(
-                                                      int.parse(val));
-                                            }
-                                          }),
-                                      onTap: () {}),
-                                )
-                              : Container(),
-                          widget.habitType == "Measurement"
-                              ? ShakeMe(
-                                  key: shakeUnitKey,
-                                  shakeCount: 3,
-                                  shakeOffset: 8,
-                                  shakeDuration:
-                                      const Duration(milliseconds: 500),
-                                  child: InputWidget(
-                                      text: 'Unit:',
-                                      icon: Icons.scale_rounded,
-                                      width: 240,
-                                      child: TextInput(
-                                          initialValue: isEditing ? widget.habit!.unit : null,
-                                          placeholder: "e.g. minutes",
-                                          name: 'Unit',
-                                          onChanged: (val) {
-                                            context
-                                                .read<HabitFormCubit>()
-                                                .setHabitGoalUnit(val);
-                                          }),
-                                      onTap: () {}),
-                                )
-                              : Container(),
-
-                          !widget.recurrent ? Container() : 
-                            InputWidget(
-                              text: 'Start:',                     //TODO Add text "Start Today"
-                              icon: Icons.flag_circle,          
-                              width: 275,
-                                  child: const DateSelect(),
-                                  onTap: () async {
-                                    DateTime? pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: context
-                                          .read<HabitFormCubit>()
-                                          .state
-                                          .selectedDate!,
-                                      firstDate: DateTime(2018),
-                                      lastDate: DateTime(2050),
-                                      builder: (context, child) {
-                                        return Theme(
-                                            data: ThemeData.dark().copyWith(
-                                              colorScheme: ColorScheme.dark(
-                                                onPrimary: Colors
-                                                    .black, // selected text color
-                                                onSurface: Colors.white,
-                                                primary:
-                                                    MyColors().primaryColor,
-                                                surface:
-                                                    MyColors().backgroundColor,
-                                              ),
-                                              dialogBackgroundColor:
-                                                  MyColors().widgetColor,
-                                              textButtonTheme:
-                                                  TextButtonThemeData(
-                                                style: TextButton.styleFrom(
-                                                  textStyle: TextStyle(
-                                                    color:
-                                                        MyColors().primaryColor,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 14,
+                                                  .setHabitGoalUnit(val);
+                                            }),
+                                        onTap: () {}),
+                                  )
+                                : Container(),
+                
+                            !widget.recurrent ? Container() : 
+                              InputWidget(
+                                text: 'Start:',                     //TODO Add text "Start Today"
+                                icon: Icons.flag_circle,          
+                                width: 275,
+                                    child: const DateSelect(),
+                                    onTap: () async {
+                                      DateTime? pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: context
+                                            .read<HabitFormCubit>()
+                                            .state
+                                            .selectedDate!,
+                                        firstDate: DateTime(2018),
+                                        lastDate: DateTime(2050),
+                                        builder: (context, child) {
+                                          return Theme(
+                                              data: ThemeData.dark().copyWith(
+                                                colorScheme: ColorScheme.dark(
+                                                  onPrimary: Colors
+                                                      .black, // selected text color
+                                                  onSurface: Colors.white,
+                                                  primary:
+                                                      MyColors().primaryColor,
+                                                  surface:
+                                                      MyColors().backgroundColor,
+                                                ),
+                                                dialogBackgroundColor:
+                                                    MyColors().widgetColor,
+                                                textButtonTheme:
+                                                    TextButtonThemeData(
+                                                  style: TextButton.styleFrom(
+                                                    textStyle: TextStyle(
+                                                      color:
+                                                          MyColors().primaryColor,
+                                                      fontWeight: FontWeight.w500,
+                                                      fontSize: 14,
+                                                    ),
+                                                    foregroundColor: MyColors()
+                                                        .primaryColor, // color of button's letters
                                                   ),
-                                                  foregroundColor: MyColors()
-                                                      .primaryColor, // color of button's letters
                                                 ),
                                               ),
-                                            ),
-                                            child: child!);
-                                      },
-                                    );
-                                    if (pickedDate != null) {
-                                      if (context.mounted) {
-                                        context.read<HabitFormCubit>().setHabitDate(pickedDate);
+                                              child: child!);
+                                        },
+                                      );
+                                      if (pickedDate != null) {
+                                        if (context.mounted) {
+                                          context.read<HabitFormCubit>().setHabitDate(pickedDate);
+                                        }
                                       }
                                     }
-                                  }
-                            ),
-                        ],
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

@@ -35,6 +35,19 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget{
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
+      actions: [
+        Row(
+          children: [
+            IconButton(
+              padding: const EdgeInsets.only(right: 15),
+              icon: const Icon(Icons.settings_backup_restore),
+              onPressed: () {
+                //TODO restore settings
+              }
+            ),
+          ],
+        ),
+      ],
     );
   }
   @override

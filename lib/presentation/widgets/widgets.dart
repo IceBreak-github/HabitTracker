@@ -111,38 +111,36 @@ class NewHabitAppBar extends StatelessWidget implements PreferredSizeWidget {
           }),
       actions: [
         habit != null
-            ? Padding(
-                padding: const EdgeInsets.only(right: 9.0),
-                child: IconButton(
-                  icon: const Icon(Icons.delete_forever),
-                  onPressed: () async {
-                    if (habit!.notify == true) {
-                      List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit!.name);
-                      Map<String, int> decodedSchedule = sharedPreferencesValues[0];
-                      if (decodedSchedule.isNotEmpty) {
-                        for (int scheduleId in decodedSchedule.values) {
-                          AwesomeNotifications().cancel(scheduleId);
-                        }
-                      }
-                      await StoredNotifications.removeNotification(habitName: habit!.name);
+            ? IconButton(
+              padding: const EdgeInsets.only(right: 9.0),
+              icon: const Icon(Icons.delete_forever),
+              onPressed: () async {
+                if (habit!.notify == true) {
+                  List sharedPreferencesValues = await StoredNotifications.decodeSharedPreferences(name: habit!.name);
+                  Map<String, int> decodedSchedule = sharedPreferencesValues[0];
+                  if (decodedSchedule.isNotEmpty) {
+                    for (int scheduleId in decodedSchedule.values) {
+                      AwesomeNotifications().cancel(scheduleId);
                     }
-                    
-                    boxHabits.delete(habit!.key);
-                    if (context.mounted) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => MultiBlocProvider(
-                          providers: [
-                            BlocProvider<HabitHomeCubit>(
-                              create: (context) => HabitHomeCubit(),
-                            ),
-                          ],
-                          child: const HomePage(),
-                        ))
-                      );
-                    }
-                  },
-                ),
-              )
+                  }
+                  await StoredNotifications.removeNotification(habitName: habit!.name);
+                }
+                
+                boxHabits.delete(habit!.key);
+                if (context.mounted) {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider<HabitHomeCubit>(
+                          create: (context) => HabitHomeCubit(),
+                        ),
+                      ],
+                      child: const HomePage(),
+                    ))
+                  );
+                }
+              },
+            )
             : Container()
       ],
     );
