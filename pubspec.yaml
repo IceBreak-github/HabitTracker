@@ -49,6 +49,7 @@ dependencies:
   uuid: ^4.2.1
   shared_preferences: ^2.2.2
   logger: ^2.0.2+1
+  flutter_colorpicker: ^1.0.3
 
 dev_dependencies:
   flutter_test:

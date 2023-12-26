@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
         navigatorKey: navigatorKey,
         title: "Habit Tracker",
         theme: ThemeData(
+          dialogBackgroundColor: MyColors().widgetColor,
           fontFamily: 'Montserrat',
           scaffoldBackgroundColor: MyColors().backgroundColor,
           splashColor: Colors.transparent,
@@ -67,6 +68,21 @@ class MyApp extends StatelessWidget {
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
               foregroundColor: MyColors().primaryColor,
+            ),
+          ),
+          textTheme: TextTheme(
+            bodyLarge: const TextStyle(fontSize: 14, color: Colors.white),
+            bodyMedium: TextStyle(fontSize: 12, color: MyColors().lightGrey),
+            titleLarge: const TextStyle(fontSize: 14, color: Colors.white),
+            titleMedium: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w500), 
+          ),
+          canvasColor: const Color.fromRGBO(20, 20, 20, 1),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+              elevation: MaterialStateProperty.all(0),
+              overlayColor: MaterialStateProperty.all(MyColors().primaryColor.withOpacity(0.1)),
+              foregroundColor: MaterialStateProperty.all(MyColors().primaryColor),
             ),
           ),
         ),

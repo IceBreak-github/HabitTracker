@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
@@ -254,6 +255,179 @@ class ToggleWidget extends StatelessWidget {
                     //TODO also save the setting locally to a Hive box
                     context.read<HabitSettingsCubit>().toggleWidget(valueChange);
                   }),
+            ],
+          ),
+        );
+      },
+    );
+  } 
+}
+
+class SelectTheme extends StatelessWidget {
+  const SelectTheme({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () async {
+            final RenderBox button = context.findRenderObject() as RenderBox;
+            await showMenu(
+              color: const Color.fromRGBO(20, 20, 20, 1),
+              context: context,
+              position: RelativeRect.fromRect(
+                Rect.fromPoints(
+                  button.localToGlobal(Offset.zero),
+                  button.localToGlobal(button.size.bottomRight(Offset.zero)),
+                ),
+                Offset.zero & MediaQuery.of(context).size,
+              ),
+              items: <PopupMenuItem<String>>[
+                PopupMenuItem<String>(
+                    onTap: () {
+                      context.read<HabitSettingsCubit>().setTheme('Dark');
+                    },
+                    value: 'Dark',
+                    child: const Row(
+                      children: [
+                        Text('Dark',
+                            style: TextStyle(color: Colors.white, fontSize: 14)),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    onTap: () {
+                      context.read<HabitSettingsCubit>().setTheme('White');
+                    },
+                    value: 'White',
+                    child: const Text('White',
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                  ),
+              ],
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 50,
+                  child: Text(state.theme, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 7),
+                  child: Icon(
+                    Icons.expand_more_rounded,
+                    color: MyColors().lightGrey, size: 32
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  } 
+}
+
+showColorPicker({required BuildContext context, required Color pickerColor, required void Function(Color) onColorChanged}) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+      title: const Text('Pick a color!'),
+      content: SingleChildScrollView(
+        child: ColorPicker( //TODO restyle the package, other picker widgets as well
+          //hexInputBar: true,
+          pickerAreaHeightPercent: 0.7,
+          labelTypes: const [ColorLabelType.hex, ColorLabelType.rgb],
+          pickerColor: pickerColor,
+          onColorChanged: onColorChanged,
+        ),
+      ),
+      actions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(right: 17),
+          child: ElevatedButton(
+            child: const Text('Got it'),
+            onPressed: () {
+              //setState(() => currentColor = pickerColor);
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ],
+    );
+    },
+  );
+}
+
+class ColorDisplay extends StatelessWidget {
+  final String colorString;
+  final double width;
+  const ColorDisplay({
+    super.key,
+    required this.colorString,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
+      builder: (context, state) {
+
+        Color getColorValue(String color){
+          if(color == 'primaryColor'){
+            return state.primaryColor!;
+          }
+          if(color == 'secondaryColor'){
+            return state.secondaryColor!;
+          }
+          if(color == 'backgroundColor'){
+            return state.backgroundColor!;
+          }
+          if(color == 'widgetColor'){
+            return state.widgetColor!;
+          }
+          //this should never happen
+          return Colors.black;
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              SizedBox(
+                  width: width,
+                  child: Text(getColorValue(colorString).value.toRadixString(16),
+                  overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500))),
+              const SizedBox(width: 20),
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: getColorValue(colorString),
+                    border: Border.all(color: MyColors().backgroundColor),
+                    boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.10),
+                      blurRadius: 5.0, // soften the shadow
+                      spreadRadius: 5.0, //extend the shadow
+                      offset: const Offset(
+                        0.0, // Move to right 5  horizontally
+                        0.0, // Move to bottom 5 Vertically
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         );

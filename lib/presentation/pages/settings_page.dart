@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/widgets/settings_widget.dart';
 import 'package:habit_tracker/presentation/widgets/widgets.dart';
+import 'package:habit_tracker/shared/colors.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -29,7 +30,7 @@ class SettingsPage extends StatelessWidget {
                       InputWidget(
                         text: 'Vibrations:',
                         icon: Icons.edgesensor_high_rounded,
-                        width: 292,
+                        width: 293,
                         child: const ToggleVibrations(),
                         onTap: () {
                           context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
@@ -38,7 +39,7 @@ class SettingsPage extends StatelessWidget {
                       InputWidget(
                         text: 'Notifications:',
                         icon: Icons.notifications_active_rounded,
-                        width: MediaQuery.of(context).size.width,
+                        width: 310,
                         child: const ToggleNotifications(),
                         onTap: () {
                           context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
@@ -47,7 +48,7 @@ class SettingsPage extends StatelessWidget {
                       InputWidget(
                         text: 'Order Habits:',
                         icon: Icons.filter_list_rounded,
-                        width: MediaQuery.of(context).size.width,
+                        width: 310,
                         child: const SelectHabitOrdering(),
                         onTap: () async {
                           //await showOrderMenu(context);
@@ -56,7 +57,7 @@ class SettingsPage extends StatelessWidget {
                       InputWidget(
                         text: 'Set Widget:',
                         icon: Icons.widgets_rounded,
-                        width: MediaQuery.of(context).size.width,
+                        width: 302,
                         child: const ToggleWidget(),
                         onTap: () {
                           context.read<HabitSettingsCubit>().toggleWidget(!context.read<HabitSettingsCubit>().state.setWidget);
@@ -66,7 +67,7 @@ class SettingsPage extends StatelessWidget {
                         text: 'Theme:',
                         icon: Icons.palette,
                         width: 241,
-                        child: Container(),
+                        child: const SelectTheme(),
                         onTap: () {
                           
                         },
@@ -75,36 +76,44 @@ class SettingsPage extends StatelessWidget {
                         text: 'Primary color:',
                         icon: Icons.format_color_fill_rounded,
                         width: MediaQuery.of(context).size.width,
-                        child: Container(),
+                        child: const ColorDisplay(colorString: 'primaryColor', width: 55),
                         onTap: () {
-                          
+                          showColorPicker(context: context, pickerColor: MyColors().primaryColor, onColorChanged: (Color color) {
+                            context.read<HabitSettingsCubit>().setPrimaryColor(color);
+                          });
                         },
                       ),
                       InputWidget(
                         text: 'Secondary color:',
                         icon: Icons.format_color_fill_rounded,
                         width: MediaQuery.of(context).size.width,
-                        child: Container(),
+                        child: const ColorDisplay(colorString: 'secondaryColor', width: 37),
                         onTap: () {
-                          
+                          showColorPicker(context: context, pickerColor: MyColors().secondaryColor, onColorChanged: (Color color) {
+                            context.read<HabitSettingsCubit>().setSecondaryColor(color);
+                          });
                         },
                       ),
                       InputWidget(
                         text: 'Background color:',
                         icon: Icons.format_color_fill_rounded,
                         width: MediaQuery.of(context).size.width,
-                        child: Container(),
+                        child: const ColorDisplay(colorString: 'backgroundColor', width: 25),
                         onTap: () {
-                          
+                          showColorPicker(context: context, pickerColor: MyColors().backgroundColor, onColorChanged: (Color color) {
+                            context.read<HabitSettingsCubit>().setBackgroundColor(color);
+                          });
                         },
                       ),
                       InputWidget(
                         text: 'Widget color:',
                         icon: Icons.format_color_fill_rounded,
                         width: MediaQuery.of(context).size.width,
-                        child: Container(),
+                        child: const ColorDisplay(colorString: 'widgetColor', width: 60),
                         onTap: () {
-                          
+                          showColorPicker(context: context, pickerColor: MyColors().widgetColor, onColorChanged: (Color color) {
+                            context.read<HabitSettingsCubit>().setWidgetColor(color);
+                          });
                         },
                       ),
                     ],
