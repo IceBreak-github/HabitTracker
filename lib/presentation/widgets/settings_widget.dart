@@ -54,6 +54,69 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget{
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
+class SettingsWidget extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final Widget child;
+  final VoidCallback onTap;
+  const SettingsWidget({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.child,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: FittedBox(
+          child: Container(
+            height: 51,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: MyColors().widgetColor,
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.10),
+                  blurRadius: 4.0, // soften the shadow
+                  spreadRadius: 4.0, //extend the shadow
+                  offset: const Offset(
+                    2.0, // Move to right 5  horizontally
+                    5.0, // Move to bottom 5 Vertically
+                  ),
+                ),
+              ],
+            ),
+            child: Row(children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Icon(
+                  icon,
+                  color: MyColors().secondaryColor,
+                  size: 20,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  color: MyColors().lightGrey,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              child
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class ToggleNotifications extends StatelessWidget {
   const ToggleNotifications({super.key});
 
@@ -86,6 +149,7 @@ class ToggleNotifications extends StatelessWidget {
                     //TODO also save the setting locally to a Hive box
                     context.read<HabitSettingsCubit>().toggleNotifications(valueChange);
                   }),
+              const SizedBox(width: 5),
             ],
           ),
         );
@@ -126,6 +190,7 @@ class ToggleVibrations extends StatelessWidget {
                     //TODO also save the setting locally to a Hive box
                     context.read<HabitSettingsCubit>().toggleVibrations(valueChange);
                   }),
+              const SizedBox(width: 5),
             ],
           ),
         );
@@ -221,7 +286,7 @@ class SelectHabitOrdering extends StatelessWidget {
                   child: Text(state.orderHabits, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 7, right: 17),
                   child: Icon(
                     Icons.expand_more_rounded,
                     color: MyColors().lightGrey, size: 32
@@ -268,6 +333,7 @@ class ToggleWidget extends StatelessWidget {
                     //TODO also save the setting locally to a Hive box
                     context.read<HabitSettingsCubit>().toggleWidget(valueChange);
                   }),
+              const SizedBox(width: 5),
             ],
           ),
         );
@@ -330,7 +396,7 @@ class SelectTheme extends StatelessWidget {
                   child: Text(state.theme, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500))
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 7),
+                  padding: const EdgeInsets.only(left: 7, right: 17),
                   child: Icon(
                     Icons.expand_more_rounded,
                     color: MyColors().lightGrey, size: 32
@@ -412,14 +478,12 @@ class ColorDisplay extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             children: <Widget>[
-              SizedBox(
-                  width: width,
-                  child: Text(getColorValue(colorString).value.toRadixString(16),
-                  overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500))),
+              Text(getColorValue(colorString).value.toRadixString(16),
+              overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500)),
               const SizedBox(width: 20),
               Container(
                 width: 26,
@@ -441,6 +505,7 @@ class ColorDisplay extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 5),  //TODO make these paddings the same across all pages and all widgets
             ],
           ),
         );

@@ -30,55 +30,49 @@ class SettingsPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget> [
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Vibrations:',
                           icon: Icons.edgesensor_high_rounded,
-                          width: 293,
                           child: const ToggleVibrations(),
                           onTap: () {
                             context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Notifications:',
                           icon: Icons.notifications_active_rounded,
-                          width: 310,
                           child: const ToggleNotifications(),
                           onTap: () {
                             context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Order Habits:',
                           icon: Icons.filter_list_rounded,
-                          width: 310,
                           child: const SelectHabitOrdering(),
                           onTap: () async {
                             //await showOrderMenu(context);
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Set Widget:',
                           icon: Icons.widgets_rounded,
-                          width: 302,
                           child: const ToggleWidget(),
                           onTap: () {
                             context.read<HabitSettingsCubit>().toggleWidget(!context.read<HabitSettingsCubit>().state.setWidget);
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Theme:',
                           icon: Icons.palette,
-                          width: 241,
                           child: const SelectTheme(),
                           onTap: () {
                             
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Primary color:',
                           icon: Icons.format_color_fill_rounded,
-                          width: 310,
                           child: const ColorDisplay(colorString: 'primaryColor', width: 55),
                           onTap: () {
                             showColorPicker(context: context, pickerColor: MyColors().primaryColor, onColorChanged: (Color color) {
@@ -86,10 +80,9 @@ class SettingsPage extends StatelessWidget {
                             });
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Secondary color:',
                           icon: Icons.format_color_fill_rounded,
-                          width: 310,  //TODO make this expand more, make the text inside also expandable
                           child: const ColorDisplay(colorString: 'secondaryColor', width: 37),
                           onTap: () {
                             showColorPicker(context: context, pickerColor: MyColors().secondaryColor, onColorChanged: (Color color) {
@@ -97,10 +90,9 @@ class SettingsPage extends StatelessWidget {
                             });
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Background color:',
                           icon: Icons.format_color_fill_rounded,
-                          width: 310, //TODO make this expand more, make the text inside also expandable
                           child: const ColorDisplay(colorString: 'backgroundColor', width: 25),
                           onTap: () {
                             showColorPicker(context: context, pickerColor: MyColors().backgroundColor, onColorChanged: (Color color) {
@@ -108,10 +100,9 @@ class SettingsPage extends StatelessWidget {
                             });
                           },
                         ),
-                        InputWidget(
+                        SettingsWidget(
                           text: 'Widget color:',
                           icon: Icons.format_color_fill_rounded,
-                          width: 310,
                           child: const ColorDisplay(colorString: 'widgetColor', width: 60),
                           onTap: () {
                             showColorPicker(context: context, pickerColor: MyColors().widgetColor, onColorChanged: (Color color) {
