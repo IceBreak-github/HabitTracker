@@ -62,14 +62,14 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
   void handleSelectedDateChange(DateTime newDate) {
     final List<int> updatedShownHabitIndexes = [];
     DateTime? currentDate = state.selectedDate;
-    String formatedCurrentDate = DateFormat('yyyy.MM.d').format(currentDate!);   
+    String formatedCurrentDate = DateFormat('yyyy.M.d').format(currentDate!);   
     for (int index = 0; index < boxHabits.length; index++) {
       Habit habit = boxHabits.getAt(index);
       bool show = showHabitOrNot(recurrence: habit.recurrence, habitDate: habit.date, newDate: newDate);
       // Logic to determine if the habit has been checked off
       if (habit.completionDates.containsKey(formatedCurrentDate) && show == true) {
         setCheckValue(
-            "${formatedCurrentDate}_${habit.name}", true
+            "${formatedCurrentDate}_${habit.name}", true 
         ); // updates UI
       }
       if (!habit.completionDates.containsKey(formatedCurrentDate) && show == true) {

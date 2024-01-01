@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/widgets/settings_widget.dart';
-import 'package:habit_tracker/presentation/widgets/widgets.dart';
 import 'package:habit_tracker/shared/colors.dart';
 
 class SettingsPage extends StatelessWidget {

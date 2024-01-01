@@ -146,16 +146,10 @@ class HomePage extends StatelessWidget {
                                 }
                                 boxHabits.put(habit.key, habit);
                                 if (context.mounted) {
+                                  print(context.read<HabitHomeCubit>().state.isChecked);
                                   context.read<HabitHomeCubit>().setCheckValue(
-                                      "${formatedCurrentDate}_${habit.name}",
-                                      !context
-                                              .read<HabitHomeCubit>()
-                                              .state
-                                              .isChecked[
-                                          "${formatedCurrentDate}_${habit.name}"]!); //because we cant devide with zero
-                                  context
-                                      .read<HabitHomeCubit>()
-                                      .updateProgressBar();
+                                      "${formatedCurrentDate}_${habit.name}",!context.read<HabitHomeCubit>().state.isChecked["${formatedCurrentDate}_${habit.name}"]!); //because we cant devide with zero
+                                  context.read<HabitHomeCubit>().updateProgressBar();
                                 }
                               }
                               if (habit.habitType == 'Measurement') {
