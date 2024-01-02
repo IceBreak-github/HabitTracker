@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
@@ -34,7 +35,12 @@ Future<void> main() async {
   await Hive.initFlutter();
   await NotificationService.initializeNotification();
   Hive.registerAdapter(HabitAdapter());
+  Hive.registerAdapter(SettingsAdapter());
   boxHabits = await Hive.openBox<Habit>('habitBox');
+  boxSettings = await Hive.openBox<Settings>('settingsBox');
+  if(!boxSettings.containsKey(0)){
+    boxSettings.add(Settings());
+  }
   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);           //TODO later set to false
   runApp(const MyApp());
   

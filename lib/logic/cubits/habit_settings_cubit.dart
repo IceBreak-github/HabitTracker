@@ -1,23 +1,22 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:habit_tracker/shared/colors.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 
 part 'habit_settings_state.dart';
 
 class HabitSettingsCubit extends Cubit<HabitSettingsState> {
   HabitSettingsCubit() : super(HabitSettingsState(
-    notifications: true,
-    vibrations: true,
-    orderHabits: 'Automat.',
-    setWidget: false,
-    theme: 'Dark',
-    primaryColor: MyColors().primaryColor,
-    secondaryColor: MyColors().secondaryColor,
-    backgroundColor: MyColors().backgroundColor,
-    widgetColor: MyColors().widgetColor,
+    notifications: boxSettings.get(0).notifications,
+    vibrations: boxSettings.get(0).vibrations,
+    orderHabits: boxSettings.get(0).orderHabits,
+    setWidget: boxSettings.get(0).setWidget,
+    theme: boxSettings.get(0).theme,
+    primaryColor: Color(int.parse(boxSettings.get(0).primaryColor, radix: 16)),
+    secondaryColor: Color(int.parse(boxSettings.get(0).secondaryColor, radix: 16)),
+    backgroundColor: Color(int.parse(boxSettings.get(0).backgroundColor, radix: 16)),
+    widgetColor: Color(int.parse(boxSettings.get(0).widgetColor, radix: 16)),
   ));
-
   void toggleNotifications(bool value) {
     emit(state.copyWith(notifications: value));
   }

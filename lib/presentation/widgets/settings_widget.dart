@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 import 'package:habit_tracker/shared/colors.dart';
 
 class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget{
@@ -43,6 +45,26 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget{
               icon: const Icon(Icons.settings_backup_restore),
               onPressed: () {
                 //TODO restore settings
+                boxSettings.put(0, Settings(
+                  vibrations: true,
+                  notifications: true,
+                  orderHabits: 'Automat. ',
+                  setWidget: false,
+                  theme: 'Dark',
+                  primaryColor: 'ff00ffc1',
+                  secondaryColor: 'ff90ffe4',
+                  backgroundColor: 'ff121219',
+                  widgetColor: 'ff22222d',
+                ));
+                context.read<HabitSettingsCubit>().toggleVibrations(true);
+                context.read<HabitSettingsCubit>().toggleNotifications(true);
+                context.read<HabitSettingsCubit>().setHabitOrder('Automat.');
+                context.read<HabitSettingsCubit>().toggleWidget(false);
+                context.read<HabitSettingsCubit>().setTheme('Dark');
+                context.read<HabitSettingsCubit>().setPrimaryColor(const Color.fromRGBO(0,255,193,1));
+                context.read<HabitSettingsCubit>().setSecondaryColor(const Color.fromRGBO(144, 255, 228, 1));
+                context.read<HabitSettingsCubit>().setBackgroundColor(const Color.fromRGBO(18,18,25,1));
+                context.read<HabitSettingsCubit>().setWidgetColor(const Color.fromRGBO(34,34,45,1));
               }
             ),
           ],
@@ -122,6 +144,7 @@ class ToggleNotifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
       builder: (context, state) {
         return Padding(
@@ -146,7 +169,8 @@ class ToggleNotifications extends StatelessWidget {
                   inactiveColor: MyColors().backgroundColor,
                   toggleColor: MyColors().primaryColor,
                   onToggle: (bool valueChange) {
-                    //TODO also save the setting locally to a Hive box
+                    settings.notifications = !settings.notifications;
+                    boxSettings.put(0, settings);
                     context.read<HabitSettingsCubit>().toggleNotifications(valueChange);
                   }),
               const SizedBox(width: 5),
@@ -163,6 +187,7 @@ class ToggleVibrations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
       builder: (context, state) {
         return Padding(
@@ -187,7 +212,8 @@ class ToggleVibrations extends StatelessWidget {
                   inactiveColor: MyColors().backgroundColor,
                   toggleColor: MyColors().primaryColor,
                   onToggle: (bool valueChange) {
-                    //TODO also save the setting locally to a Hive box
+                    settings.vibrations = !settings.vibrations;
+                    boxSettings.put(0, settings);
                     context.read<HabitSettingsCubit>().toggleVibrations(valueChange);
                   }),
               const SizedBox(width: 5),
@@ -204,6 +230,7 @@ class SelectHabitOrdering extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
       builder: (context, state) {
         return GestureDetector(
@@ -222,6 +249,8 @@ class SelectHabitOrdering extends StatelessWidget {
               items: <PopupMenuItem<String>>[
                 PopupMenuItem<String>(
                     onTap: () {
+                      settings.orderHabits = 'Automat.';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setHabitOrder('Automat.');
                     },
                     value: 'Automatic',
@@ -235,6 +264,8 @@ class SelectHabitOrdering extends StatelessWidget {
                   ),
                   PopupMenuItem<String>(
                     onTap: () {
+                      settings.orderHabits = 'Alphabet.';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setHabitOrder('Alphabet.');
                     },
                     value: 'Alphabetic',
@@ -243,6 +274,8 @@ class SelectHabitOrdering extends StatelessWidget {
                   ),
                   PopupMenuItem<String>(
                     onTap: () {
+                      settings.orderHabits = 'By Date';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setHabitOrder('By Date');
                     },
                     value: 'By Date',
@@ -256,6 +289,8 @@ class SelectHabitOrdering extends StatelessWidget {
                   ),
                   PopupMenuItem<String>(
                     onTap: () {
+                      settings.orderHabits = 'By Time';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setHabitOrder('By Time');
                     },
                     value: 'By Time',
@@ -264,6 +299,8 @@ class SelectHabitOrdering extends StatelessWidget {
                   ),
                   PopupMenuItem<String>(
                     onTap: () {
+                      settings.orderHabits = 'By Compl.';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setHabitOrder('By Compl.');
                     },
                     value: 'By Completion',
@@ -306,6 +343,7 @@ class ToggleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
       builder: (context, state) {
         return Padding(
@@ -330,7 +368,8 @@ class ToggleWidget extends StatelessWidget {
                   inactiveColor: MyColors().backgroundColor,
                   toggleColor: MyColors().primaryColor,
                   onToggle: (bool valueChange) {
-                    //TODO also save the setting locally to a Hive box
+                    settings.setWidget = !settings.setWidget;
+                    boxSettings.put(0, settings);
                     context.read<HabitSettingsCubit>().toggleWidget(valueChange);
                   }),
               const SizedBox(width: 5),
@@ -347,6 +386,7 @@ class SelectTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
       builder: (context, state) {
         return GestureDetector(
@@ -365,6 +405,8 @@ class SelectTheme extends StatelessWidget {
               items: <PopupMenuItem<String>>[
                 PopupMenuItem<String>(
                     onTap: () {
+                      settings.theme = 'Dark';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setTheme('Dark');
                     },
                     value: 'Dark',
@@ -378,6 +420,8 @@ class SelectTheme extends StatelessWidget {
                   ),
                   PopupMenuItem<String>(
                     onTap: () {
+                      settings.theme = 'White';
+                      boxSettings.put(0, settings);
                       context.read<HabitSettingsCubit>().setTheme('White');
                     },
                     value: 'White',

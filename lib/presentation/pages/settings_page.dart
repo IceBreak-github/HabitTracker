@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/widgets/settings_widget.dart';
-import 'package:habit_tracker/shared/colors.dart';
+import 'package:habit_tracker/shared/boxes.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -10,6 +11,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
+    Settings settings = boxSettings.get(0);
     return Scaffold(
       appBar: const SettingsAppBar(),
       body: Stack(
@@ -34,6 +36,8 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.edgesensor_high_rounded,
                           child: const ToggleVibrations(),
                           onTap: () {
+                            settings.vibrations = !settings.vibrations;
+                            boxSettings.put(0, settings);
                             context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
                           },
                         ),
@@ -42,6 +46,8 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.notifications_active_rounded,
                           child: const ToggleNotifications(),
                           onTap: () {
+                            settings.notifications = !settings.notifications;
+                            boxSettings.put(0, settings);
                             context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
                           },
                         ),
@@ -58,6 +64,8 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.widgets_rounded,
                           child: const ToggleWidget(),
                           onTap: () {
+                            settings.setWidget = !settings.setWidget;
+                            boxSettings.put(0, settings);
                             context.read<HabitSettingsCubit>().toggleWidget(!context.read<HabitSettingsCubit>().state.setWidget);
                           },
                         ),
@@ -74,7 +82,9 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.format_color_fill_rounded,
                           child: const ColorDisplay(colorString: 'primaryColor', width: 55),
                           onTap: () {
-                            showColorPicker(context: context, pickerColor: MyColors().primaryColor, onColorChanged: (Color color) {
+                            showColorPicker(context: context, pickerColor: Color(int.parse(settings.primaryColor, radix: 16)), onColorChanged: (Color color) {
+                              settings.primaryColor = color.value.toRadixString(16);
+                              boxSettings.put(0, settings);
                               context.read<HabitSettingsCubit>().setPrimaryColor(color);
                             });
                           },
@@ -84,7 +94,9 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.format_color_fill_rounded,
                           child: const ColorDisplay(colorString: 'secondaryColor', width: 37),
                           onTap: () {
-                            showColorPicker(context: context, pickerColor: MyColors().secondaryColor, onColorChanged: (Color color) {
+                            showColorPicker(context: context, pickerColor: Color(int.parse(settings.secondaryColor, radix: 16)), onColorChanged: (Color color) {  //TODO when the color is changed, this stays the same since it doesnt emit state
+                              settings.secondaryColor = color.value.toRadixString(16);
+                              boxSettings.put(0, settings);
                               context.read<HabitSettingsCubit>().setSecondaryColor(color);
                             });
                           },
@@ -94,7 +106,9 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.format_color_fill_rounded,
                           child: const ColorDisplay(colorString: 'backgroundColor', width: 25),
                           onTap: () {
-                            showColorPicker(context: context, pickerColor: MyColors().backgroundColor, onColorChanged: (Color color) {
+                            showColorPicker(context: context, pickerColor: Color(int.parse(settings.backgroundColor, radix: 16)), onColorChanged: (Color color) {
+                              settings.backgroundColor = color.value.toRadixString(16);
+                              boxSettings.put(0, settings);
                               context.read<HabitSettingsCubit>().setBackgroundColor(color);
                             });
                           },
@@ -104,7 +118,9 @@ class SettingsPage extends StatelessWidget {
                           icon: Icons.format_color_fill_rounded,
                           child: const ColorDisplay(colorString: 'widgetColor', width: 60),
                           onTap: () {
-                            showColorPicker(context: context, pickerColor: MyColors().widgetColor, onColorChanged: (Color color) {
+                            showColorPicker(context: context, pickerColor: Color(int.parse(settings.widgetColor, radix: 16)), onColorChanged: (Color color) {
+                              settings.widgetColor = color.value.toRadixString(16);
+                              boxSettings.put(0, settings);
                               context.read<HabitSettingsCubit>().setWidgetColor(color);
                             });
                           },
