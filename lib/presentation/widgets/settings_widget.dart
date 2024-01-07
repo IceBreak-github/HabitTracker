@@ -44,27 +44,7 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget{
               padding: const EdgeInsets.only(right: 15),
               icon: const Icon(Icons.settings_backup_restore),
               onPressed: () {
-                //TODO restore settings
-                boxSettings.put(0, Settings(
-                  vibrations: true,
-                  notifications: true,
-                  orderHabits: 'Automat. ',
-                  setWidget: false,
-                  theme: 'Dark',
-                  primaryColor: 'ff00ffc1',
-                  secondaryColor: 'ff90ffe4',
-                  backgroundColor: 'ff121219',
-                  widgetColor: 'ff22222d',
-                ));
-                context.read<HabitSettingsCubit>().toggleVibrations(true);
-                context.read<HabitSettingsCubit>().toggleNotifications(true);
-                context.read<HabitSettingsCubit>().setHabitOrder('Automat.');
-                context.read<HabitSettingsCubit>().toggleWidget(false);
-                context.read<HabitSettingsCubit>().setTheme('Dark');
-                context.read<HabitSettingsCubit>().setPrimaryColor(const Color.fromRGBO(0,255,193,1));
-                context.read<HabitSettingsCubit>().setSecondaryColor(const Color.fromRGBO(144, 255, 228, 1));
-                context.read<HabitSettingsCubit>().setBackgroundColor(const Color.fromRGBO(18,18,25,1));
-                context.read<HabitSettingsCubit>().setWidgetColor(const Color.fromRGBO(34,34,45,1));
+                context.read<HabitSettingsCubit>().restoreSettings();
               }
             ),
           ],

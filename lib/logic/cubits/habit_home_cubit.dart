@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/services/habit_service.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 import 'package:intl/intl.dart';
@@ -60,7 +61,7 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
   }
 
   void handleSelectedDateChange(DateTime newDate) {
-    final List<int> updatedShownHabitIndexes = [];
+    List<int> updatedShownHabitIndexes = [];
     DateTime? currentDate = state.selectedDate;
     String formatedCurrentDate = DateFormat('yyyy.M.d').format(currentDate!);   
     for (int index = 0; index < boxHabits.length; index++) {
@@ -78,6 +79,19 @@ class HabitHomeCubit extends Cubit<HabitHomeState> {
  
       updateProgressBar();           //updates the progress Bar
       show ? updatedShownHabitIndexes.add(habit.key) : null;              //adds the habit into a list for ListView.builder in the UI
+    }
+    Settings settings = boxSettings.get(0);
+    if(settings.orderHabits == 'Alphabet.'){
+      updatedShownHabitIndexes = orderHabitsByAlphabet(currentList: updatedShownHabitIndexes, selectedDate: newDate);
+    }
+    if(settings.orderHabits == 'By Date'){
+      updatedShownHabitIndexes = orderHabitsByDate(currentList: updatedShownHabitIndexes, selectedDate: newDate);
+    }
+    if(settings.orderHabits == 'By Time'){
+      updatedShownHabitIndexes = orderHabitsByTime(currentList: updatedShownHabitIndexes, selectedDate: newDate);
+    }
+    if(settings.orderHabits == 'By Compl.'){
+      updatedShownHabitIndexes = orderHabitsByCompletion(currentList: updatedShownHabitIndexes, selectedDate: newDate);
     }
     emit(state.copyWith(shownHabitIndexes: updatedShownHabitIndexes));      //emits the state
   }

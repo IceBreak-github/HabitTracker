@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
 import 'package:habit_tracker/presentation/pages/home_page.dart';
 import 'package:habit_tracker/presentation/widgets/home_page_widgets.dart';
 import 'package:habit_tracker/presentation/widgets/widgets.dart';
@@ -243,14 +245,16 @@ class StatisticsAppBar extends StatelessWidget implements PreferredSizeWidget{
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const HomePage()));
           }),
-      actions: const [         //TODO icons are not spaced evenly like on the HomePage, fix later
+      actions: [         //TODO icons are not spaced evenly like on the HomePage, fix later
         Row(
           children: <Widget>[
-          Icon(
+          const Icon(
             Icons.search_rounded,
           ),
-          OrderHabits(),
-          
+          BlocProvider<HabitSettingsCubit>(
+            create: (context) => HabitSettingsCubit(),
+            child: const OrderHabits(),
+          ),
         ]),
       ],
     );

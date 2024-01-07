@@ -95,9 +95,9 @@ List<int> orderHabitsByCompletion({required List<int> currentList, required Date
 
     // Put completed habits at the top
     if (completed1 && !completed2) {
-      return -1;
-    } else if (!completed1 && completed2) {
       return 1;
+    } else if (!completed1 && completed2) {
+      return -1;
     } else {
       // Keep the original order for uncompleted habits
       return 0;

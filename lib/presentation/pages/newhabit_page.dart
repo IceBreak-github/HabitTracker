@@ -459,7 +459,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                               InputWidget(
                                 text: 'Start:',                     //TODO Add text "Start Today"
                                 icon: Icons.flag_circle,          
-                                width: 275,
+                                width: 270,
                                     child: const DateSelect(),
                                     onTap: () async {
                                       DateTime? pickedDate = await showDatePicker(

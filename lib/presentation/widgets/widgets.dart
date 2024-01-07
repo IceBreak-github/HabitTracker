@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_home_cubit.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
@@ -34,7 +35,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                           context.read<HabitHomeCubit>().state.selectedDate!) ==
                       DateFormat("dd.M.yyyy").format(DateTime.now())
                   ? "Today"
-                  : DateFormat("dd.M.yyyy").format(
+                  : DateFormat("d. M. yyyy").format(
                       context.read<HabitHomeCubit>().state.selectedDate!),
               style: const TextStyle(
                   fontSize: 17,
@@ -65,7 +66,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 icon: const Icon(Icons.search_rounded),
               ),
-              const OrderHabits(),
+              BlocProvider<HabitSettingsCubit>(
+                create: (context) => HabitSettingsCubit(),
+                child: const OrderHabits(),
+              ),
             ]);
           },
         ),
@@ -336,7 +340,7 @@ class DateSelect extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(children: <Widget>[
             SizedBox(
-                width: 76,
+                width: 78,
                 child: Text(
                     DateFormat('yyyy/MM/dd').format(state.selectedDate!),
                     style: const TextStyle(
@@ -454,90 +458,146 @@ class OrderHabits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Settings settings = boxSettings.get(0);
     return Padding(
       padding: const EdgeInsets.only(right: 9),
-      child: PopupMenuButton<String>(
-          color: const Color.fromRGBO(20, 20, 20, 1),
-          icon: const Icon(Icons.filter_list_rounded,
-              color: Colors.white), //TODO implement ordering
-          itemBuilder: (BuildContext context) {
-            return <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                enabled: false,
-                value: 'Order by',
-                child: Row(
-                  children: [
-                    Text('Order Habits:',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    Spacer(),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!);
-                },
-                value: 'Automatic',
-                child: const Row(
-                  children: [
-                    Text('Automatic',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    Spacer(),
-                    Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                      size: 13,
+      child: BlocBuilder<HabitSettingsCubit, HabitSettingsState>(
+        builder: (context, state) {
+          return PopupMenuButton<String>(
+                color: const Color.fromRGBO(20, 20, 20, 1),
+                icon: const Icon(Icons.filter_list_rounded,
+                    color: Colors.white), //TODO implement ordering
+                itemBuilder: (BuildContext context) {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      enabled: false,
+                      value: 'Order by',
+                      child: Row(
+                        children: [
+                          Text('Order Habits:',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          Spacer(),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  List<int> currentList = orderHabitsByAlphabet(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
-                  context.read<HabitHomeCubit>().handleReOrder(currentList);
-                },
-                value: 'Alphabetic',
-                child: const Text('Alphabetic',
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  List<int> currentList = orderHabitsByDate(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
-                  context.read<HabitHomeCubit>().handleReOrder(currentList);
-                },
-                value: 'By Date',
-                child: const Row(
-                  children: [
-                    Text('By Date',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    Spacer(),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  List<int> currentList = orderHabitsByTime(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
-                  context.read<HabitHomeCubit>().handleReOrder(currentList);
-                },
-                value: 'By Time',
-                child: const Text('By Time',
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
-              ),
-              PopupMenuItem<String>(
-                onTap: () {
-                  List<int> currentList = orderHabitsByCompletion(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
-                  context.read<HabitHomeCubit>().handleReOrder(currentList);
-                },
-                value: 'By Completion',
-                child: const Row(
-                  children: [
-                    Text('By Completion',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                  ],
-                ),
-              ),
-            ];
-          }),
+                    PopupMenuItem<String>(
+                      onTap: () {
+                        context.read<HabitHomeCubit>().handleSelectedDateChange(context.read<HabitHomeCubit>().state.selectedDate!);
+                        context.read<HabitSettingsCubit>().setHabitOrder('Automat.');
+                        settings.orderHabits = 'Automat.';
+                        boxSettings.put(0, settings);
+                      },
+                      value: 'Automatic',
+                      child: Row(
+                        children: [
+                          const Text('Automatic',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          state.orderHabits == 'Automat.' ? 
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: MyColors().primaryColor,
+                            size: 13,
+                          ) : Container(),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      onTap: () {
+                        List<int> currentList = orderHabitsByAlphabet(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                        context.read<HabitHomeCubit>().handleReOrder(currentList);
+                        context.read<HabitSettingsCubit>().setHabitOrder('Alphabet.');
+                        settings.orderHabits = 'Alphabet.';
+                        boxSettings.put(0, settings);
+                      },
+                      value: 'Alphabetic',
+                      child: Row(
+                        children: [
+                          const Text('Alphabetic',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          state.orderHabits == 'Alphabet.' ? 
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: MyColors().primaryColor,
+                            size: 13,
+                          ) : Container(),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      onTap: () {
+                        List<int> currentList = orderHabitsByDate(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                        context.read<HabitHomeCubit>().handleReOrder(currentList);
+                        context.read<HabitSettingsCubit>().setHabitOrder('By Date');
+                        settings.orderHabits = 'By Date';
+                        boxSettings.put(0, settings);
+                      },
+                      value: 'By Date',
+                      child: Row(
+                        children: [
+                          const Text('By Date',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          state.orderHabits == 'By Date' ? 
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: MyColors().primaryColor,
+                            size: 13,
+                          ) : Container(),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      onTap: () {
+                        List<int> currentList = orderHabitsByTime(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                        context.read<HabitHomeCubit>().handleReOrder(currentList);
+                        context.read<HabitSettingsCubit>().setHabitOrder('By Time');
+                        settings.orderHabits = 'By Time';
+                        boxSettings.put(0, settings);
+                      },
+                      value: 'By Time',
+                      child: Row(
+                        children: [
+                          const Text('By Time',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          state.orderHabits == 'By Time' ? 
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: MyColors().primaryColor,
+                            size: 13,
+                          ) : Container(),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      onTap: () {
+                        List<int> currentList = orderHabitsByCompletion(currentList: context.read<HabitHomeCubit>().state.shownHabitIndexes, selectedDate: context.read<HabitHomeCubit>().state.selectedDate!);
+                        context.read<HabitHomeCubit>().handleReOrder(currentList);
+                        context.read<HabitSettingsCubit>().setHabitOrder('By Compl.');
+                        settings.orderHabits = 'By Compl.';
+                        boxSettings.put(0, settings);
+                      },
+                      value: 'By Completion',
+                      child: Row(
+                        children: [
+                          const Text('By Completion',
+                              style: TextStyle(color: Colors.white, fontSize: 14)),
+                          const Spacer(),
+                          state.orderHabits == 'By Compl.' ? 
+                          Icon(
+                            Icons.arrow_back_ios_new,
+                            color: MyColors().primaryColor,
+                            size: 13,
+                          ) : Container(),
+                        ],
+                      ),
+                    ),
+                  ];
+                });
+        },
+      ),
     );
   }
 }

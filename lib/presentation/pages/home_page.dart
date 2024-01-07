@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import '../../shared/colors.dart';
 import '../widgets/date_time_widget.dart';
 import '../widgets/widgets.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -77,7 +78,12 @@ class HomePage extends StatelessWidget {
                         }
                         return GestureDetector(
                           key: ValueKey(index),
-                          onTap: () async {
+                          onTap: () async {                                    //TODO, reorder the habit in real time based on ordering
+                          bool canVibrate = await Vibrate.canVibrate;
+                          bool vibrations = boxSettings.get(0).vibrations;
+                            if(canVibrate && vibrations){
+                              Vibrate.feedback(FeedbackType.selection);
+                            }
                             if (currentDate.isAfter(DateTime.now())) {
                               //nothing
                             } else {

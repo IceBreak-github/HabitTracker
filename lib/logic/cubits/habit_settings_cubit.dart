@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 
 part 'habit_settings_state.dart';
@@ -51,6 +52,31 @@ class HabitSettingsCubit extends Cubit<HabitSettingsState> {
 
   void setWidgetColor(Color color){
     emit(state.copyWith(widgetColor: color));
+  }
+
+  void restoreSettings() {
+    boxSettings.put(0, Settings(          //restore the box
+      vibrations: true,
+      notifications: true,
+      orderHabits: 'Automat. ',
+      setWidget: false,
+      theme: 'Dark',
+      primaryColor: 'ff00ffc1',
+      secondaryColor: 'ff90ffe4',
+      backgroundColor: 'ff121219',
+      widgetColor: 'ff22222d',
+    ));
+    toggleVibrations(true);               //restore the state
+    toggleNotifications(true);
+    setHabitOrder('Automat.');
+    toggleWidget(false);
+    setTheme('Dark');
+    setPrimaryColor(const Color.fromRGBO(0,255,193,1));
+    setSecondaryColor(const Color.fromRGBO(144, 255, 228, 1));
+    setBackgroundColor(const Color.fromRGBO(18,18,25,1));
+    setWidgetColor(const Color.fromRGBO(34,34,45,1));
+
+    //TODO revert changes
   }
 
 }
