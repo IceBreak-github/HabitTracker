@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:habit_tracker/data/models/habit_model.dart';
 import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_form_cubit.dart';
@@ -953,4 +954,51 @@ class NothingHere extends StatelessWidget {
       ),
     );
   }
+}
+
+void showToast({required BuildContext context, required IconData icon, required String text}){
+  FToast fToast = FToast();
+  fToast.init(context);
+  fToast.showToast(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: const Color.fromRGBO(20, 20, 20, 1),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black.withOpacity(0.10),
+              blurRadius: 4.0, // soften the shadow
+              spreadRadius: 4.0, //extend the shadow
+              offset: const Offset(
+                2.0, // Move to right 5  horizontally
+                5.0, // Move to bottom 5 Vertically
+              ),
+            ),
+          ],
+        ),
+        child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(
+            width: 12.0,
+            ),
+            Text(text, style: const TextStyle(color: Colors.white)),
+        ],)
+      ),
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: const Duration(seconds: 2),
+  );
+}
+
+SnackBar customSnackBar({required String text}) {
+    return SnackBar(
+      content: Text(text),
+      backgroundColor: Colors.black.withOpacity(0.10),
+    );
 }

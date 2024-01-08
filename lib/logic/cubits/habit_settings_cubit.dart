@@ -1,7 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:habit_tracker/data/models/settings_model.dart';
+import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 
 part 'habit_settings_state.dart';
@@ -17,7 +19,19 @@ class HabitSettingsCubit extends Cubit<HabitSettingsState> {
     secondaryColor: Color(int.parse(boxSettings.get(0).secondaryColor, radix: 16)),
     backgroundColor: Color(int.parse(boxSettings.get(0).backgroundColor, radix: 16)),
     widgetColor: Color(int.parse(boxSettings.get(0).widgetColor, radix: 16)),
-  ));
+  )){
+    checkInitVibrate();
+  }
+  void checkInitVibrate() async{
+    bool vibrate = await Vibrate.canVibrate;
+    if(!vibrate && state.vibrations){
+      Settings settings = boxSettings.get(0);
+      settings.vibrations = false;
+      boxSettings.put(0, settings);
+      emit(state.copyWith(vibrations: false));
+    }
+  }
+
   void toggleNotifications(bool value) {
     emit(state.copyWith(notifications: value));
   }
@@ -54,8 +68,11 @@ class HabitSettingsCubit extends Cubit<HabitSettingsState> {
     emit(state.copyWith(widgetColor: color));
   }
 
-  void restoreSettings() {
-    boxSettings.put(0, Settings(          //restore the box
+  void restoreSettings() async {
+    if(!state.notifications){                                //if notifications were set to false, enable them again and plan them
+      await NotificationService.notificationPlanner();
+    }
+    await boxSettings.put(0, Settings(          //restore the box
       vibrations: true,
       notifications: true,
       orderHabits: 'Automat. ',
@@ -76,7 +93,7 @@ class HabitSettingsCubit extends Cubit<HabitSettingsState> {
     setBackgroundColor(const Color.fromRGBO(18,18,25,1));
     setWidgetColor(const Color.fromRGBO(34,34,45,1));
 
-    //TODO revert changes
+    //TODO revert other changes
   }
 
 }

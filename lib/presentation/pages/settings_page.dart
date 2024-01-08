@@ -1,8 +1,12 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:habit_tracker/data/models/settings_model.dart';
 import 'package:habit_tracker/logic/cubits/habit_settings_cubit.dart';
+import 'package:habit_tracker/logic/services/notification_service.dart';
 import 'package:habit_tracker/presentation/widgets/settings_widget.dart';
+import 'package:habit_tracker/presentation/widgets/widgets.dart';
 import 'package:habit_tracker/shared/boxes.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -35,20 +39,37 @@ class SettingsPage extends StatelessWidget {
                           text: 'Vibrations:',
                           icon: Icons.edgesensor_high_rounded,
                           child: const ToggleVibrations(),
-                          onTap: () {
-                            settings.vibrations = !settings.vibrations;
-                            boxSettings.put(0, settings);
-                            context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
+                          onTap: () async {
+                            bool canVibrate = await Vibrate.canVibrate;
+                            if(context.mounted){
+                              if(!canVibrate){
+                                showToast(context: context, icon: Icons.tune_rounded, text: 'Unsupported device');
+                              }
+                              else{
+                                settings.vibrations = !settings.vibrations;
+                                boxSettings.put(0, settings);
+                                context.read<HabitSettingsCubit>().toggleVibrations(!context.read<HabitSettingsCubit>().state.vibrations);
+                              }
+                            }
                           },
                         ),
-                        SettingsWidget(
+                        SettingsWidget(            //TODO inform the user that notifications have been enabled/disabled globally, and present notifications have been removed or rescheduled
                           text: 'Notifications:',
                           icon: Icons.notifications_active_rounded,
                           child: const ToggleNotifications(),
-                          onTap: () {
-                            settings.notifications = !settings.notifications;
-                            boxSettings.put(0, settings);
-                            context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
+                          onTap: () async {
+                            if(settings.notifications){  //initially set to true, removing all scheduled notifications
+                              await AwesomeNotifications().cancelAll();
+                            }
+                            if(!settings.notifications){      //initialy set to false, planning the notificions again
+                              await NotificationService.notificationPlanner();
+                            }
+                            if(context.mounted){
+                              settings.notifications = !settings.notifications;
+                              boxSettings.put(0, settings);
+                              context.read<HabitSettingsCubit>().toggleNotifications(!context.read<HabitSettingsCubit>().state.notifications);
+                              //ScaffoldMessenger.of(context).showSnackBar(customSnackBar(text: 'This is a snackbar'));
+                            }
                           },
                         ),
                         SettingsWidget(
